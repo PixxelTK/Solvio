@@ -284,9 +284,9 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
           </section>
 
           {/* Equation */}
-          <section className="mb-6">
-            <div className="rounded-2xl bg-gray-100 dark:bg-slate-900 sm:px-8 py-1">
-              <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400 text-center mt-6">
+          <section className="mb-6 sticky top-16 md:static z-50">
+            <div className="rounded-2xl shadow-lg sm:shadow-none bg-gray-100 dark:bg-slate-900 sm:px-8 py-1">
+              <div className="text-xs uppercase text-slate-400 text-center mt-4 sm:mt-6">
                 Current Equation
               </div>
 
