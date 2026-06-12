@@ -10,14 +10,13 @@ import TransformationHistory from './TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faRotate,
-  faBullseye,
   faLayerGroup,
   faLightbulb,
   faCircleCheck,
   faCircleXmark,
   faForward,
   faCheck,
-  faAngleLeft,
+  faEquals,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 
@@ -231,8 +230,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
 
       {/* ========================= HEADER ========================= */}
-      <header className="sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-lg">
+        <div className="max-w-7xl mx-auto px-6 py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
 
           <button
             onClick={() => router.push("/")}
@@ -242,10 +241,12 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
           </button>
 
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm">
-              <FontAwesomeIcon icon={faBullseye} />
+            <button
+              onClick={() => router.push("/")}
+              className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+              <FontAwesomeIcon icon={faEquals} className='mr-2'/>
               {question.topic}
-            </div>
+            </button>
 
             <button
               onClick={onBack}
@@ -284,14 +285,14 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
           {/* Equation */}
           <section className="mb-6">
-            <div className="rounded-2xl bg-gray-100 dark:bg-slate-900 px-8 py-1">
+            <div className="rounded-2xl bg-gray-100 dark:bg-slate-900 sm:px-8 py-1">
               <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400 text-center mt-6">
                 Current Equation
               </div>
 
               <MathDisplay
                 latex={currentState.latex}
-                className="text-5xl"
+                className="text-3xl sm:text-5xl"
               />
 
             </div>
@@ -362,7 +363,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
         {/* ========================= SOLVE PANEL ========================= */}
         <aside className='lg:w-3xl'>
-          <div>
+          <div className='lg:sticky lg:top-18'>
             {!isComplete && (
               <section className="mb-4">
                 <div className="mb-6">

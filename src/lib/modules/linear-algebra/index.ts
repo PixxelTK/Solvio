@@ -309,24 +309,15 @@ export function computeHint(matrix: AugmentedMatrix): { operationDescription: st
     return { operationDescription: 'The matrix is already in RREF!', level: 'specific', opType: '', param: '' };
   }
 
-  const target = gaussEliminate(matrix);
-  const rounded = roundMatrix(target);
+  const usedPivotRows = new Set<number>();
 
   for (let col = 0; col < matrix.numVars; col++) {
     let pivotRow = -1;
     for (let row = 0; row < matrix.rows.length; row++) {
+      if (usedPivotRows.has(row)) continue;
       if (Math.abs(matrix.rows[row].values[col]) > 1e-9) {
-        let hasNonZeroAbove = false;
-        for (let r = 0; r < row; r++) {
-          if (Math.abs(matrix.rows[r].values[col]) > 1e-9) {
-            hasNonZeroAbove = true;
-            break;
-          }
-        }
-        if (!hasNonZeroAbove) {
-          pivotRow = row;
-          break;
-        }
+        pivotRow = row;
+        break;
       }
     }
 
@@ -343,11 +334,12 @@ export function computeHint(matrix: AugmentedMatrix): { operationDescription: st
       };
     }
 
+    usedPivotRows.add(pivotRow);
+
     for (let row = 0; row < matrix.rows.length; row++) {
       if (row === pivotRow) continue;
       if (Math.abs(matrix.rows[row].values[col]) > 1e-9) {
         const val = matrix.rows[row].values[col];
-        const pivotVal = matrix.rows[pivotRow].values[col];
         const k = Math.round(Math.abs(val) * 1000) / 1000;
         const sign = val > 0 ? '-' : '+';
         return {
