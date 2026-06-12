@@ -1,11 +1,12 @@
+import { faPlus, faMinus, faXmark, faDivide } from '@fortawesome/free-solid-svg-icons';
 import { Difficulty, MathState, Operation, OperationType, ValidationResult, Hint, Question } from '../../engine/types';
 import {
-  Expr, Equation, num, variable, add, sub, mul, div, neg,
+  Expr, Equation, num, variable, add, sub, mul, div, 
   isNum, isVar, isAdd, isSub, isMul, isDiv, isNeg,
   simplify, expand, collectLikeTerms, equationsEquivalent,
   equationToString, equationToLatex, parseEquation,
-  equationToJson, jsonToEquation, equationVariables,
-  evaluate, getVariables, exprEqual, exprToString,
+  equationToJson, jsonToEquation, 
+  exprEqual,
 } from './expressions';
 
 interface AlgebraProblem {
@@ -32,12 +33,54 @@ function randNonZero(min: number, max: number): number {
 }
 
 export const OPERATION_TYPES: OperationType[] = [
-  { id: 'add_both', label: 'Add to both sides', needsParameter: true, parameterLabel: 'e.g. 3', parameterType: 'number' },
-  { id: 'sub_both', label: 'Subtract from both sides', needsParameter: true, parameterLabel: 'e.g. 2', parameterType: 'number' },
-  { id: 'mul_both', label: 'Multiply both sides by', needsParameter: true, parameterLabel: 'e.g. 5', parameterType: 'number' },
-  { id: 'div_both', label: 'Divide both sides by', needsParameter: true, parameterLabel: 'e.g. 4', parameterType: 'number' },
-  { id: 'expand', label: 'Expand parentheses', needsParameter: false },
-  { id: 'collect', label: 'Combine like terms', needsParameter: false },
+  {
+    id: "add_both",
+    label: "Add",
+    description: "Add the same value to both sides of the equation.",
+    icon: faPlus,
+    needsParameter: true,
+    parameterLabel: "e.g. 3",
+    parameterType: "number",
+  },
+  {
+    id: "sub_both",
+    label: "Subtract",
+    description: "Subtract the same value from both sides of the equation.",
+    icon: faMinus,
+    needsParameter: true,
+    parameterLabel: "e.g. 2",
+    parameterType: "number",
+  },
+  {
+    id: "mul_both",
+    label: "Multiply",
+    description: "Multiply both sides by the same value.",
+    icon: faXmark,
+    needsParameter: true,
+    parameterLabel: "e.g. 5",
+    parameterType: "number",
+  },
+  {
+    id: "div_both",
+    label: "Divide",
+    description: "Divide both sides by the same non-zero value.",
+    icon: faDivide,
+    needsParameter: true,
+    parameterLabel: "e.g. 4",
+    parameterType: "number",
+  },
+  {
+    id: "expand",
+    label: "Expand",
+    description: "Distribute multiplication and remove parentheses.",
+    needsParameter: false,
+  },
+  {
+    id: "collect",
+    label: "Simplify",
+    description: "Combine like terms into a simpler expression.",
+    needsParameter: false,
+  },
 ];
 
 export function applyAlgebraOperation(eq: Equation, opType: string, param: string): { result: Equation; description: string } | null {

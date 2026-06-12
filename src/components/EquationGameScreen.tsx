@@ -1,12 +1,24 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { equationTransformationModule } from '@/lib/modules/algebra';
 import { applyAlgebraOperation, stateToEquation, computeHint, equationToState } from '@/lib/modules/algebra/engine';
 import { equationToString, parseEquation, simplify, exprToLatex } from '@/lib/modules/algebra/expressions';
 import MathDisplay from './MathDisplay';
 import TransformationHistory from './TransformationHistory';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faRotate,
+  faBullseye,
+  faLayerGroup,
+  faLightbulb,
+  faCircleCheck,
+  faCircleXmark,
+  faForward,
+  faCheck,
+  faAngleLeft,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface EquationGameScreenProps {
   difficulty: Difficulty;
@@ -29,8 +41,15 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
   const paramRef = useRef<HTMLInputElement>(null);
   const eqRef = useRef<HTMLInputElement>(null);
 
-  const operations = equationTransformationModule.getAvailableOperations(currentState);
-  const currentOp = operations.find(o => o.id === selectedOp);
+  const operations = useMemo(
+    () => equationTransformationModule.getAvailableOperations(currentState),
+    [currentState]
+  );
+
+  const currentOp = useMemo(
+    () => operations.find(o => o.id === selectedOp),
+    [operations, selectedOp]
+  );
 
   const handleApplyOperation = useCallback(() => {
     if (!userEquation.trim()) return;
@@ -42,8 +61,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       parameter: opParam,
       description: currentOp
         ? (currentOp.needsParameter && opParam
-            ? `${currentOp.label.replace(/by$/, '').replace(/both sides$/, 'both sides by')} ${opParam}`.replace(/\s+/g, ' ').trim()
-            : currentOp.label)
+          ? `${currentOp.label.replace(/by$/, '').replace(/both sides$/, 'both sides by')} ${opParam}`.replace(/\s+/g, ' ').trim()
+          : currentOp.label)
         : selectedOp,
     };
 
@@ -54,11 +73,6 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
     const parsedEq = parseEquation(userEquation);
     const simplifiedDisplay = `${equationToString({ left: simplify(parsedEq.left), right: simplify(parsedEq.right) })}`;
-    const nextState: MathState = {
-      display: simplifiedDisplay,
-      latex: currentState.latex,
-      data: currentState.data,
-    };
 
     try {
       const userEq = parseEquation(userEquation);
@@ -117,7 +131,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     const computed = computeHint(eq);
     if (!computed.opType) return;
 
-    let param = computed.parameter;
+    const param = computed.parameter;
     if (!computed.parameter && (computed.opType === 'add_both' || computed.opType === 'sub_both' || computed.opType === 'mul_both' || computed.opType === 'div_both')) return;
 
     const opResult = applyAlgebraOperation(eq, computed.opType, param || '');
@@ -163,186 +177,296 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
   }, [handleApplyOperation]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <header className="border-b border-gray-800 px-4 py-3 flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="text-gray-400 hover:text-white transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
-        >
-          ← Back
-        </button>
-        <div className="text-center">
-          <span className="text-gray-400 text-sm">{question.topic}</span>
-          <span className="mx-2 text-gray-600">·</span>
-          <span className="text-gray-400 text-sm capitalize">{difficulty}</span>
-          <span className="mx-2 text-gray-600">·</span>
-          <span className="text-gray-400 text-sm">Step {stepCount}</span>
-        </div>
-        <button
-          onClick={handleNewProblem}
-          className="text-blue-400 hover:text-blue-300 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
-        >
-          New Problem
-        </button>
-      </header>
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
 
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-53px)]">
-        <aside className="lg:w-64 xl:w-72 border-b lg:border-b-0 lg:border-r border-gray-800 p-6">
-          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Problem</h2>
-          <div className="mb-4">
-            <div className="text-sm text-gray-300 mb-1">Goal:</div>
-            <div className="text-sm text-blue-300">{question.targetDescription}</div>
-          </div>
-          <div className="mb-4">
-            <div className="text-sm text-gray-300 mb-1">Instructions:</div>
-            <div className="text-xs text-gray-500 space-y-1">
-              <p>Select an operation, enter a value if needed, then type the resulting equation.</p>
-              <p className="mt-2 font-semibold text-gray-400">Equation format:</p>
-              <p className="font-mono text-xs text-gray-500">2x + 3 = 7</p>
-              <p className="font-mono text-xs text-gray-500">3(x + 2) = 15</p>
-              <p className="font-mono text-xs text-gray-500">(x + 1)/2 = 5</p>
+      {/* ========================= HEADER ========================= */}
+      <header className="sticky top-0 z-50 bg-slate-100 dark:bg-slate-900 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1 px-2 cursor-pointer py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+          >
+            <FontAwesomeIcon icon={faAngleLeft} />
+            Back
+          </button>
+
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm">
+              <FontAwesomeIcon icon={faBullseye} />
+              {question.topic}
+            </div>
+
+            <div className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize">
+              {difficulty}
             </div>
           </div>
-          <div className="text-xs text-gray-600">
-            Problem #{question.id.slice(-6)}
-          </div>
-        </aside>
+        </div>
+      </header>
 
-        <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
-          <div className="max-w-2xl mx-auto">
-            <section className="mb-8">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Current Equation</h2>
-              <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-                <MathDisplay latex={currentState.latex} className="text-lg" />
+      {/* ========================= BODY ========================= */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-12">
+        <main className="w-full lg:w-2xl lg:sticky lg:top-16">
+          {/* Goal */}
+          <section className="mb-6">
+            <div className='flex gap-4 justify-between items-center'>
+              <div>
+                <div className="font-medium text-lg text-blue-500 dark:text-blue-300">
+                  {question.targetDescription}
+                </div>
+
+                <div className="text-sm text-gray-500 space-y-1">
+                  <p>Select an operation, enter a value if needed, then type the resulting equation.</p>
+                </div>
               </div>
-            </section>
+              <button
+                onClick={handleNewProblem}
+                className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-400 cursor-pointer dark:bg-gray-500 text-white dark:text-gray-200 hover:opacity-90 transition-opacity"
+              >
+                <FontAwesomeIcon icon={faRotate} />
+                New Problem
+              </button>
+            </div>
+          </section>
 
+          {/* Equation */}
+          <section className="mb-6">
+            <div className="rounded-2xl bg-gray-100 dark:bg-slate-900 px-8 py-1">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400 text-center mt-6">
+                Current Equation
+              </div>
+
+              <MathDisplay
+                latex={currentState.latex}
+                className="text-5xl"
+              />
+
+            </div>
+          </section>
+
+          <div className='flex flex-col gap-6 items-start'>
+            <div className="w-full rounded-2xl bg-gray-100 dark:bg-slate-900 px-4 py-4">
+              <div className="flex items-center justify-between gap-2 mb-5">
+                <div className='flex gap-2 items-center'>
+                  <FontAwesomeIcon icon={faLightbulb} className='text-amber-500' />
+
+                  <h2 className="font-medium">
+                    Steps
+                  </h2>
+                </div>
+
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-200 dark:bg-blue-800/50 text-blue-600 dark:text-blue-300 text-sm">
+                  <FontAwesomeIcon icon={faLayerGroup} />
+                  Step {stepCount}
+                </div>
+              </div>
+
+              <div className="pl-3">
+                <TransformationHistory
+                  steps={steps}
+                  isComplete={isComplete}
+                  completionMessage="Equation solved"
+                />
+              </div>
+            </div>
+          </div>
+
+          {hint && (
+            <div className="mb-3 mt-4 rounded-2xl px-4 py-4 bg-amber-100 dark:bg-amber-950/20 text-amber-600 dark:text-amber-300">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faLightbulb} />
+                <span className="font-medium">
+                  Hint
+                </span>
+              </div>
+
+              <div>{hint.operationDescription}</div>
+            </div>
+          )}
+
+          {!isComplete && (
+            <div className="flex flex-wrap gap-3 mt-4">
+
+              <button
+                onClick={handleGetHint}
+                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
+              >
+                <FontAwesomeIcon icon={faLightbulb} className='mr-2' />
+                Show Hint
+              </button>
+
+              <button
+                onClick={handleSkip}
+                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
+              >
+                <FontAwesomeIcon icon={faForward} className='mr-2' />
+                Skip Step
+              </button>
+
+            </div>
+          )}
+        </main>
+
+        {/* ========================= HISTORY ========================= */}
+        <aside>
+          <div>
             {!isComplete && (
-              <section className="mb-8">
-                <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Apply Operation</h2>
-                <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 space-y-4">
-                  <div>
-                    <div className="flex gap-2 mb-3 flex-wrap">
-                      {operations.map((op) => (
-                        <button
-                          key={op.id}
-                          onClick={() => {
-                            setSelectedOp(op.id);
-                            setOpParam('');
-                            setValidation(null);
-                            if (op.needsParameter && paramRef.current) {
-                              paramRef.current?.focus();
-                            }
-                          }}
-                          className={`
-                            px-3 py-2 rounded-lg text-sm font-medium transition-all
-                            focus:outline-none focus:ring-2 focus:ring-blue-500
-                            ${selectedOp === op.id
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                            }
-                          `}
-                        >
+              <section className="mb-4">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold">
+                    Solve the next step
+                  </h2>
+
+                  <p className="text-sm text-slate-500 mt-1">
+                    Choose an operation and enter the resulting equation.
+                  </p>
+                </div>
+
+                {/* Step 1 */}
+                <div className="mb-3 font-medium">
+                  1. Choose an operation
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {operations.map((op) => (
+                    <button
+                      key={op.id}
+                      onClick={() => {
+                        setSelectedOp(op.id);
+                        setOpParam("");
+                        setValidation(null);
+
+                        if (op.needsParameter && paramRef.current) {
+                          paramRef.current.focus();
+                        }
+                      }}
+                      className={`p-4 rounded-lg text-left cursor-pointer transition-all
+                        ${selectedOp === op.id
+                          ? `
+                              bg-blue-400
+                              dark:bg-blue-900
+                              text-white
+                            `
+                          : `
+                              bg-slate-200
+                              dark:bg-slate-900
+                              hover:bg-slate-100
+                              dark:hover:bg-slate-800
+                            `
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-3">
+                        {op.icon && (
+                          <FontAwesomeIcon
+                            icon={op.icon}
+                            className="text-base"
+                          />
+                        )}
+
+                        <span className="font-medium text-sm">
                           {op.label}
-                        </button>
-                      ))}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {currentOp && (
+                  <div className="mb-6 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
+                    <div className="text-xs text-blue-500 mb-1">
+                      Selected Operation
                     </div>
 
-                    {currentOp?.needsParameter && (
-                      <div className="mb-3">
-                        <input
-                          ref={paramRef}
-                          type="text"
-                          value={opParam}
-                          onChange={(e) => setOpParam(e.target.value)}
-                          placeholder={currentOp.parameterLabel || 'Value'}
-                          className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white font-mono text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          aria-label="Operation parameter"
-                        />
-                      </div>
-                    )}
-
-                    <div className="flex gap-2">
-                      <div className="flex-1">
-                        <input
-                          ref={eqRef}
-                          type="text"
-                          value={userEquation}
-                          onChange={(e) => setUserEquation(e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          placeholder="Type the new equation (e.g. 2y + 2 = 5)"
-                          className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white font-mono text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          aria-label="Result equation"
-                        />
-                      </div>
-                      <button
-                        onClick={handleApplyOperation}
-                        disabled={!userEquation.trim()}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        Apply
-                      </button>
+                    <div className="font-medium">
+                      {currentOp.description}
                     </div>
                   </div>
+                )}
+
+                {currentOp?.needsParameter && (
+                  <>
+                    <div className="mb-3 font-medium">
+                      2. Enter a value
+                    </div>
+
+                    <div className="mb-6">
+                      <input
+                        ref={paramRef}
+                        type="text"
+                        value={opParam}
+                        onChange={(e) => setOpParam(e.target.value)}
+                        placeholder={currentOp.parameterLabel || "Enter value"}
+                        className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="mb-3 font-medium">
+                  {currentOp?.needsParameter
+                    ? "3. Enter the resulting equation"
+                    : "2. Enter the resulting equation"}
                 </div>
+
+                <div className="flex flex-col md:flex-row gap-3">
+
+                  <input
+                    ref={eqRef}
+                    type="text"
+                    value={userEquation}
+                    onChange={(e) => setUserEquation(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Example: 2x = 8"
+                    className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+
+                  <button
+                    onClick={handleApplyOperation}
+                    disabled={!userEquation.trim()}
+                    className="h-12 px-4 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40"
+                  >
+                    <FontAwesomeIcon icon={faCheck} className='mr-1' />
+                    Check
+                  </button>
+                </div>
+
               </section>
             )}
 
             {validation && (
-              <div className={`mb-6 p-4 rounded-xl border ${
-                validation.valid
-                  ? 'bg-green-900/20 border-green-800 text-green-300'
-                  : 'bg-red-900/20 border-red-800 text-red-300'
-              }`}>
+              <div
+                className={`rounded-xl py-3
+                    ${validation.valid
+                          ? "text-emerald-700 dark:text-emerald-500"
+                          : "text-red-500 dark:text-red-400"
+                        }
+                  `}
+                >
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{validation.valid ? '✓' : '✗'}</span>
-                  <span className="font-medium">{validation.message}</span>
+                  <FontAwesomeIcon
+                    icon={validation.valid ? faCircleCheck : faCircleXmark}
+                  />
+
+                  <span>{validation.message}</span>
                 </div>
               </div>
             )}
 
-            {hint && (
-              <div className="mb-6 p-4 rounded-xl border border-yellow-800 bg-yellow-900/20 text-yellow-300">
-                <div className="text-xs uppercase tracking-wider text-yellow-500 mb-1">Hint</div>
-                <div className="font-medium">{hint.operationDescription}</div>
-              </div>
-            )}
-
-            {!isComplete && (
-              <div className="flex gap-3 mb-8">
-                <button
-                  onClick={handleGetHint}
-                  className="px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 rounded-lg text-sm font-medium transition-colors border border-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                >
-                  Show Hint
-                </button>
-                <button
-                  onClick={handleSkip}
-                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg text-sm font-medium transition-colors border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                >
-                  Skip Step
-                </button>
-              </div>
-            )}
-
             {isComplete && (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleNewProblem}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  New Problem
-                </button>
-              </div>
+              <button
+                onClick={handleNewProblem}
+                className="flex items-center gap-2 px-5 py-3 rounded-xl cursor-pointer bg-green-500 dark:bg-green-600 text-white hover:opacity-90 transition-opacity"
+              >
+                <FontAwesomeIcon icon={faForward} />
+                Next Problem
+              </button>
             )}
           </div>
-        </main>
-
-        <aside className="lg:w-72 xl:w-80 border-t lg:border-t-0 lg:border-l border-gray-800 p-6 overflow-y-auto">
-          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">History</h2>
-          <TransformationHistory steps={steps} isComplete={isComplete} completionMessage="Equation solved" />
         </aside>
+
       </div>
+
     </div>
   );
 }

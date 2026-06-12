@@ -1,11 +1,15 @@
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+
 export type Difficulty = 'beginner' | 'easy' | 'intermediate' | 'advanced';
 
 export interface OperationType {
   id: string;
   label: string;
+  description?: string;
   needsParameter: boolean;
+  icon?: IconDefinition;
   parameterLabel?: string;
-  parameterType?: 'number' | 'expression';
+  parameterType?: "number" | "expression";
 }
 
 export interface MathModule {

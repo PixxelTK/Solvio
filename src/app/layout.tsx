@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Math Transformations",
+  title: "Solvio",
   description: "Learn mathematics through step-by-step transformations",
 };
 

@@ -19,34 +19,31 @@ export default function TransformationHistory({ steps, isComplete, completionMes
           <div className="flex items-start gap-2">
             {step.operation && (
               <div className="flex items-center gap-2 w-full">
-                <span className="text-blue-400 text-xs font-mono shrink-0 mt-1">
-                  ↓
-                </span>
-                <span className={`text-xs px-2 py-1 rounded font-mono ${
+                <span className={`text-xs px-2 py-1 my-2 rounded font-mono ${
                   step.isValid === true
-                    ? 'bg-green-900/40 text-green-300'
+                    ? 'bg-green-500 text-white dark:bg-green-800 dark:text-green-300'
                     : step.isValid === false
-                    ? 'bg-red-900/40 text-red-300'
-                    : 'bg-gray-800 text-gray-400'
+                    ? 'bg-red-500 text-white dark:bg-red-800 dark:text-red-300'
+                    : 'bg-gray-300 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                 }`}>
                   {step.operation.description}
                 </span>
               </div>
             )}
           </div>
-          <div className="pl-4 border-l-2 border-gray-700 ml-1 py-2">
+          <div className="border-l-2 border-gray-300 dark:border-gray-800 py-2">
             <MathDisplay
               latex={step.state.latex}
-              className="text-sm"
+              className="text-lg"
             />
           </div>
         </div>
       ))}
       {isComplete && (
-        <div className="mt-4 p-3 bg-green-900/30 border border-green-700 rounded-lg text-center">
-          <div className="text-green-400 font-bold text-lg">Exercise Complete</div>
+        <div className="mt-4 p-3 bg-green-500 dark:bg-green-800 rounded-lg text-center">
+          <div className="text-white font-bold text-lg">Exercise Complete</div>
           {completionMessage && (
-            <div className="text-green-500 text-sm">{completionMessage}</div>
+            <div className="text-gray-100 dark:text-gray-300 text-sm">{completionMessage}</div>
           )}
         </div>
       )}
