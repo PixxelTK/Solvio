@@ -17,6 +17,12 @@ import {
   faForward,
   faCheck,
   faEquals,
+  faDeleteLeft,
+  faDivide,
+  faMinus,
+  faPlus,
+  faXmark,
+  faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 
@@ -86,6 +92,10 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     () => operations.find(o => o.id === selectedOp),
     [operations, selectedOp]
   );
+
+  const insertSymbol = (value: string) => {
+    setUserEquation(prev => prev + value);
+  };
 
   const commitStep = useCallback(
     (nextStateFull: MathState, operation: Operation): boolean => {
@@ -244,7 +254,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
             <button
               onClick={() => router.push("/")}
               className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-              <FontAwesomeIcon icon={faEquals} className='mr-2'/>
+              <FontAwesomeIcon icon={faEquals} className='mr-2' />
               {question.topic}
             </button>
 
@@ -377,7 +387,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 </div>
 
                 {/* Tab bar */}
-                <div className="flex gap-1 mb-3 p-1 rounded-xl bg-gray-100 dark:bg-slate-900">
+                <div className="flex gap-2 mb-3 p-2 rounded-xl bg-gray-100 dark:bg-slate-900">
                   <button
                     onClick={() => { setSolveMode('equation'); setValidation(null); }}
                     className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
@@ -403,17 +413,11 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 {/* ========== EQUATION MODE ========== */}
                 {solveMode === 'equation' && (
                   <>
-                    <div className="mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/20 px-4 py-3">
-                      <p className="text-sm text-slate-500 dark:text-slate-300">
-                        Enter the resulting equation after your transformation. The system will automatically detect which operation you applied.
-                      </p>
-                    </div>
-
                     <div className="mb-3 font-medium">
                       Enter the resulting equation
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-3">
+                    <div className="flex flex-row gap-3">
                       <input
                         ref={eqRef}
                         type="text"
@@ -433,18 +437,68 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                         Check
                       </button>
                     </div>
+
+                    <div className="mt-3 grid grid-cols-5 gap-2 p-2 text-slate-500 dark:text-slate-100 rounded-2xl bg-gray-100 dark:bg-slate-900">
+                      {[
+                        { key: "7", label: "7" },
+                        { key: "8", label: "8" },
+                        { key: "9", label: "9" },
+                        { key: "x", label: "x" },
+                        { key: "y", label: "y" },
+
+                        { key: "4", label: "4" },
+                        { key: "5", label: "5" },
+                        { key: "6", label: "6" },
+                        { key: "z", label: "z" },
+                        { key: "+", icon: faPlus },
+
+                        { key: "1", label: "1" },
+                        { key: "2", label: "2" },
+                        { key: "3", label: "3" },
+                        { key: "-", icon: faMinus },
+                        { key: "*", icon: faXmark },
+
+                        { key: "0", label: "0" },
+                        { key: "(", label: "(" },
+                        { key: ")", label: ")" },
+                        { key: "/", icon: faDivide },
+                        { key: "=", icon: faEquals },
+                      ].map(item => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => insertSymbol(item.key)}
+                          className="h-11 rounded-xl bg-white dark:bg-slate-800 text-lg font-semibold active:scale-95 transition"
+                        >
+                          {item.icon ? (
+                            <FontAwesomeIcon icon={item.icon} />
+                          ) : (
+                            item.label
+                          )}
+                        </button>
+                      ))}
+
+                      <button
+                        type="button"
+                        onClick={() => setUserEquation("")}
+                        className="col-span-1 h-11 rounded-xl bg-white dark:bg-slate-800 text-lg font-semibold active:scale-95 transition"
+                      >
+                        <FontAwesomeIcon icon={faRotateLeft} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUserEquation(prev => prev.slice(0, -1))}
+                        className="col-span-2 h-11 rounded-xl bg-white dark:bg-slate-800 text-lg font-semibold active:scale-95 transition"
+                      >
+                        <FontAwesomeIcon icon={faDeleteLeft} />
+                      </button>
+                    </div>
                   </>
                 )}
 
                 {/* ========== OPERATION MODE ========== */}
                 {solveMode === 'operation' && (
                   <>
-                    <div className="mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/20 px-4 py-3">
-                      <p className="text-sm text-slate-500 dark:text-slate-300">
-                        Select an operation and provide a value if needed. The system will apply it directly.
-                      </p>
-                    </div>
-
                     <div className="mb-3 font-medium">
                       Choose an operation
                     </div>
