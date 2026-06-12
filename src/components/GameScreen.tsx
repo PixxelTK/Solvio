@@ -1,11 +1,22 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { linearAlgebraModule, matrixToState, stateToData, deepCopy, AugmentedMatrix, applyRowOperation, computeHint } from '@/lib/modules/linear-algebra';
 import MathDisplay from './MathDisplay';
-import MatrixEditor from './MatrixEditor';
 import TransformationHistory from './TransformationHistory';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faRotate,
+  faBullseye,
+  faLayerGroup,
+  faLightbulb,
+  faCircleCheck,
+  faCircleXmark,
+  faForward,
+  faCheck,
+} from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from 'next/navigation';
 
 interface GameScreenProps {
   difficulty: Difficulty;
@@ -19,6 +30,7 @@ const OPERATION_SYNTAX_HELP: Record<string, string> = {
 };
 
 export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
+  const router = useRouter();
   const [question] = useState(() => linearAlgebraModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [steps, setSteps] = useState<TransformationStep[]>([
@@ -136,167 +148,209 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
   }, [handleApplyOperation]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <header className="border-b border-gray-800 px-4 py-3 flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="text-gray-400 hover:text-white transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
-        >
-          ← Back
-        </button>
-        <div className="text-center">
-          <span className="text-gray-400 text-sm">{question.topic}</span>
-          <span className="mx-2 text-gray-600">·</span>
-          <span className="text-gray-400 text-sm capitalize">{difficulty}</span>
-          <span className="mx-2 text-gray-600">·</span>
-          <span className="text-gray-400 text-sm">Step {stepCount}</span>
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+
+      <header className="sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+
+          <button
+            onClick={() => router.push("/")}
+            className="cursor-pointer py-2 rounded-xl transition-colors hover:opacity-80"
+          >
+            <h1 className="text-lg lg:text-xl font-bold"><span className='font-light'>Solvio</span> Math</h1>
+          </button>
+
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm">
+              <FontAwesomeIcon icon={faBullseye} />
+              Gaussian Elimination
+            </div>
+
+            <button
+              onClick={onBack}
+              className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              {difficulty}
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleNewProblem}
-          className="text-blue-400 hover:text-blue-300 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
-        >
-          New Problem
-        </button>
       </header>
 
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-53px)]">
-        <aside className="lg:w-64 xl:w-72 border-b lg:border-b-0 lg:border-r border-gray-800 p-6">
-          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Problem</h2>
-          <div className="mb-4">
-            <div className="text-sm text-gray-300 mb-1">Goal:</div>
-            <div className="text-sm text-blue-300">{question.targetDescription}</div>
-          </div>
-          <div className="mb-4">
-            <div className="text-sm text-gray-300 mb-1">Instructions:</div>
-            <div className="text-xs text-gray-500 space-y-1">
-              <p>Apply row operations to reduce the augmented matrix to RREF.</p>
-              <p className="mt-2 font-semibold text-gray-400">Row operation formats:</p>
-              <p className="font-mono text-xs text-gray-500">R1&lt;-&gt;R2 &nbsp; (swap)</p>
-              <p className="font-mono text-xs text-gray-500">3*R1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (scale)</p>
-              <p className="font-mono text-xs text-gray-500">R2-2*R1 &nbsp;&nbsp; (replace)</p>
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-12">
+        <main className="w-full lg:sticky lg:top-16">
+          <section className="mb-6">
+            <div className="flex gap-4 justify-between items-center">
+              <div>
+                <div className="font-bold text-xl">
+                  {question.targetDescription}
+                </div>
+                <div className="text-sm text-gray-500 space-y-1">
+                  <p>Apply row operations to reduce the augmented matrix to RREF.</p>
+                </div>
+              </div>
+              <button
+                onClick={handleNewProblem}
+                className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-200 cursor-pointer dark:bg-gray-800 text-slate-600 dark:text-gray-300 hover:opacity-90 transition-opacity"
+              >
+                <FontAwesomeIcon icon={faRotate} />
+                New Problem
+              </button>
+            </div>
+          </section>
+
+          <section className="mb-6">
+            <div className="rounded-2xl bg-gray-100 dark:bg-slate-900 px-8 py-1">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400 text-center mt-6">
+                Current Matrix
+              </div>
+              <MathDisplay latex={currentState.latex} className="text-3xl" />
+            </div>
+          </section>
+
+          <div className="flex flex-col gap-6 items-start">
+            <div className="w-full rounded-2xl bg-gray-100 dark:bg-slate-900 px-4 py-4">
+              <div className="flex items-center justify-between gap-2 mb-5">
+                <div className="flex gap-2 items-center">
+                  <FontAwesomeIcon icon={faLightbulb} className="text-amber-500" />
+                  <h2 className="font-medium">Steps</h2>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:text-slate-300 dark:bg-gray-800 text-sm">
+                  <FontAwesomeIcon icon={faLayerGroup} />
+                  Step {stepCount}
+                </div>
+              </div>
+              <div className="pl-3">
+                <TransformationHistory steps={steps} isComplete={isComplete} completionMessage="Matrix is in RREF" />
+              </div>
             </div>
           </div>
-          <div className="text-xs text-gray-600">
-            Problem #{question.id.slice(-6)}
-          </div>
-        </aside>
 
-        <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
-          <div className="max-w-2xl mx-auto">
-            <section className="mb-8">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Current State</h2>
-              <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-                <MathDisplay latex={currentState.latex} className="text-lg" />
+          {hint && (
+            <div className="mb-3 mt-4 rounded-2xl px-4 py-4 bg-amber-100 dark:bg-amber-950/20 text-amber-600 dark:text-amber-300">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faLightbulb} />
+                <span className="font-medium">Hint</span>
               </div>
-            </section>
+              <div>{hint.operationDescription}</div>
+            </div>
+          )}
 
+          {!isComplete && (
+            <div className="flex flex-wrap gap-3 mt-4">
+              <button
+                onClick={handleGetHint}
+                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
+              >
+                <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
+                Show Hint
+              </button>
+              <button
+                onClick={handleSkip}
+                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
+              >
+                <FontAwesomeIcon icon={faForward} className="mr-2" />
+                Skip Step
+              </button>
+            </div>
+          )}
+        </main>
+
+        <aside className="lg:w-5xl">
+          <div>
             {!isComplete && (
-              <section className="mb-8">
-                <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Apply Operation</h2>
-                <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 space-y-4">
-                  <div>
-                    <div className="flex gap-2 mb-3 flex-wrap">
-                      {operations.map((op) => (
-                        <button
-                          key={op.id}
-                          onClick={() => { setSelectedOp(op.id); setOpParam(''); setValidation(null); }}
-                          className={`
-                            px-3 py-2 rounded-lg text-sm font-medium transition-all
-                            focus:outline-none focus:ring-2 focus:ring-blue-500
-                            ${selectedOp === op.id
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                            }
-                          `}
-                        >
-                          {op.label}
-                        </button>
-                      ))}
-                    </div>
+              <section className="mb-4">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold">Apply Operation</h2>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Select a row operation and enter the parameters.
+                  </p>
+                </div>
 
-                    <div className="flex gap-2">
-                      <div className="flex-1">
-                        <input
-                          ref={opInputRef}
-                          type="text"
-                          value={opParam}
-                          onChange={(e) => setOpParam(e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          placeholder={currentOp?.parameterLabel || 'Enter operation'}
-                          className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white font-mono text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          aria-label="Row operation"
-                        />
+                <div className="mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/20 px-4 py-3">
+                  <p className="text-sm text-slate-500 dark:text-slate-300">
+                    <span className="font-mono">R1&lt;-&gt;R2</span> (swap) &nbsp;·&nbsp;
+                    <span className="font-mono">3*R1</span> (scale) &nbsp;·&nbsp;
+                    <span className="font-mono">R2-2*R1</span> (replace)
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+                  {operations.map((op) => (
+                    <button
+                      key={op.id}
+                      onClick={() => { setSelectedOp(op.id); setOpParam(''); setValidation(null); if (opInputRef.current) opInputRef.current.focus(); }}
+                      className={`p-4 rounded-lg text-left cursor-pointer transition-all
+                        ${selectedOp === op.id
+                          ? 'bg-blue-400 dark:bg-blue-900 text-white'
+                          : 'bg-slate-200 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {op.icon && (
+                          <FontAwesomeIcon icon={op.icon} className="text-base" />
+                        )}
+                        <span className="font-medium text-sm">{op.label}</span>
                       </div>
-                      <button
-                        onClick={handleApplyOperation}
-                        disabled={!opParam.trim()}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        Apply
-                      </button>
-                    </div>
+                    </button>
+                  ))}
+                </div>
 
-                    <div className="mt-2 text-xs text-gray-600 font-mono">
-                      {OPERATION_SYNTAX_HELP[selectedOp]}
+                {currentOp && (
+                  <div className="mb-6 rounded-2xl">
+                    <div className="text-xs text-slate-600 dark:text-slate-200 mb-1">
+                      Selected Operation
+                    </div>
+                    <div className="font-medium text-slate-500 dark:text-slate-300">
+                      {currentOp.description}
                     </div>
                   </div>
+                )}
+
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    ref={opInputRef}
+                    type="text"
+                    value={opParam}
+                    onChange={(e) => setOpParam(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={currentOp?.parameterLabel || 'Enter operation'}
+                    className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500 font-mono"
+                    aria-label="Row operation"
+                  />
+                  <button
+                    onClick={handleApplyOperation}
+                    disabled={!opParam.trim()}
+                    className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
+                  >
+                    <FontAwesomeIcon icon={faCheck} className="mr-1" />
+                    Apply
+                  </button>
                 </div>
               </section>
             )}
 
             {validation && (
-              <div className={`mb-6 p-4 rounded-xl border ${
-                validation.valid
-                  ? 'bg-green-900/20 border-green-800 text-green-300'
-                  : 'bg-red-900/20 border-red-800 text-red-300'
-              }`}>
+              <div className={`rounded-xl py-3 ${validation.valid
+                ? 'text-emerald-700 dark:text-emerald-500'
+                : 'text-red-500 dark:text-red-400'
+                }`}>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{validation.valid ? '✓' : '✗'}</span>
-                  <span className="font-medium">{validation.message}</span>
+                  <FontAwesomeIcon icon={validation.valid ? faCircleCheck : faCircleXmark} />
+                  <span>{validation.message}</span>
                 </div>
               </div>
             )}
 
-            {hint && (
-              <div className="mb-6 p-4 rounded-xl border border-yellow-800 bg-yellow-900/20 text-yellow-300">
-                <div className="text-xs uppercase tracking-wider text-yellow-500 mb-1">Hint</div>
-                <div className="font-medium">{hint.operationDescription}</div>
-              </div>
-            )}
-
-            {!isComplete && (
-              <div className="flex gap-3 mb-8">
-                <button
-                  onClick={handleGetHint}
-                  className="px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 rounded-lg text-sm font-medium transition-colors border border-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                >
-                  Show Hint
-                </button>
-                <button
-                  onClick={handleSkip}
-                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg text-sm font-medium transition-colors border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                >
-                  Skip Step
-                </button>
-              </div>
-            )}
-
             {isComplete && (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleNewProblem}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  New Problem
-                </button>
-              </div>
+              <button
+                onClick={handleNewProblem}
+                className="flex items-center gap-2 px-5 py-3 rounded-xl cursor-pointer bg-green-500 dark:bg-green-600 text-white hover:opacity-90 transition-opacity"
+              >
+                <FontAwesomeIcon icon={faForward} />
+                Next Problem
+              </button>
             )}
           </div>
-        </main>
-
-        <aside className="lg:w-72 xl:w-80 border-t lg:border-t-0 lg:border-l border-gray-800 p-6 overflow-y-auto">
-          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">History</h2>
-          <TransformationHistory steps={steps} isComplete={isComplete} completionMessage="Matrix is in RREF" />
         </aside>
       </div>
     </div>

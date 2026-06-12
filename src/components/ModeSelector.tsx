@@ -1,13 +1,18 @@
 'use client';
 
-interface ModeSelectorProps {
-  onSelect: (mode: 'equation-transformation' | 'gaussian-elimination') => void;
-}
+import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faEquals,
+  faTableCells,
+} from '@fortawesome/free-solid-svg-icons';
+
+type Mode = 'equation-transformation' | 'gaussian-elimination';
 
 const modes = [
   {
     id: 'equation-transformation' as const,
-    icon: 'ƒ',
+    icon: faEquals,
     title: 'Equation Transformation',
     description: 'Solve algebra equations step by step',
     examples: ['x + 5 = 12', '3(2y + 1) = 15', '2(y + 1) + 3y = 7'],
@@ -15,7 +20,7 @@ const modes = [
   },
   {
     id: 'gaussian-elimination' as const,
-    icon: '⊞',
+    icon: faTableCells,
     title: 'Gaussian Elimination',
     description: 'Reduce matrices to row echelon form',
     examples: ['2×2 systems', '3×3 systems', 'Row operations'],
@@ -23,17 +28,26 @@ const modes = [
   },
 ];
 
-export default function ModeSelector({ onSelect }: ModeSelectorProps) {
+const validModes: Mode[] = ['equation-transformation', 'gaussian-elimination'];
+
+export default function ModeSelector() {
+  const router = useRouter();
+
+  const handleSelect = (mode: string) => {
+    if (validModes.includes(mode as Mode)) {
+      router.push(`/${mode}`);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col items-center justify-center p-6">
       <div className="max-w-3xl w-full">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-2">Math Transformations</h1>
-          <p className="text-gray-400 text-lg">
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="font-light">Solvio</span> Math
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">
             Learn mathematics through step-by-step transformations
-          </p>
-          <p className="text-gray-600 text-sm mt-2">
-            Current State → Operation → New State
           </p>
         </div>
 
@@ -41,15 +55,27 @@ export default function ModeSelector({ onSelect }: ModeSelectorProps) {
           {modes.map((mode) => (
             <button
               key={mode.id}
-              onClick={() => onSelect(mode.id)}
-              className="p-6 rounded-xl border-2 border-gray-700 bg-gray-900 text-left transition-all duration-200 hover:border-blue-500 hover:bg-blue-500/5 focus:outline-none focus:ring-2 focus:ring-blue-500 group"
+              onClick={() => handleSelect(mode.id)}
+              className="p-6 rounded-2xl cursor-pointer bg-slate-100 dark:bg-slate-900 text-left transition-all duration-200 hover:scale-105 hover:bg-blue-50 dark:hover:bg-blue-500/5 focus:outline-none group"
             >
-              <div className="text-4xl mb-3">{mode.icon}</div>
-              <h2 className="text-xl font-bold mb-2 group-hover:text-blue-300 transition-colors">{mode.title}</h2>
-              <p className="text-sm text-gray-400 mb-4">{mode.description}</p>
+              <div className="text-4xl mb-3">
+                <FontAwesomeIcon icon={mode.icon} />
+              </div>
+
+              <h2 className="text-xl font-bold mb-2 transition-colors">
+                {mode.title}
+              </h2>
+
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                {mode.description}
+              </p>
+
               <div className="flex flex-wrap gap-1.5">
                 {mode.topics.map((topic) => (
-                  <span key={topic} className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-500">
+                  <span
+                    key={topic}
+                    className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500"
+                  >
                     {topic}
                   </span>
                 ))}

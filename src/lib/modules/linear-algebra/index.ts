@@ -24,9 +24,30 @@ function randNonZero(min: number, max: number): number {
 }
 
 const OPERATION_TYPES: OperationType[] = [
-  { id: 'row_swap', label: 'Swap rows', needsParameter: true, parameterLabel: 'e.g. R1<->R2', parameterType: 'expression' },
-  { id: 'row_scale', label: 'Scale a row', needsParameter: true, parameterLabel: 'e.g. 2*R1', parameterType: 'expression' },
-  { id: 'row_add', label: 'Row replacement', needsParameter: true, parameterLabel: 'e.g. R2-2*R1', parameterType: 'expression' },
+  {
+    id: 'row_swap',
+    label: 'Swap rows',
+    description: 'Interchange two rows in the matrix.',
+    needsParameter: true,
+    parameterLabel: 'e.g. R1<->R2',
+    parameterType: 'expression',
+  },
+  {
+    id: 'row_scale',
+    label: 'Scale a row',
+    description: 'Multiply a row by a non-zero constant.',
+    needsParameter: true,
+    parameterLabel: 'e.g. 2*R1',
+    parameterType: 'expression',
+  },
+  {
+    id: 'row_add',
+    label: 'Row replacement',
+    description: 'Replace a row with a linear combination of rows.',
+    needsParameter: true,
+    parameterLabel: 'e.g. R2-2*R1',
+    parameterType: 'expression',
+  },
 ];
 
 export function matrixToState(matrix: AugmentedMatrix): MathState {

@@ -19,6 +19,7 @@ import {
   faCheck,
   faAngleLeft,
 } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from 'next/navigation';
 
 interface EquationGameScreenProps {
   difficulty: Difficulty;
@@ -60,6 +61,7 @@ function inferOperation(
 }
 
 export default function EquationGameScreen({ difficulty, onBack }: EquationGameScreenProps) {
+  const router = useRouter();
   const [question] = useState(() => equationTransformationModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [steps, setSteps] = useState<TransformationStep[]>([
@@ -229,15 +231,14 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
 
       {/* ========================= HEADER ========================= */}
-      <header className="sticky top-0 z-50 bg-slate-100 dark:bg-slate-900 backdrop-blur-xl">
+      <header className="sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
 
           <button
-            onClick={onBack}
-            className="flex items-center gap-1 px-2 cursor-pointer py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            onClick={() => router.push("/")}
+            className="cursor-pointer py-2 rounded-xl transition-colors hover:opacity-80"
           >
-            <FontAwesomeIcon icon={faAngleLeft} />
-            Back
+            <h1 className="text-lg lg:text-xl font-bold"><span className='font-light'>Solvio</span> Math</h1>
           </button>
 
           <div className="flex items-center gap-2 flex-wrap justify-center">
@@ -246,9 +247,12 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
               {question.topic}
             </div>
 
-            <div className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize">
+            <button
+              onClick={onBack}
+              className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
               {difficulty}
-            </div>
+            </button>
           </div>
         </div>
       </header>
@@ -260,7 +264,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
           <section className="mb-6">
             <div className='flex gap-4 justify-between items-center'>
               <div>
-                <div className="font-medium text-lg text-blue-500 dark:text-blue-300">
+                <div className="font-bold text-xl">
                   {question.targetDescription}
                 </div>
 
@@ -270,7 +274,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
               </div>
               <button
                 onClick={handleNewProblem}
-                className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-400 cursor-pointer dark:bg-gray-500 text-white dark:text-gray-200 hover:opacity-90 transition-opacity"
+                className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-200 cursor-pointer dark:bg-gray-800 text-slate-600 dark:text-gray-300 hover:opacity-90 transition-opacity"
               >
                 <FontAwesomeIcon icon={faRotate} />
                 New Problem
@@ -304,7 +308,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                   </h2>
                 </div>
 
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-200 dark:bg-blue-800/50 text-blue-600 dark:text-blue-300 text-sm">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:text-slate-300 dark:bg-gray-800 text-sm">
                   <FontAwesomeIcon icon={faLayerGroup} />
                   Step {stepCount}
                 </div>
@@ -398,8 +402,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 {/* ========== EQUATION MODE ========== */}
                 {solveMode === 'equation' && (
                   <>
-                    <div className="mb-4 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
-                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                    <div className="mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/20 px-4 py-3">
+                      <p className="text-sm text-slate-500 dark:text-slate-300">
                         Enter the resulting equation after your transformation. The system will automatically detect which operation you applied.
                       </p>
                     </div>
@@ -414,7 +418,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                         type="text"
                         value={userEquation}
                         onChange={(e) => setUserEquation(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEquationModeSubmit(); }}}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEquationModeSubmit(); } }}
                         placeholder="Example: 2x = 8"
                         className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
                       />
@@ -434,8 +438,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 {/* ========== OPERATION MODE ========== */}
                 {solveMode === 'operation' && (
                   <>
-                    <div className="mb-4 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
-                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                    <div className="mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/20 px-4 py-3">
+                      <p className="text-sm text-slate-500 dark:text-slate-300">
                         Select an operation and provide a value if needed. The system will apply it directly.
                       </p>
                     </div>
@@ -490,12 +494,12 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                     </div>
 
                     {currentOp && (
-                      <div className="mb-6 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
-                        <div className="text-xs text-blue-500 mb-1">
+                      <div className="mb-6 rounded-2xl">
+                        <div className="text-xs text-slate-600 dark:text-slate-200 mb-1">
                           Selected Operation
                         </div>
 
-                        <div className="font-medium">
+                        <div className="font-medium text-slate-500 dark:text-slate-300">
                           {currentOp.description}
                         </div>
                       </div>
@@ -513,7 +517,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                             type="text"
                             value={opParam}
                             onChange={(e) => setOpParam(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleOperationModeSubmit(); }}}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleOperationModeSubmit(); } }}
                             placeholder={currentOp.parameterLabel || "Enter value"}
                             className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
                           />
@@ -538,9 +542,9 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
               <div
                 className={`rounded-xl py-3
                     ${validation.valid
-                          ? "text-emerald-700 dark:text-emerald-500"
-                          : "text-red-500 dark:text-red-400"
-                        }
+                    ? "text-emerald-700 dark:text-emerald-500"
+                    : "text-red-500 dark:text-red-400"
+                  }
                   `}
               >
                 <div className="flex items-center gap-2">
