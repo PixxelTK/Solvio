@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useMemo } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { equationTransformationModule } from '@/lib/modules/algebra';
 import { applyAlgebraOperation, stateToEquation, computeHint, equationToState } from '@/lib/modules/algebra/engine';
-import { equationToString, parseEquation, simplify, exprToLatex } from '@/lib/modules/algebra/expressions';
+import { equationToString, parseEquation, simplify, exprToLatex, equationsEquivalent } from '@/lib/modules/algebra/expressions';
 import MathDisplay from './MathDisplay';
 import TransformationHistory from './TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,12 +25,47 @@ interface EquationGameScreenProps {
   onBack: () => void;
 }
 
+type SolveMode = 'equation' | 'operation';
+
+function inferOperation(
+  currentEq: ReturnType<typeof stateToEquation>,
+  userEq: ReturnType<typeof parseEquation>,
+): { typeId: string; parameter: string; description: string } | null {
+  const userSimplified = { left: simplify(userEq.left), right: simplify(userEq.right) };
+
+  for (const opType of ['expand', 'collect'] as const) {
+    const result = applyAlgebraOperation(currentEq, opType, '');
+    if (result) {
+      const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
+      if (equationsEquivalent(rs, userSimplified)) {
+        return { typeId: opType, parameter: '', description: result.description };
+      }
+    }
+  }
+
+  for (let p = -20; p <= 20; p++) {
+    if (p === 0) continue;
+    for (const opType of ['add_both', 'sub_both', 'mul_both', 'div_both'] as const) {
+      const result = applyAlgebraOperation(currentEq, opType, String(p));
+      if (result) {
+        const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
+        if (equationsEquivalent(rs, userSimplified)) {
+          return { typeId: opType, parameter: String(p), description: result.description };
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 export default function EquationGameScreen({ difficulty, onBack }: EquationGameScreenProps) {
   const [question] = useState(() => equationTransformationModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [steps, setSteps] = useState<TransformationStep[]>([
     { state: question.initialState },
   ]);
+  const [solveMode, setSolveMode] = useState<SolveMode>('equation');
   const [selectedOp, setSelectedOp] = useState<string>('sub_both');
   const [opParam, setOpParam] = useState('');
   const [userEquation, setUserEquation] = useState('');
@@ -51,72 +86,103 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     [operations, selectedOp]
   );
 
-  const handleApplyOperation = useCallback(() => {
+  const commitStep = useCallback(
+    (nextStateFull: MathState, operation: Operation): boolean => {
+      const solved = equationTransformationModule.isSolved(nextStateFull);
+      setCurrentState(nextStateFull);
+      setSteps(prev => [
+        ...prev.slice(0, -1).map(s => ({ ...s })),
+        { state: prev[prev.length - 1].state, operation, isValid: true },
+        { state: nextStateFull },
+      ]);
+      setStepCount(prev => prev + 1);
+      setIsComplete(solved);
+      setUserEquation('');
+      setOpParam('');
+      return solved;
+    },
+    []
+  );
+
+  const handleEquationModeSubmit = useCallback(() => {
     if (!userEquation.trim()) return;
     setValidation(null);
     setHint(null);
 
-    const operation: Operation = {
-      typeId: selectedOp,
-      parameter: opParam,
-      description: currentOp
-        ? (currentOp.needsParameter && opParam
-          ? `${currentOp.label.replace(/by$/, '').replace(/both sides$/, 'both sides by')} ${opParam}`.replace(/\s+/g, ' ').trim()
-          : currentOp.label)
-        : selectedOp,
-    };
+    try {
+      const userEq = parseEquation(userEquation);
+      const currentEq = stateToEquation(currentState);
+      const inferred = inferOperation(currentEq, userEq);
+
+      if (!inferred) {
+        setValidation({
+          valid: false,
+          message: 'No valid transformation found for this equation. Check your calculation.',
+          isSolved: false,
+        });
+        return;
+      }
+
+      const lhs = simplify(userEq.left);
+      const rhs = simplify(userEq.right);
+      const nextStateFull: MathState = {
+        display: equationToString({ left: lhs, right: rhs }),
+        latex: `${exprToLatex(lhs)} = ${exprToLatex(rhs)}`,
+        data: JSON.stringify(userEq),
+      };
+
+      const operation: Operation = {
+        typeId: inferred.typeId,
+        parameter: inferred.parameter,
+        description: inferred.description,
+      };
+
+      const solved = commitStep(nextStateFull, operation);
+      if (solved) {
+        setValidation({ valid: true, message: 'Exercise Complete! Equation solved.', isSolved: true });
+      } else {
+        setValidation({ valid: true, message: `Correct! ${inferred.description}`, isSolved: false });
+      }
+    } catch {
+      setValidation({ valid: false, message: 'Could not parse equation. Use format: expression = expression', isSolved: false });
+    }
+  }, [currentState, userEquation, commitStep]);
+
+  const handleOperationModeSubmit = useCallback(() => {
+    setValidation(null);
+    setHint(null);
 
     if (currentOp?.needsParameter && !opParam.trim()) {
       setValidation({ valid: false, message: 'This operation requires a value.', isSolved: false });
       return;
     }
 
-    const parsedEq = parseEquation(userEquation);
-    const simplifiedDisplay = `${equationToString({ left: simplify(parsedEq.left), right: simplify(parsedEq.right) })}`;
-
     try {
-      const userEq = parseEquation(userEquation);
-      const lhs = simplify(userEq.left);
-      const rhs = simplify(userEq.right);
-      const nextStateFull: MathState = {
-        display: simplifiedDisplay,
-        latex: `${exprToLatex(lhs)} = ${exprToLatex(rhs)}`,
-        data: JSON.stringify(userEq),
+      const eq = stateToEquation(currentState);
+      const opResult = applyAlgebraOperation(eq, selectedOp, opParam || '');
+
+      if (!opResult) {
+        setValidation({ valid: false, message: 'This operation cannot be applied here. The expression may not change.', isSolved: false });
+        return;
+      }
+
+      const newState = equationToState(opResult.result);
+      const operation: Operation = {
+        typeId: selectedOp,
+        parameter: opParam || '',
+        description: opResult.description,
       };
 
-      const result = equationTransformationModule.validateStep(currentState, operation, nextStateFull);
-
-      if (result.valid) {
-        const opResult = applyAlgebraOperation(
-          stateToEquation(currentState),
-          selectedOp,
-          opParam || ''
-        );
-        const desc = opResult?.description || operation.description;
-
-        const solved = equationTransformationModule.isSolved(nextStateFull);
-        setCurrentState(nextStateFull);
-        setSteps(prev => [
-          ...prev.slice(0, -1).map(s => ({ ...s })),
-          { state: prev[prev.length - 1].state, operation: { ...operation, description: desc }, isValid: true },
-          { state: nextStateFull },
-        ]);
-        setStepCount(prev => prev + 1);
-        setIsComplete(solved);
-        setUserEquation('');
-        setOpParam('');
-        if (solved) {
-          setValidation({ valid: true, message: 'Exercise Complete! Equation solved.', isSolved: true });
-        } else {
-          setValidation({ valid: true, message: 'Correct! Apply the next operation.', isSolved: false });
-        }
+      const solved = commitStep(newState, operation);
+      if (solved) {
+        setValidation({ valid: true, message: 'Exercise Complete! Equation solved.', isSolved: true });
       } else {
-        setValidation(result);
+        setValidation({ valid: true, message: 'Operation applied successfully.', isSolved: false });
       }
     } catch {
-      setValidation({ valid: false, message: 'Could not parse equation. Use format: expression = expression', isSolved: false });
+      setValidation({ valid: false, message: 'Error applying operation.', isSolved: false });
     }
-  }, [currentState, selectedOp, opParam, userEquation, currentOp]);
+  }, [currentState, selectedOp, opParam, currentOp, commitStep]);
 
   const handleGetHint = useCallback(() => {
     const h = equationTransformationModule.getHint(currentState);
@@ -144,18 +210,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       description: opResult.description,
     };
 
-    const solved = equationTransformationModule.isSolved(newState);
-    setCurrentState(newState);
-    setSteps(prev => [
-      ...prev.slice(0, -1).map(s => ({ ...s })),
-      { state: prev[prev.length - 1].state, operation, isValid: true },
-      { state: newState },
-    ]);
-    setStepCount(prev => prev + 1);
-    setIsComplete(solved);
-    setUserEquation('');
-    setOpParam('');
-  }, [currentState]);
+    commitStep(newState, operation);
+  }, [currentState, commitStep]);
 
   const handleNewProblem = useCallback(() => {
     const q = equationTransformationModule.generateQuestion(difficulty);
@@ -168,13 +224,6 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     setUserEquation('');
     setOpParam('');
   }, [difficulty]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleApplyOperation();
-    }
-  }, [handleApplyOperation]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -206,7 +255,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
       {/* ========================= BODY ========================= */}
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-12">
-        <main className="w-full lg:w-2xl lg:sticky lg:top-16">
+        <main className="w-full lg:sticky lg:top-16">
           {/* Goal */}
           <section className="mb-6">
             <div className='flex gap-4 justify-between items-center'>
@@ -216,7 +265,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 </div>
 
                 <div className="text-sm text-gray-500 space-y-1">
-                  <p>Select an operation, enter a value if needed, then type the resulting equation.</p>
+                  <p>Apply transformations step by step to solve the equation.</p>
                 </div>
               </div>
               <button
@@ -307,8 +356,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
           )}
         </main>
 
-        {/* ========================= HISTORY ========================= */}
-        <aside>
+        {/* ========================= SOLVE PANEL ========================= */}
+        <aside className='lg:w-3xl'>
           <div>
             {!isComplete && (
               <section className="mb-4">
@@ -318,119 +367,170 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                   </h2>
 
                   <p className="text-sm text-slate-500 mt-1">
-                    Choose an operation and enter the resulting equation.
+                    Choose a mode and apply a transformation.
                   </p>
                 </div>
 
-                {/* Step 1 */}
-                <div className="mb-3 font-medium">
-                  1. Choose an operation
+                {/* Tab bar */}
+                <div className="flex gap-1 mb-6 p-1 rounded-xl bg-gray-100 dark:bg-slate-900">
+                  <button
+                    onClick={() => { setSolveMode('equation'); setValidation(null); }}
+                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+                      ${solveMode === 'equation'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                      }`}
+                  >
+                    Equation
+                  </button>
+                  <button
+                    onClick={() => { setSolveMode('operation'); setValidation(null); }}
+                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+                      ${solveMode === 'operation'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                      }`}
+                  >
+                    Operation
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-                  {operations.map((op) => (
-                    <button
-                      key={op.id}
-                      onClick={() => {
-                        setSelectedOp(op.id);
-                        setOpParam("");
-                        setValidation(null);
-
-                        if (op.needsParameter && paramRef.current) {
-                          paramRef.current.focus();
-                        }
-                      }}
-                      className={`p-4 rounded-lg text-left cursor-pointer transition-all
-                        ${selectedOp === op.id
-                          ? `
-                              bg-blue-400
-                              dark:bg-blue-900
-                              text-white
-                            `
-                          : `
-                              bg-slate-200
-                              dark:bg-slate-900
-                              hover:bg-slate-100
-                              dark:hover:bg-slate-800
-                            `
-                        }
-                      `}
-                    >
-                      <div className="flex items-center gap-3">
-                        {op.icon && (
-                          <FontAwesomeIcon
-                            icon={op.icon}
-                            className="text-base"
-                          />
-                        )}
-
-                        <span className="font-medium text-sm">
-                          {op.label}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {currentOp && (
-                  <div className="mb-6 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
-                    <div className="text-xs text-blue-500 mb-1">
-                      Selected Operation
-                    </div>
-
-                    <div className="font-medium">
-                      {currentOp.description}
-                    </div>
-                  </div>
-                )}
-
-                {currentOp?.needsParameter && (
+                {/* ========== EQUATION MODE ========== */}
+                {solveMode === 'equation' && (
                   <>
-                    <div className="mb-3 font-medium">
-                      2. Enter a value
+                    <div className="mb-4 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        Enter the resulting equation after your transformation. The system will automatically detect which operation you applied.
+                      </p>
                     </div>
 
-                    <div className="mb-6">
+                    <div className="mb-3 font-medium">
+                      Enter the resulting equation
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-3">
                       <input
-                        ref={paramRef}
+                        ref={eqRef}
                         type="text"
-                        value={opParam}
-                        onChange={(e) => setOpParam(e.target.value)}
-                        placeholder={currentOp.parameterLabel || "Enter value"}
+                        value={userEquation}
+                        onChange={(e) => setUserEquation(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEquationModeSubmit(); }}}
+                        placeholder="Example: 2x = 8"
                         className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
                       />
+
+                      <button
+                        onClick={handleEquationModeSubmit}
+                        disabled={!userEquation.trim()}
+                        className="h-12 px-4 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
+                      >
+                        <FontAwesomeIcon icon={faCheck} className='mr-1' />
+                        Check
+                      </button>
                     </div>
                   </>
                 )}
 
-                <div className="mb-3 font-medium">
-                  {currentOp?.needsParameter
-                    ? "3. Enter the resulting equation"
-                    : "2. Enter the resulting equation"}
-                </div>
+                {/* ========== OPERATION MODE ========== */}
+                {solveMode === 'operation' && (
+                  <>
+                    <div className="mb-4 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        Select an operation and provide a value if needed. The system will apply it directly.
+                      </p>
+                    </div>
 
-                <div className="flex flex-col md:flex-row gap-3">
+                    <div className="mb-3 font-medium">
+                      Choose an operation
+                    </div>
 
-                  <input
-                    ref={eqRef}
-                    type="text"
-                    value={userEquation}
-                    onChange={(e) => setUserEquation(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Example: 2x = 8"
-                    className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
-                  />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                      {operations.map((op) => (
+                        <button
+                          key={op.id}
+                          onClick={() => {
+                            setSelectedOp(op.id);
+                            setOpParam("");
+                            setValidation(null);
 
-                  <button
-                    onClick={handleApplyOperation}
-                    disabled={!userEquation.trim()}
-                    className="h-12 px-4 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40"
-                  >
-                    <FontAwesomeIcon icon={faCheck} className='mr-1' />
-                    Check
-                  </button>
-                </div>
+                            if (op.needsParameter && paramRef.current) {
+                              paramRef.current.focus();
+                            }
+                          }}
+                          className={`p-4 rounded-lg text-left cursor-pointer transition-all
+                            ${selectedOp === op.id
+                              ? `
+                                  bg-blue-400
+                                  dark:bg-blue-900
+                                  text-white
+                                `
+                              : `
+                                  bg-slate-200
+                                  dark:bg-slate-900
+                                  hover:bg-slate-100
+                                  dark:hover:bg-slate-800
+                                `
+                            }
+                          `}
+                        >
+                          <div className="flex items-center gap-3">
+                            {op.icon && (
+                              <FontAwesomeIcon
+                                icon={op.icon}
+                                className="text-base"
+                              />
+                            )}
 
+                            <span className="font-medium text-sm">
+                              {op.label}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {currentOp && (
+                      <div className="mb-6 rounded-2xl bg-blue-100 dark:bg-blue-950/20 px-4 py-3">
+                        <div className="text-xs text-blue-500 mb-1">
+                          Selected Operation
+                        </div>
+
+                        <div className="font-medium">
+                          {currentOp.description}
+                        </div>
+                      </div>
+                    )}
+
+                    {currentOp?.needsParameter && (
+                      <>
+                        <div className="mb-3 font-medium">
+                          Enter a value
+                        </div>
+
+                        <div className="mb-3">
+                          <input
+                            ref={paramRef}
+                            type="text"
+                            value={opParam}
+                            onChange={(e) => setOpParam(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleOperationModeSubmit(); }}}
+                            placeholder={currentOp.parameterLabel || "Enter value"}
+                            className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <button
+                      onClick={handleOperationModeSubmit}
+                      disabled={currentOp?.needsParameter && !opParam.trim()}
+                      className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faCheck} className='mr-1' />
+                      Apply
+                    </button>
+                  </>
+                )}
               </section>
             )}
 
@@ -442,7 +542,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                           : "text-red-500 dark:text-red-400"
                         }
                   `}
-                >
+              >
                 <div className="flex items-center gap-2">
                   <FontAwesomeIcon
                     icon={validation.valid ? faCircleCheck : faCircleXmark}

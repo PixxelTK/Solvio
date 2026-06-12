@@ -444,7 +444,7 @@ export function equationsEquivalent(a: Equation, b: Equation, trials = 20): bool
     for (const v of vars) env[v] = Math.random() * 10 - 5;
     const aDiff = evaluate(a.left, env) - evaluate(a.right, env);
     const bDiff = evaluate(b.left, env) - evaluate(b.right, env);
-    if (Math.abs(aDiff) < 1e-9 !== Math.abs(bDiff) < 1e-9) return false;
+    if (Math.abs(aDiff - bDiff) > 1e-9) return false;
   }
   return true;
 }
