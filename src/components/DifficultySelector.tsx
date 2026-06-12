@@ -48,7 +48,7 @@ export default function DifficultySelector({ mode }: DifficultySelectorProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen text-slate-900 dark:text-slate-100 flex flex-col items-center justify-center p-6">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-10">
           <div className="text-5xl mb-3"><FontAwesomeIcon icon={info.icon}/></div>

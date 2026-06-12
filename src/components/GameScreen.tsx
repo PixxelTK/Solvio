@@ -165,9 +165,9 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
   }, [handleApplyOperation]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+   <div className="min-h-dvh text-slate-900 dark:text-slate-100">
 
-      <header className="sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-lg">
+      <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-6 py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
 
           <button
@@ -196,7 +196,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-12">
-        <main className="w-full lg:sticky lg:top-16">
+        <main className="w-full">
           <section className="mb-6">
             <div className="flex gap-4 justify-between items-center">
               <div>
@@ -240,8 +240,8 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
             )}
           </section>
 
-          <section className="mb-6 sticky top-16 md:static z-50">
-            <div className="rounded-2xl shadow-lg sm:shadow-none bg-gray-100 dark:bg-slate-900 sm:px-8 py-1">
+          <section className="mb-6 sticky top-2 md:static z-50">
+            <div className="rounded-2xl shadow-xl sm:shadow-none backdrop-blur-lg sm:backdrop-blur-none bg-gray-100/70 dark:bg-slate-900/70 sm:bg-gray-100 sm:dark:bg-slate-900 sm:px-8 py-1">
               <div className="text-xs uppercase text-slate-400 text-center mt-4 sm:mt-6">
                 Current Matrix
               </div>
