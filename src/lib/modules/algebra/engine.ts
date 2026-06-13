@@ -77,7 +77,7 @@ export const OPERATION_TYPES: OperationType[] = [
   },
   {
     id: "collect",
-    label: "Combine like term",
+    label: "Combine like terms",
     description: "Combine like terms into a simpler expression.",
     needsParameter: false,
   },
@@ -120,6 +120,7 @@ export function applyAlgebraOperation(eq: Equation, opType: string, param: strin
       const sl = simplify(eq.left);
       const sr = simplify(eq.right);
       if (exprEqual(newLeft, sl) && exprEqual(newRight, sr)) return null;
+      if (!hasLikeTerms(sl) && !hasLikeTerms(sr)) return null;
       return { result: { left: newLeft, right: newRight }, description: 'Combine like terms' };
     }
     default:
@@ -575,7 +576,7 @@ function collectTermInfo(e: Expr, terms: Map<string, number>): void {
   }
 }
 
-function hasLikeTerms(e: Expr): boolean {
+export function hasLikeTerms(e: Expr): boolean {
   const counts = countLikeTerms(e);
   for (const [, count] of counts) {
     if (count > 1) return true;

@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { equationTransformationModule } from '@/lib/modules/algebra';
 import { applyAlgebraOperation, stateToEquation, computeHint, equationToState } from '@/lib/modules/algebra/engine';
-import { equationToString, parseEquation, simplify, exprToLatex, equationsEquivalent } from '@/lib/modules/algebra/expressions';
+import { equationToString, parseEquation, simplify, exprToLatex, collectLikeTerms, exprEqual, Equation } from '@/lib/modules/algebra/expressions';
 import TransformationHistory from './TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -33,17 +33,25 @@ interface EquationGameScreenProps {
 
 type SolveMode = 'equation' | 'operation';
 
+function normaliseEquation(eq: Equation): Equation {
+  return { left: collectLikeTerms(eq.left), right: collectLikeTerms(eq.right) };
+}
+
+function eqStructEqual(a: Equation, b: Equation): boolean {
+  return exprEqual(a.left, b.left) && exprEqual(a.right, b.right);
+}
+
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
 ): { typeId: string; parameter: string; description: string } | null {
-  const userSimplified = { left: simplify(userEq.left), right: simplify(userEq.right) };
+  const userNorm = normaliseEquation(userEq);
 
   for (const opType of ['expand', 'collect'] as const) {
     const result = applyAlgebraOperation(currentEq, opType, '');
     if (result) {
-      const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
-      if (equationsEquivalent(rs, userSimplified)) {
+      const rsNorm = normaliseEquation(result.result);
+      if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
         return { typeId: opType, parameter: '', description: result.description };
       }
     }
@@ -54,8 +62,8 @@ function inferOperation(
     for (const opType of ['add_both', 'sub_both', 'mul_both', 'div_both'] as const) {
       const result = applyAlgebraOperation(currentEq, opType, String(p));
       if (result) {
-        const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
-        if (equationsEquivalent(rs, userSimplified)) {
+        const rsNorm = normaliseEquation(result.result);
+        if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
           return { typeId: opType, parameter: String(p), description: result.description };
         }
       }

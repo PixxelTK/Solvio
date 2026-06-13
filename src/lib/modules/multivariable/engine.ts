@@ -9,6 +9,7 @@ import {
   exprEqual, getVariables, evaluate,
   collectTerms, extractTerms, termsToExpr, Term,
 } from '../algebra/expressions';
+import { hasLikeTerms } from '../algebra/engine';
 
 interface MultivariableProblem {
   equation: Equation;
@@ -88,7 +89,7 @@ export const OPERATION_TYPES: OperationType[] = [
   },
   {
     id: "collect",
-    label: "Combine like term",
+    label: "Combine like terms",
     description: "Combine like terms into a simpler expression.",
     needsParameter: false,
   },
@@ -199,6 +200,7 @@ export function applyMultivariableOperation(
       const sl = simplify(eq.left);
       const sr = simplify(eq.right);
       if (exprEqual(newLeft, sl) && exprEqual(newRight, sr)) return null;
+      if (!hasLikeTerms(sl) && !hasLikeTerms(sr)) return null;
       return { result: { left: newLeft, right: newRight }, description: 'Combine like terms' };
     }
     case 'isolate': {

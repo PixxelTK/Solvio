@@ -10,7 +10,7 @@ import {
   getEquationFromState,
   computeHint,
 } from '@/lib/modules/multivariable/engine';
-import { equationToString, parseEquation, parseExpr, simplify, exprToLatex, equationsEquivalent } from '@/lib/modules/algebra/expressions';
+import { equationToString, parseEquation, parseExpr, simplify, exprToLatex, collectLikeTerms, exprEqual, Equation, Expr } from '@/lib/modules/algebra/expressions';
 import TransformationHistory from './TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -39,20 +39,28 @@ interface MultivariableEquationScreenProps {
 
 type SolveMode = 'equation' | 'operation';
 
+function toEq(left: Expr, right: Expr): Equation {
+  return { left, right };
+}
+
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
   targetVar: string,
 ): { typeId: string; parameter: string; description: string } | null {
-  const userSimplified = { left: simplify(userEq.left), right: simplify(userEq.right) };
+  const userNorm = toEq(collectLikeTerms(userEq.left), collectLikeTerms(userEq.right));
+
+  function match(result: { result: Equation } | null): boolean {
+    if (!result) return false;
+    const rsNorm = toEq(collectLikeTerms(result.result.left), collectLikeTerms(result.result.right));
+    return (exprEqual(rsNorm.left, userNorm.left) && exprEqual(rsNorm.right, userNorm.right))
+        || (exprEqual(rsNorm.left, userNorm.right) && exprEqual(rsNorm.right, userNorm.left));
+  }
 
   for (const opType of ['expand', 'collect', 'isolate'] as const) {
     const result = applyMultivariableOperation(currentEq, opType, '', targetVar);
-    if (result) {
-      const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
-      if (equationsEquivalent(rs, userSimplified)) {
-        return { typeId: opType, parameter: '', description: result.description };
-      }
+    if (match(result)) {
+      return { typeId: opType, parameter: '', description: result!.description };
     }
   }
 
@@ -60,11 +68,8 @@ function inferOperation(
     if (p === 0) continue;
     for (const opType of ['add_both', 'sub_both', 'mul_both', 'div_both'] as const) {
       const result = applyMultivariableOperation(currentEq, opType, String(p), targetVar);
-      if (result) {
-        const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
-        if (equationsEquivalent(rs, userSimplified)) {
-          return { typeId: opType, parameter: String(p), description: result.description };
-        }
+      if (match(result)) {
+        return { typeId: opType, parameter: String(p), description: result!.description };
       }
     }
   }
@@ -79,11 +84,8 @@ function inferOperation(
         const cleanedTerm = term.replace(/^\+/, '').trim();
         if (!cleanedTerm) continue;
         const result = applyMultivariableOperation(currentEq, 'move_term', cleanedTerm, targetVar);
-        if (result) {
-          const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
-          if (equationsEquivalent(rs, userSimplified)) {
-            return { typeId: 'move_term', parameter: cleanedTerm, description: result.description };
-          }
+        if (match(result)) {
+          return { typeId: 'move_term', parameter: cleanedTerm, description: result!.description };
         }
       } catch {
         continue;
