@@ -25,7 +25,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import { EquationCard } from './EquationCard';
-import MathDisplay from './MathDisplay';
 
 interface EquationGameScreenProps {
   difficulty: Difficulty;
