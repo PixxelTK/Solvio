@@ -1,0 +1,83 @@
+title: Rearranging Equations
+subject: algebra
+subjectTitle: Algebra
+description: "Rearranging equations (also called solving literal equations) involves isolating a specific variable in terms of other variables. This skill is essential for working with formulas in science, engineering, and mathematics."
+order: 2
+topics:
+  - title: Solving for a Variable
+    description: "Isolate a specific variable in an equation with multiple variables."
+    body: |
+      When solving for a specific variable in a multi-variable equation, treat all other variables as constants. The same inverse operation rules apply:
+
+      For $2x + 3y = 6$, solve for $y$:
+      1. Subtract $2x$: $3y = 6 - 2x$
+      2. Divide by $3$: $y = \\frac{6 - 2x}{3}$
+
+      The answer is expressed **in terms of** the remaining variables — this is perfectly valid in algebra.
+  - title: Rearranging Formulas
+    description: "Rewrite scientific and geometric formulas to solve for different quantities."
+    body: |
+      Formulas are literal equations that describe real-world relationships. Rearranging a formula lets you solve for any quantity it contains:
+
+      | Formula | Solve for | Result |
+      |---|---|---|
+      | $I = Prt$ (interest) | $r$ | $r = \\frac{I}{Pt}$ |
+      | $A = \\pi r^2$ (area) | $r$ | $r = \\sqrt{\\frac{A}{\\pi}}$ |
+      | $F = \\frac{9}{5}C + 32$ (temperature) | $C$ | $C = \\frac{5}{9}(F - 32)$ |
+
+      The result is a **reusable formula** that works for any input values.
+  - title: Literal Equations
+    description: "Work with equations where coefficients are represented by letters."
+    body: |
+      A literal equation has coefficients represented by letters rather than specific numbers. The solving process is identical — just treat the letter coefficients as constants:
+
+      For $ax + b = c$, solve for $x$:
+      1. Subtract $b$: $ax = c - b$
+      2. Divide by $a$: $x = \\frac{c - b}{a}$
+
+      This gives a **general solution** that works for any values of $a$, $b$, and $c$ (with $a \\neq 0$).
+practiceModule: multivariable-equation-system
+comingSoon: false
+relatedTopics:
+  - title: Linear Equations
+    path: /learn/algebra/linear-equations
+  - title: Functions
+    path: /learn/algebra/functions
+  - title: Gaussian Elimination
+    path: /learn/linear-algebra/gaussian-elimination
+concepts:
+  - title: What is a Literal Equation?
+    body: "A literal equation is an equation that contains two or more variables. Instead of solving for a numerical value, you solve for one variable in terms of the others. For example, $y = mx + b$ is a literal equation — you can solve for $x$, $m$, or $b$ in terms of the remaining variables."
+  - title: The Same Rules Apply
+    body: "Solving literal equations uses the same principles as solving numerical equations. The key difference is that your answer will contain other variables instead of numbers. Use inverse operations and maintain balance — treat the variable you are solving for as the \"unknown\" and everything else as constants."
+  - title: Strategic Order of Operations
+    body: "When isolating a variable, work in reverse order of operations (reverse PEMDAS):\n\n1. First, handle addition and subtraction (move terms without the target variable)\n2. Then handle multiplication and division\n3. Finally, deal with exponents, parentheses, and roots\n\nThis is sometimes called the \"reverse PEMDAS\" or \"undoing\" approach."
+  - title: Keeping It General
+    body: "The power of literal equations is generality. A formula like $A = \\pi r^2$ solved for $r$ gives $r = \\sqrt{\\frac{A}{\\pi}}$ — a reusable result that works for any values of $A$. This is why formulas are preferred over numerical calculations in science."
+examples:
+  - title: Solving for a Variable
+    problem: "Solve $2x + 3y = 6$ for $y$"
+    solution: "$y = \\frac{6 - 2x}{3}$"
+    steps:
+      - "$2x + 3y = 6$"
+      - "Subtract $2x$ from both sides: $3y = 6 - 2x$"
+      - "Divide both sides by $3$: $\\frac{3y}{3} = \\frac{6 - 2x}{3}$"
+      - "$y = \\frac{6 - 2x}{3}$"
+      - "Alternatively: $y = 2 - \\frac{2x}{3}$"
+  - title: Rearranging a Formula
+    problem: "The simple interest formula is $I = Prt$. Solve for $r$ (the interest rate)."
+    solution: "$r = \\frac{I}{Pt}$"
+    steps:
+      - "$I = Prt$"
+      - "Divide both sides by $P$: $\\frac{I}{P} = rt$"
+      - "Divide both sides by $t$: $\\frac{I}{Pt} = r$"
+      - "$r = \\frac{I}{Pt}$"
+      - "The interest rate equals interest divided by (principal times time)."
+  - title: Geometric Formula
+    problem: "The surface area of a cylinder is $A = 2\\pi r^2 + 2\\pi rh$. Solve for $h$."
+    solution: "$h = \\frac{A - 2\\pi r^2}{2\\pi r}$"
+    steps:
+      - "$A = 2\\pi r^2 + 2\\pi rh$"
+      - "Subtract $2\\pi r^2$ from both sides: $A - 2\\pi r^2 = 2\\pi rh$"
+      - "Divide both sides by $2\\pi r$: $\\frac{A - 2\\pi r^2}{2\\pi r} = h$"
+      - "$h = \\frac{A - 2\\pi r^2}{2\\pi r}$"

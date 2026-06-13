@@ -5,7 +5,7 @@ import { Difficulty, MathState, Operation, TransformationStep, ValidationResult,
 import { equationTransformationModule } from '@/lib/modules/algebra';
 import { applyAlgebraOperation, stateToEquation, computeHint, equationToState } from '@/lib/modules/algebra/engine';
 import { equationToString, parseEquation, simplify, exprToLatex, collectLikeTerms, exprEqual, Equation } from '@/lib/modules/algebra/expressions';
-import TransformationHistory from './TransformationHistory';
+import TransformationHistory from '../TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faRotate,
@@ -24,7 +24,7 @@ import {
   faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
-import { EquationCard } from './EquationCard';
+import { EquationCard } from '../EquationCard';
 
 interface EquationGameScreenProps {
   difficulty: Difficulty;

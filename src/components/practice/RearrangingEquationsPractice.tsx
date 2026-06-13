@@ -11,7 +11,7 @@ import {
   computeHint,
 } from '@/lib/modules/multivariable/engine';
 import { equationToString, parseEquation, parseExpr, simplify, exprToLatex, collectLikeTerms, exprEqual, Equation, Expr } from '@/lib/modules/algebra/expressions';
-import TransformationHistory from './TransformationHistory';
+import TransformationHistory from '../TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faRotate,
@@ -30,7 +30,7 @@ import {
   faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
-import { EquationCard } from './EquationCard';
+import { EquationCard } from '../EquationCard';
 
 interface MultivariableEquationScreenProps {
   difficulty: Difficulty;

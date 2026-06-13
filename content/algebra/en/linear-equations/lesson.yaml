@@ -1,0 +1,107 @@
+title: Linear Equations
+subject: algebra
+subjectTitle: Algebra
+description: "Linear equations are equations of the form $ax + b = c$ where $a$, $b$, and $c$ are constants. This lesson covers techniques for solving linear equations of increasing complexity, from one-step equations to equations with variables on both sides."
+order: 1
+topics:
+  - title: One-Step Equations
+    description: "Solve equations requiring a single operation like $x + 3 = 7$ or $2x = 10$."
+    body: |
+      A one-step equation requires exactly **one inverse operation** to isolate the variable. For example:
+
+      - $x + 3 = 7$: subtract $3$ from both sides → $x = 4$
+      - $2x = 10$: divide both sides by $2$ → $x = 5$
+      - $x - 3 = 7$: add $3$ to both sides → $x = 10$
+      - $\\frac{x}{2} = 5$: multiply both sides by $2$ → $x = 10$
+
+      The key is identifying which operation is being applied to the variable and using its inverse.
+  - title: Multi-Step Equations
+    description: "Solve equations requiring multiple operations like $2x - 5 = 11$."
+    body: |
+      Multi-step equations require more than one inverse operation. The strategy is to **reverse the order of operations** (undo addition/subtraction first, then multiplication/division):
+
+      For $2x - 5 = 11$:
+      1. Add $5$ to both sides: $2x = 16$
+      2. Divide both sides by $2$: $x = 8$
+
+      Always check by substituting back into the original equation.
+  - title: Equations with Fractions
+    description: "Solve equations involving fractions like $\\frac{x}{3} + 2 = 5$."
+    body: |
+      When solving equations with fractions, you have two approaches:
+
+      - **Clear the fraction**: multiply both sides by the denominator
+      - **Treat it as a multi-step**: undo addition/subtraction first, then the fraction (which is division by the denominator)
+
+      For $\\frac{x}{3} + 2 = 5$:
+      1. Subtract $2$: $\\frac{x}{3} = 3$
+      2. Multiply by $3$: $x = 9$
+
+      For equations with multiple fractions, multiplying by the **least common denominator (LCD)** clears all fractions at once.
+  - title: Variables on Both Sides
+    description: "Solve equations with variables on both sides like $3x + 7 = 2x - 5$."
+    body: |
+      When the variable appears on both sides, the goal is to **collect variable terms on one side** and **constant terms on the other**:
+
+      For $3x + 7 = 2x - 5$:
+      1. Subtract $2x$ from both sides: $x + 7 = -5$
+      2. Subtract $7$ from both sides: $x = -12$
+
+      **Tip**: always move the smaller variable term to avoid negative coefficients when possible.
+practiceModule: equation-transformation
+comingSoon: false
+relatedTopics:
+  - title: Rearranging Equations
+    path: /learn/algebra/rearranging-equations
+  - title: Systems of Equations
+    path: /learn/algebra/systems-of-equations
+  - title: Inequalities
+    path: /learn/algebra/inequalities
+concepts:
+  - title: What is a Linear Equation?
+    body: "A linear equation is an equation where the highest power of the variable is $1$. The general form is $ax + b = c$, where $x$ is the variable, and $a$, $b$, $c$ are constants with $a \\neq 0$. The graph of a linear equation in one variable is a single point on the number line; in two variables, it forms a straight line."
+  - title: The Balance Principle
+    body: "Solving equations relies on the balance principle: whatever operation you perform on one side of the equation, you must perform the same operation on the other side. This preserves equality. Think of a balanced scale — if you add weight to one side, you must add the same weight to the other to keep it balanced."
+  - title: Inverse Operations
+    body: "To isolate the variable, use inverse operations:\n\n| Operation | Inverse Operation |\n|---|---|\n| Addition ($+$) | Subtraction ($-$) |\n| Subtraction ($-$) | Addition ($+$) |\n| Multiplication ($\\times$) | Division ($\\div$) |\n| Division ($\\div$) | Multiplication ($\\times$) |\n| Square ($x^2$) | Square Root ($\\sqrt{\\phantom{x}}$) |\n\nThe goal is to undo everything that has been done to the variable, in reverse order (reverse of PEMDAS)."
+  - title: Checking Solutions
+    body: "Always verify your solution by substituting it back into the original equation. If both sides evaluate to the same value, the solution is correct. For example, if $x = 4$ solves $x + 3 = 7$, then $4 + 3 = 7$ confirms it."
+examples:
+  - title: One-Step Equation
+    problem: "Solve $x + 3 = 7$"
+    solution: "$x = 4$"
+    steps:
+      - "$x + 3 = 7$"
+      - "Subtract $3$ from both sides: $x + 3 - 3 = 7 - 3$"
+      - "$x = 4$"
+      - "Check: $4 + 3 = 7$ ✓"
+  - title: Two-Step Equation
+    problem: "Solve $2x - 5 = 11$"
+    solution: "$x = 8$"
+    steps:
+      - "$2x - 5 = 11$"
+      - "Add $5$ to both sides: $2x - 5 + 5 = 11 + 5$"
+      - "$2x = 16$"
+      - "Divide both sides by $2$: $\\frac{2x}{2} = \\frac{16}{2}$"
+      - "$x = 8$"
+      - "Check: $2(8) - 5 = 16 - 5 = 11$ ✓"
+  - title: Variables on Both Sides
+    problem: "Solve $3x + 7 = 2x - 5$"
+    solution: "$x = -12$"
+    steps:
+      - "$3x + 7 = 2x - 5$"
+      - "Subtract $2x$ from both sides: $3x - 2x + 7 = 2x - 2x - 5$"
+      - "$x + 7 = -5$"
+      - "Subtract $7$ from both sides: $x + 7 - 7 = -5 - 7$"
+      - "$x = -12$"
+      - "Check: $3(-12) + 7 = -36 + 7 = -29$ and $2(-12) - 5 = -24 - 5 = -29$ ✓"
+  - title: Equation with Fractions
+    problem: "Solve $\\frac{x}{3} + 2 = 5$"
+    solution: "$x = 9$"
+    steps:
+      - "$\\frac{x}{3} + 2 = 5$"
+      - "Subtract $2$ from both sides: $\\frac{x}{3} + 2 - 2 = 5 - 2$"
+      - "$\\frac{x}{3} = 3$"
+      - "Multiply both sides by $3$: $3 \\cdot \\frac{x}{3} = 3 \\cdot 3$"
+      - "$x = 9$"
+      - "Check: $\\frac{9}{3} + 2 = 3 + 2 = 5$ ✓"

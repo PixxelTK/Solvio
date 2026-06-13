@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { linearAlgebraModule, matrixToState, stateToData, deepCopy, AugmentedMatrix, applyRowOperation, computeHint } from '@/lib/modules/linear-algebra';
-import TransformationHistory from './TransformationHistory';
+import TransformationHistory from '../TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faRotate,
@@ -18,7 +18,7 @@ import {
   faTableCells,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
-import { EquationCard } from './EquationCard';
+import { EquationCard } from '../EquationCard';
 
 interface GameScreenProps {
   difficulty: Difficulty;

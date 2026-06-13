@@ -11,25 +11,26 @@ interface MathDisplayProps {
 
 export default function MathDisplay({ latex, className = '', displayMode = true }: MathDisplayProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const spanRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (ref.current) {
+    const el = ref.current ?? spanRef.current;
+    if (el) {
       try {
-        katex.render(latex, ref.current, {
+        katex.render(latex, el, {
           displayMode,
           throwOnError: false,
           trust: true,
         });
       } catch {
-        ref.current.textContent = latex;
+        el.textContent = latex;
       }
     }
   }, [latex, displayMode]);
 
-  return (
-    <div
-      ref={ref}
-      className={`math-display ${className}`}
-    />
-  );
+  if (displayMode) {
+    return <div ref={ref} className={`math-display ${className}`} />;
+  }
+
+  return <span ref={spanRef} className={`math-display ${className}`} />;
 }
