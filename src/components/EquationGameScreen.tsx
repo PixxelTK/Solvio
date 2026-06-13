@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { equationTransformationModule } from '@/lib/modules/algebra';
 import { applyAlgebraOperation, stateToEquation, computeHint, equationToState } from '@/lib/modules/algebra/engine';
 import { equationToString, parseEquation, simplify, exprToLatex, equationsEquivalent } from '@/lib/modules/algebra/expressions';
-import MathDisplay from './MathDisplay';
 import TransformationHistory from './TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,6 +24,7 @@ import {
   faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
+import { EquationCard } from './EquationCard';
 
 interface EquationGameScreenProps {
   difficulty: Difficulty;
@@ -82,6 +82,26 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
   const [stepCount, setStepCount] = useState(0);
   const paramRef = useRef<HTMLInputElement>(null);
   const eqRef = useRef<HTMLInputElement>(null);
+  const equationRef = useRef<HTMLDivElement>(null);
+  const [floatingEquation, setFloatingEquation] = useState(false);
+
+  useEffect(() => {
+    const el = equationRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setFloatingEquation(!entry.isIntersecting);
+      },
+      {
+        threshold: 0,
+      }
+    );
+
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
 
   const operations = useMemo(
     () => equationTransformationModule.getAvailableOperations(currentState),
@@ -294,19 +314,18 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
           </section>
 
           {/* Equation */}
-          <section className="mb-6 sticky top-2 md:static z-50">
-            <div className="rounded-2xl shadow-xl sm:shadow-none backdrop-blur-lg sm:backdrop-blur-none bg-gray-100/70 dark:bg-slate-900/70 sm:bg-gray-100 sm:dark:bg-slate-900 sm:px-8 py-1">
-              <div className="text-xs uppercase text-slate-400 text-center mt-4 sm:mt-6">
-                Current Equation
-              </div>
-
-              <MathDisplay
-                latex={currentState.latex}
-                className="text-3xl sm:text-5xl"
-              />
-
-            </div>
+          <section ref={equationRef} className="mb-6">
+            <EquationCard title='Current Equation' latex={currentState.latex} />
           </section>
+
+          <div
+            className={`md:hidden fixed top-2 left-0 right-0 z-50 px-4 transition-all duration-300 ${floatingEquation
+              ? "translate-y-0"
+              : "-translate-y-50 pointer-events-none"
+              }`}
+          >
+            <EquationCard title='Current Equation' latex={currentState.latex} />
+          </div>
 
           <div className='flex flex-col gap-6 items-start'>
             <div className="w-full rounded-2xl bg-gray-100 dark:bg-slate-900 px-4 py-4">
@@ -387,12 +406,12 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 </div>
 
                 {/* Tab bar */}
-                <div className="flex gap-2 mb-3 p-2 rounded-xl bg-gray-100 dark:bg-slate-900">
+                <div className="flex gap-2 mb-3 p-1 rounded-xl bg-gray-100 dark:bg-slate-900">
                   <button
                     onClick={() => { setSolveMode('equation'); setValidation(null); }}
                     className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
                       ${solveMode === 'equation'
-                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                       }`}
                   >
@@ -402,7 +421,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                     onClick={() => { setSolveMode('operation'); setValidation(null); }}
                     className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
                       ${solveMode === 'operation'
-                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                       }`}
                   >
@@ -438,7 +457,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                       </button>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-5 gap-2 p-2 text-slate-500 dark:text-slate-100 rounded-2xl bg-gray-100 dark:bg-slate-900">
+                    <div className="mt-3 grid grid-cols-5 gap-2 p-2 text-slate-600 dark:text-slate-100 rounded-2xl bg-gray-100 dark:bg-slate-900">
                       {[
                         { key: "7", label: "7" },
                         { key: "8", label: "8" },
@@ -463,12 +482,13 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                         { key: ")", label: ")" },
                         { key: "/", icon: faDivide },
                         { key: "=", icon: faEquals },
+                        { key: ".", label: "." },
                       ].map(item => (
                         <button
                           key={item.key}
                           type="button"
                           onClick={() => insertSymbol(item.key)}
-                          className="h-11 rounded-xl bg-white dark:bg-slate-800 text-lg font-semibold active:scale-95 transition"
+                          className="h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
                         >
                           {item.icon ? (
                             <FontAwesomeIcon icon={item.icon} />
@@ -481,14 +501,14 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                       <button
                         type="button"
                         onClick={() => setUserEquation("")}
-                        className="col-span-1 h-11 rounded-xl bg-white dark:bg-slate-800 text-lg font-semibold active:scale-95 transition"
+                        className="col-span-1 h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
                       >
                         <FontAwesomeIcon icon={faRotateLeft} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setUserEquation(prev => prev.slice(0, -1))}
-                        className="col-span-2 h-11 rounded-xl bg-white dark:bg-slate-800 text-lg font-semibold active:scale-95 transition"
+                        className="col-span-2 h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
                       >
                         <FontAwesomeIcon icon={faDeleteLeft} />
                       </button>
@@ -566,7 +586,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                           Enter a value
                         </div>
 
-                        <div className="mb-3">
+                        <div className="mb-3 flex gap-2">
                           <input
                             ref={paramRef}
                             type="text"
@@ -576,18 +596,18 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                             placeholder={currentOp.parameterLabel || "Enter value"}
                             className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
                           />
+
+                          <button
+                            onClick={handleOperationModeSubmit}
+                            disabled={currentOp?.needsParameter && !opParam.trim()}
+                            className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
+                          >
+                            <FontAwesomeIcon icon={faCheck} className='mr-1' />
+                            Apply
+                          </button>
                         </div>
                       </>
                     )}
-
-                    <button
-                      onClick={handleOperationModeSubmit}
-                      disabled={currentOp?.needsParameter && !opParam.trim()}
-                      className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
-                    >
-                      <FontAwesomeIcon icon={faCheck} className='mr-1' />
-                      Apply
-                    </button>
                   </>
                 )}
               </section>
@@ -597,7 +617,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
               <div
                 className={`rounded-xl py-3
                     ${validation.valid
-                    ? "text-emerald-700 dark:text-emerald-500"
+                    ? "text-emerald-500 dark:text-emerald-500"
                     : "text-red-500 dark:text-red-400"
                   }
                   `}

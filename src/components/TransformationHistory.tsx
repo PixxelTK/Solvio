@@ -41,19 +41,19 @@ export default function TransformationHistory({ steps, isComplete, completionMes
         </div>
       ))}
       {isComplete && (
-        <div className="mt-4 p-4 bg-green-500 dark:bg-green-800 rounded-lg flex items-center justify-center gap-2">
+        <div className="mt-4 p-2 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center gap-2">
           <FontAwesomeIcon
             icon={faCircleCheck}
-            className="text-white text-2xl"
+            className="text-emerald-500 text-2xl"
           />
 
           <div className="flex flex-col">
-            <div className="text-white font-bold text-lg">
+            <div className="text-emerald-500 font-bold text-lg">
               Completed
             </div>
 
             {completionMessage && (
-              <div className="text-gray-100 dark:text-gray-300 text-sm">
+              <div className="text-emerald-400 text-sm">
                 {completionMessage}
               </div>
             )}

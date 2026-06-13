@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { linearAlgebraModule, matrixToState, stateToData, deepCopy, AugmentedMatrix, applyRowOperation, computeHint } from '@/lib/modules/linear-algebra';
-import MathDisplay from './MathDisplay';
 import TransformationHistory from './TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -19,6 +18,7 @@ import {
   faTableCells,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
+import { EquationCard } from './EquationCard';
 
 interface GameScreenProps {
   difficulty: Difficulty;
@@ -61,8 +61,28 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
   const opInputRef = useRef<HTMLInputElement>(null);
 
   const operations = linearAlgebraModule.getAvailableOperations(currentState);
-  const currentOp = operations.find(o => o.id === selectedOp);
   const help = OPERATION_HELP[selectedOp];
+
+  const equationRef = useRef<HTMLDivElement>(null);
+  const [floatingEquation, setFloatingEquation] = useState(false);
+
+  useEffect(() => {
+    const el = equationRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setFloatingEquation(!entry.isIntersecting);
+      },
+      {
+        threshold: 0,
+      }
+    );
+
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleApplyOperation = useCallback(() => {
     if (!opParam.trim()) return;
@@ -165,7 +185,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
   }, [handleApplyOperation]);
 
   return (
-   <div className="min-h-dvh text-slate-900 dark:text-slate-100">
+    <div className="min-h-dvh text-slate-900 dark:text-slate-100">
 
       <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-6 py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
@@ -240,14 +260,18 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
             )}
           </section>
 
-          <section className="mb-6 sticky top-2 md:static z-50">
-            <div className="rounded-2xl shadow-xl sm:shadow-none backdrop-blur-lg sm:backdrop-blur-none bg-gray-100/70 dark:bg-slate-900/70 sm:bg-gray-100 sm:dark:bg-slate-900 sm:px-8 py-1">
-              <div className="text-xs uppercase text-slate-400 text-center mt-4 sm:mt-6">
-                Current Matrix
-              </div>
-              <MathDisplay latex={currentState.latex} className="text-xl sm:text-3xl" />
-            </div>
+          <section ref={equationRef} className="mb-6">
+            <EquationCard title='Current Matrix' latex={currentState.latex} size='text-xl sm:text-3xl' />
           </section>
+
+          <div
+            className={`md:hidden fixed top-2 left-0 right-0 z-50 px-4 transition-all duration-300 ${floatingEquation
+              ? "translate-y-0"
+              : "-translate-y-50 pointer-events-none"
+              }`}
+          >
+            <EquationCard title='Current Matrix' latex={currentState.latex} size='text-xl sm:text-3xl'/>
+          </div>
 
           <div className="flex flex-col gap-6 items-start">
             <div className="w-full rounded-2xl bg-gray-100 dark:bg-slate-900 px-4 py-4">
