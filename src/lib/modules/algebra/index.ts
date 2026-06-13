@@ -3,7 +3,7 @@ import { generateQuestion, validateStep, getHint, isSolved, getAvailableOperatio
 
 export const equationTransformationModule: MathModule = {
   id: 'equation-transformation',
-  title: 'Equation Transformation',
+  title: 'Algebra: Single Variable',
   description: 'Solve equations through step-by-step transformations',
   icon: 'ƒ',
   generateQuestion(difficulty: Difficulty): Question {

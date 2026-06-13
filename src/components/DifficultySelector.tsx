@@ -15,15 +15,15 @@ const validModes: Mode[] = ['equation-transformation', 'gaussian-elimination', '
 
 const modeInfo = {
   'equation-transformation': {
-    title: 'Equation Transformation',
+    title: 'Algebra: Single Variable',
     icon: faEquals,
   },
   'multivariable-equation-system': {
-    title: 'Multivariable Equation System',
+    title: 'Algebra: Multiple Variables',
     icon: faX,
   },
   'gaussian-elimination': {
-    title: 'Gaussian Elimination',
+    title: 'Linear Algebra: Gaussian Elimination',
     icon: faTableCells,
   },
 };

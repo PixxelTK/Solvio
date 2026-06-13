@@ -14,7 +14,7 @@ const modes = [
   {
     id: 'equation-transformation' as const,
     icon: faEquals,
-    title: 'Equation Transformation',
+    title: 'Algebra: Single Variable',
     description: 'Solve algebra equations step by step',
     examples: ['x + 5 = 12', '3(2y + 1) = 15', '2(y + 1) + 3y = 7'],
     topics: ['Linear equations', 'Parentheses', 'Fractions', 'Like terms'],
@@ -22,7 +22,7 @@ const modes = [
   {
     id: 'multivariable-equation-system' as const,
     icon: faX,
-    title: 'Multivariable Equation System',
+    title: 'Algebra: Multiple Variables',
     description: 'Solve equations with multiple variables (x, y, z)',
     examples: ['x + y = 10', '2x + 3y = 12', 'x + y + z = 15'],
     topics: ['Multiple variables', 'Isolation', 'Term rearrangement', 'Expression solving'],
@@ -30,7 +30,7 @@ const modes = [
   {
     id: 'gaussian-elimination' as const,
     icon: faTableCells,
-    title: 'Gaussian Elimination',
+    title: 'Linear Algebra: Gaussian Elimination',
     description: 'Reduce matrices to row echelon form',
     examples: ['2×2 systems', '3×3 systems', 'Row operations'],
     topics: ['Row swap', 'Row scale', 'Row replacement', 'RREF'],

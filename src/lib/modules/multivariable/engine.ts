@@ -462,7 +462,7 @@ export function generateQuestion(difficulty: Difficulty): Question {
     },
     targetDescription: problem.targetDescription,
     difficulty,
-    topic: 'Multivariable Equation System',
+    topic: 'Algebra: Multiple Variables',
   };
 }
 
