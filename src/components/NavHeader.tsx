@@ -23,12 +23,19 @@ export default function NavHeader() {
     const topic = segments[2];
 
     if (topic) {
-      breadcrumbs.push({ label: subjectLabel, href: `/learn/${subject}/${topic}` });
       const topicLabel = labelFromSlug(topic);
+
       if (segments.length > 3) {
+        breadcrumbs.push({ label: subjectLabel, href: `/learn/${subject}/${topic}` });
         breadcrumbs.push({ label: topicLabel, href: `/learn/${subject}/${topic}` });
         breadcrumbs.push({ label: 'Practice', href: `/learn/${subject}/${topic}/practice` });
+
+        if (segments.length > 4 && segments[3] === 'practice') {
+          const dif = labelFromSlug(segments[4]);
+          breadcrumbs.push({ label: dif, href: `/learn/${subject}/${topic}/practice/${segments[4]}` });
+        }
       } else {
+        breadcrumbs.push({ label: subjectLabel, href: `/learn/${subject}/${topic}` });
         breadcrumbs.push({ label: topicLabel, href: `/learn/${subject}/${topic}` });
       }
     }

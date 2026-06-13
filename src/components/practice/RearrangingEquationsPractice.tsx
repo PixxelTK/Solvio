@@ -29,7 +29,6 @@ import {
   faXmark,
   faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from 'next/navigation';
 import { EquationCard } from '../EquationCard';
 
 interface MultivariableEquationScreenProps {
@@ -69,7 +68,7 @@ function inferOperation(
     if (!result) return false;
     const rsNorm = toEq(collectLikeTerms(result.result.left), collectLikeTerms(result.result.right));
     return (exprEqual(rsNorm.left, userNorm.left) && exprEqual(rsNorm.right, userNorm.right))
-        || (exprEqual(rsNorm.left, userNorm.right) && exprEqual(rsNorm.right, userNorm.left));
+      || (exprEqual(rsNorm.left, userNorm.right) && exprEqual(rsNorm.right, userNorm.left));
   }
 
   for (const opType of ['expand', 'collect', 'isolate'] as const) {
@@ -112,7 +111,6 @@ function inferOperation(
 }
 
 export default function MultivariableEquationScreen({ difficulty, onBack }: MultivariableEquationScreenProps) {
-  const router = useRouter();
   const [question, setQuestion] = useState(() => multivariableModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [targetVar, setTargetVar] = useState(() => getTargetVariable(question.initialState));
@@ -336,24 +334,12 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
     <div className="min-h-dvh text-slate-900 dark:text-slate-100">
 
       {/* ========================= HEADER ========================= */}
-      <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-lg">
+      <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-6 py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
 
-          <button
-            onClick={() => router.push("/")}
-            className="cursor-pointer py-2 rounded-xl transition-colors hover:opacity-80"
-          >
-            <h1 className="text-lg lg:text-xl font-bold"><span className='font-light'>Solvio</span> Math</h1>
-          </button>
+          <h1 className="text-lg lg:text-xl py-2 font-bold"><span className='font-light'>{question.topic}</span> Practice</h1>
 
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            <button
-              onClick={() => router.push("/")}
-              className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-              <FontAwesomeIcon icon={faEquals} className='mr-2' />
-              {question.topic}
-            </button>
-
             <button
               onClick={onBack}
               className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"

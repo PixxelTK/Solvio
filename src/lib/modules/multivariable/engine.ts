@@ -462,7 +462,7 @@ export function generateQuestion(difficulty: Difficulty): Question {
     },
     targetDescription: problem.targetDescription,
     difficulty,
-    topic: 'Algebra: Multiple Variables',
+    topic: 'Rearranging Equations',
   };
 }
 

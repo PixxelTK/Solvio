@@ -478,7 +478,7 @@ export function generateQuestion(difficulty: Difficulty): Question {
     initialState: equationToState(problem.equation),
     targetDescription: problem.targetDescription,
     difficulty,
-    topic: 'Algebra: Single Variable',
+    topic: 'Linear Equations',
   };
 }
 

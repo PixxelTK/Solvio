@@ -3,7 +3,7 @@ import { generateQuestion, getHint, isSolved, getAvailableOperations, getTargetV
 
 export const multivariableModule: MathModule = {
   id: 'multivariable-equation-system',
-  title: 'Algebra: Multiple Variables',
+  title: 'Rearranging Equations',
   description: 'Solve equations with multiple variables step by step',
   icon: '𝓍',
   generateQuestion(difficulty: Difficulty): Question {

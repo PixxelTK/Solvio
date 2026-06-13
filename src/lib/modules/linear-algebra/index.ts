@@ -383,7 +383,7 @@ export const linearAlgebraModule: MathModule = {
       initialState: matrixToState(matrix),
       targetDescription: 'Reduce to Reduced Row Echelon Form (RREF)',
       difficulty,
-      topic: 'Linear Algebra',
+      topic: 'Gaussian Elimination',
     };
   },
 
