@@ -1,22 +1,22 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { linearAlgebraModule, matrixToState, stateToData, deepCopy, AugmentedMatrix, applyRowOperation, computeHint } from '@/lib/modules/linear-algebra';
-import TransformationHistory from '../TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faRotate,
-  faLayerGroup,
-  faLightbulb,
-  faCircleCheck,
-  faCircleXmark,
-  faForward,
   faCheck,
   faChevronDown,
   faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { EquationCard } from '../EquationCard';
+import PracticeHeader from './components/PracticeHeader';
+import FloatingEquation from './components/FloatingEquation';
+import StepsPanel from './components/StepsPanel';
+import HintBanner from './components/HintBanner';
+import ActionButtons from './components/ActionButtons';
+import ValidationBanner from './components/ValidationBanner';
+import NextProblemButton from './components/NextProblemButton';
 
 interface GameScreenProps {
   difficulty: Difficulty;
@@ -49,7 +49,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
   ]);
   const [selectedOp, setSelectedOp] = useState<string>('row_add');
   const [opParam, setOpParam] = useState('');
-  const [userMatrix, setUserMatrix] = useState<AugmentedMatrix>(() => stateToData(question.initialState).matrix);
+  const [, setUserMatrix] = useState<AugmentedMatrix>(() => stateToData(question.initialState).matrix);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [hint, setHint] = useState<Hint | null>(null);
   const [isComplete, setIsComplete] = useState(false);
@@ -59,27 +59,6 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
 
   const operations = linearAlgebraModule.getAvailableOperations(currentState);
   const help = OPERATION_HELP[selectedOp];
-
-  const equationRef = useRef<HTMLDivElement>(null);
-  const [floatingEquation, setFloatingEquation] = useState(false);
-
-  useEffect(() => {
-    const el = equationRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setFloatingEquation(!entry.isIntersecting);
-      },
-      {
-        threshold: 0,
-      }
-    );
-
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, []);
 
   const handleApplyOperation = useCallback(() => {
     if (!opParam.trim()) return;
@@ -184,22 +163,9 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
   return (
     <div className="min-h-dvh text-slate-900 dark:text-slate-100">
 
-      <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-6 py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
-          <h1 className="lg:text-lg py-2 font-bold"><span className='font-light'>{question.topic}</span> Practice</h1>
+      <PracticeHeader topic={question.topic} difficulty={difficulty} onBack={onBack} />
 
-          <div className="flex items-center gap-2 flex-wrap justify-center">
-            <button
-              onClick={onBack}
-              className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              {difficulty}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-12">
+      <div className="max-w-5xl mx-auto w-[90%] py-8 flex flex-col lg:flex-row gap-12">
         <main className="w-full">
           <section className="mb-6">
             <div className="flex gap-4 justify-between items-center">
@@ -244,65 +210,13 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
             )}
           </section>
 
-          <section ref={equationRef} className="mb-6">
-            <EquationCard title='Current Matrix' latex={currentState.latex} size='text-xl sm:text-3xl' />
-          </section>
+          <FloatingEquation title="Current Matrix" latex={currentState.latex} size="text-xl sm:text-3xl" />
 
-          <div
-            className={`md:hidden fixed top-2 left-0 right-0 z-50 px-4 transition-all duration-300 ${floatingEquation
-              ? "translate-y-0"
-              : "-translate-y-80 pointer-events-none"
-              }`}
-          >
-            <EquationCard title='Current Matrix' latex={currentState.latex} size='text-xl sm:text-3xl'/>
-          </div>
+          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage="Matrix is in RREF" />
 
-          <div className="flex flex-col gap-6 items-start">
-            <div className="w-full rounded-2xl bg-gray-100 dark:bg-slate-900 px-4 py-4">
-              <div className="flex items-center justify-between gap-2 mb-5">
-                <div className="flex gap-2 items-center">
-                  <FontAwesomeIcon icon={faLightbulb} className="text-amber-500" />
-                  <h2 className="font-medium">Steps</h2>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:text-slate-300 dark:bg-gray-800 text-sm">
-                  <FontAwesomeIcon icon={faLayerGroup} />
-                  Step {stepCount}
-                </div>
-              </div>
-              <div className="pl-3">
-                <TransformationHistory steps={steps} isComplete={isComplete} completionMessage="Matrix is in RREF" />
-              </div>
-            </div>
-          </div>
+          {hint && <HintBanner hint={hint} />}
 
-          {hint && (
-            <div className="mb-3 mt-4 rounded-2xl px-4 py-4 bg-amber-100 dark:bg-amber-950/20 text-amber-600 dark:text-amber-300">
-              <div className="flex items-center gap-2">
-                <FontAwesomeIcon icon={faLightbulb} />
-                <span className="font-medium">Hint</span>
-              </div>
-              <div>{hint.operationDescription}</div>
-            </div>
-          )}
-
-          {!isComplete && (
-            <div className="flex flex-wrap gap-3 mt-4">
-              <button
-                onClick={handleGetHint}
-                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
-              >
-                <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
-                Show Hint
-              </button>
-              <button
-                onClick={handleSkip}
-                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
-              >
-                <FontAwesomeIcon icon={faForward} className="mr-2" />
-                Next Step
-              </button>
-            </div>
-          )}
+          {!isComplete && <ActionButtons onHint={handleGetHint} onSkip={handleSkip} skipLabel="Next Step" />}
         </main>
 
         <aside className="lg:w-5xl">
@@ -378,27 +292,9 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
               </section>
             )}
 
-            {validation && (
-              <div className={`rounded-xl py-3 ${validation.valid
-                ? 'text-emerald-700 dark:text-emerald-500'
-                : 'text-red-500 dark:text-red-400'
-                }`}>
-                <div className="flex items-center gap-2">
-                  <FontAwesomeIcon icon={validation.valid ? faCircleCheck : faCircleXmark} />
-                  <span>{validation.message}</span>
-                </div>
-              </div>
-            )}
+            {validation && <ValidationBanner validation={validation} />}
 
-            {isComplete && (
-              <button
-                onClick={handleNewProblem}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl cursor-pointer bg-green-500 dark:bg-green-600 text-white hover:opacity-90 transition-opacity"
-              >
-                <FontAwesomeIcon icon={faForward} />
-                Next Problem
-              </button>
-            )}
+            {isComplete && <NextProblemButton onClick={handleNewProblem} />}
           </div>
         </aside>
       </div>

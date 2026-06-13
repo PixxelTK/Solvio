@@ -42,7 +42,7 @@ export default function NavHeader() {
   }
 
   return (
-    <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-lg">
+    <header className="sm:sticky top-0 z-50 py-2 bg-gray-100/50 dark:bg-slate-900/50 backdrop-blur-2xl">
       <div className="mx-auto flex flex-wrap max-w-5xl w-[90%] items-center gap-x-3">
         <SolvioLogo/>
         {breadcrumbs.length > 1 && (

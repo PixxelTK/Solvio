@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
 import { multivariableModule } from '@/lib/modules/multivariable';
 import {
@@ -11,25 +11,17 @@ import {
   computeHint,
 } from '@/lib/modules/multivariable/engine';
 import { equationToString, parseEquation, parseExpr, simplify, exprToLatex, collectLikeTerms, exprEqual, Equation, Expr } from '@/lib/modules/algebra/expressions';
-import TransformationHistory from '../TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faRotate,
-  faLayerGroup,
-  faLightbulb,
-  faCircleCheck,
-  faCircleXmark,
-  faForward,
-  faCheck,
-  faEquals,
-  faDeleteLeft,
-  faDivide,
-  faMinus,
-  faPlus,
-  faXmark,
-  faRotateLeft,
-} from "@fortawesome/free-solid-svg-icons";
-import { EquationCard } from '../EquationCard';
+import { faRotate, faCheck } from "@fortawesome/free-solid-svg-icons";
+import PracticeHeader from './components/PracticeHeader';
+import FloatingEquation from './components/FloatingEquation';
+import StepsPanel from './components/StepsPanel';
+import HintBanner from './components/HintBanner';
+import ActionButtons from './components/ActionButtons';
+import ValidationBanner from './components/ValidationBanner';
+import NextProblemButton from './components/NextProblemButton';
+import EquationKeyboard from './components/EquationKeyboard';
+import ModeTabs from './components/ModeTabs';
 
 interface MultivariableEquationScreenProps {
   difficulty: Difficulty;
@@ -127,23 +119,6 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
   const [stepCount, setStepCount] = useState(0);
   const paramRef = useRef<HTMLInputElement>(null);
   const eqRef = useRef<HTMLInputElement>(null);
-  const equationRef = useRef<HTMLDivElement>(null);
-  const [floatingEquation, setFloatingEquation] = useState(false);
-
-  useEffect(() => {
-    const el = equationRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setFloatingEquation(!entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   const operations = useMemo(
     () => multivariableModule.getAvailableOperations(currentState),
@@ -333,25 +308,10 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
   return (
     <div className="min-h-dvh text-slate-900 dark:text-slate-100">
 
-      {/* ========================= HEADER ========================= */}
-      <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-6 py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
-
-          <h1 className="lg:text-lg py-2 font-bold"><span className='font-light'>{question.topic}</span> Practice</h1>
-
-          <div className="flex items-center gap-2 flex-wrap justify-center">
-            <button
-              onClick={onBack}
-              className="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm capitalize hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              {difficulty}
-            </button>
-          </div>
-        </div>
-      </header>
+      <PracticeHeader topic={question.topic} difficulty={difficulty} onBack={onBack} />
 
       {/* ========================= BODY ========================= */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-12">
+      <div className="max-w-5xl mx-auto w-[90%] py-8 flex flex-col lg:flex-row gap-12">
         <main className="w-full">
           {/* Goal */}
           <section className="mb-6">
@@ -375,81 +335,13 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
             </div>
           </section>
 
-          {/* Equation */}
-          <section ref={equationRef} className="mb-6">
-            <EquationCard title='Current Equation' latex={currentState.latex} />
-          </section>
+          <FloatingEquation title="Current Equation" latex={currentState.latex} />
 
-          <div
-            className={`md:hidden fixed top-2 left-0 right-0 z-50 px-4 transition-all duration-300 ${floatingEquation
-              ? "translate-y-0"
-              : "-translate-y-80 pointer-events-none"
-              }`}
-          >
-            <EquationCard title='Current Equation' latex={currentState.latex} />
-          </div>
+          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage="Variable isolated" />
 
-          <div className='flex flex-col gap-6 items-start'>
-            <div className="w-full rounded-2xl bg-gray-100 dark:bg-slate-900 px-4 py-4">
-              <div className="flex items-center justify-between gap-2 mb-5">
-                <div className='flex gap-2 items-center'>
-                  <FontAwesomeIcon icon={faLightbulb} className='text-amber-500' />
+          {hint && <HintBanner hint={hint} />}
 
-                  <h2 className="font-medium">
-                    Steps
-                  </h2>
-                </div>
-
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:text-slate-300 dark:bg-gray-800 text-sm">
-                  <FontAwesomeIcon icon={faLayerGroup} />
-                  Step {stepCount}
-                </div>
-              </div>
-
-              <div className="pl-3">
-                <TransformationHistory
-                  steps={steps}
-                  isComplete={isComplete}
-                  completionMessage="Variable isolated"
-                />
-              </div>
-            </div>
-          </div>
-
-          {hint && (
-            <div className="mb-3 mt-4 rounded-2xl px-4 py-4 bg-amber-100 dark:bg-amber-950/20 text-amber-600 dark:text-amber-300">
-              <div className="flex items-center gap-2">
-                <FontAwesomeIcon icon={faLightbulb} />
-                <span className="font-medium">
-                  Hint
-                </span>
-              </div>
-
-              <div>{hint.operationDescription}</div>
-            </div>
-          )}
-
-          {!isComplete && (
-            <div className="flex flex-wrap gap-3 mt-4">
-
-              <button
-                onClick={handleGetHint}
-                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
-              >
-                <FontAwesomeIcon icon={faLightbulb} className='mr-2' />
-                Show Hint
-              </button>
-
-              <button
-                onClick={handleSkip}
-                className="h-10 px-4 text-sm min-w-max rounded-full bg-blue-400 dark:bg-blue-900 text-white hover:bg-blue-500 dark:hover:bg-blue-800 cursor-pointer transition-colors font-medium"
-              >
-                <FontAwesomeIcon icon={faForward} className='mr-2' />
-                Skip Step
-              </button>
-
-            </div>
-          )}
+          {!isComplete && <ActionButtons onHint={handleGetHint} onSkip={handleSkip} />}
         </main>
 
         {/* ========================= SOLVE PANEL ========================= */}
@@ -467,29 +359,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                   </p>
                 </div>
 
-                {/* Tab bar */}
-                <div className="flex gap-2 mb-3 p-1 rounded-xl bg-gray-100 dark:bg-slate-900">
-                  <button
-                    onClick={() => { setSolveMode('equation'); setValidation(null); }}
-                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                      ${solveMode === 'equation'
-                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                      }`}
-                  >
-                    Equation
-                  </button>
-                  <button
-                    onClick={() => { setSolveMode('operation'); setValidation(null); }}
-                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                      ${solveMode === 'operation'
-                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                      }`}
-                  >
-                    Operation
-                  </button>
-                </div>
+                <ModeTabs mode={solveMode} onChange={setSolveMode} onClearValidation={() => setValidation(null)} />
 
                 {/* ========== EQUATION MODE ========== */}
                 {solveMode === 'equation' && (
@@ -519,63 +389,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                       </button>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-5 gap-2 p-2 text-slate-600 dark:text-slate-100 rounded-2xl bg-gray-100 dark:bg-slate-900">
-                      {[
-                        { key: "7", label: "7" },
-                        { key: "8", label: "8" },
-                        { key: "9", label: "9" },
-                        { key: "x", label: "x" },
-                        { key: "y", label: "y" },
-
-                        { key: "4", label: "4" },
-                        { key: "5", label: "5" },
-                        { key: "6", label: "6" },
-                        { key: "z", label: "z" },
-                        { key: "+", icon: faPlus },
-
-                        { key: "1", label: "1" },
-                        { key: "2", label: "2" },
-                        { key: "3", label: "3" },
-                        { key: "-", icon: faMinus },
-                        { key: "*", icon: faXmark },
-
-                        { key: "0", label: "0" },
-                        { key: "(", label: "(" },
-                        { key: ")", label: ")" },
-                        { key: "/", icon: faDivide },
-                        { key: "=", icon: faEquals },
-                        { key: ".", label: "." },
-                      ].map(item => (
-                        <button
-                          key={item.key}
-                          type="button"
-                          onClick={() => insertSymbol(item.key)}
-                          className={`h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 active:bg-gray-200 dark:active:bg-slate-700 cursor-pointer text-lg font-semibold active:scale-95 transition 
-                            ${["x", "y", "z"].includes(item.key) && "font-serif"}`}
-                        >
-                          {item.icon ? (
-                            <FontAwesomeIcon icon={item.icon} />
-                          ) : (
-                            item.label
-                          )}
-                        </button>
-                      ))}
-
-                      <button
-                        type="button"
-                        onClick={() => setUserEquation("")}
-                        className="col-span-1 h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
-                      >
-                        <FontAwesomeIcon icon={faRotateLeft} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUserEquation(prev => prev.slice(0, -1))}
-                        className="col-span-2 h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
-                      >
-                        <FontAwesomeIcon icon={faDeleteLeft} />
-                      </button>
-                    </div>
+                    <EquationKeyboard onInsert={insertSymbol} onClear={() => setUserEquation('')} onDelete={() => setUserEquation(prev => prev.slice(0, -1))} />
                   </>
                 )}
 
@@ -677,34 +491,8 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
               </section>
             )}
 
-            {validation && (
-              <div
-                className={`rounded-xl py-3
-                    ${validation.valid
-                    ? "text-emerald-500 dark:text-emerald-500"
-                    : "text-red-500 dark:text-red-400"
-                  }
-                  `}
-              >
-                <div className="flex items-center gap-2">
-                  <FontAwesomeIcon
-                    icon={validation.valid ? faCircleCheck : faCircleXmark}
-                  />
-
-                  <span>{validation.message}</span>
-                </div>
-              </div>
-            )}
-
-            {isComplete && (
-              <button
-                onClick={handleNewProblem}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl cursor-pointer bg-green-500 dark:bg-green-600 text-white hover:opacity-90 transition-opacity"
-              >
-                <FontAwesomeIcon icon={faForward} />
-                Next Problem
-              </button>
-            )}
+            {validation && <ValidationBanner validation={validation} />}
+            {isComplete && <NextProblemButton onClick={handleNewProblem} />}
           </div>
         </aside>
 
