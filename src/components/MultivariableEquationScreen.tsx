@@ -43,6 +43,21 @@ function toEq(left: Expr, right: Expr): Equation {
   return { left, right };
 }
 
+function normaliseOp(typeId: string, parameter: string, description: string): { typeId: string; parameter: string; description: string } {
+  const p = parseFloat(parameter);
+  if (!isNaN(p) && p < 0) {
+    if (typeId === 'add_both') {
+      const pos = String(-p);
+      return { typeId: 'sub_both', parameter: pos, description: `Subtract ${pos} from both sides` };
+    }
+    if (typeId === 'sub_both') {
+      const pos = String(-p);
+      return { typeId: 'add_both', parameter: pos, description: `Add ${pos} to both sides` };
+    }
+  }
+  return { typeId, parameter, description };
+}
+
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
@@ -69,7 +84,7 @@ function inferOperation(
     for (const opType of ['add_both', 'sub_both', 'mul_both', 'div_both'] as const) {
       const result = applyMultivariableOperation(currentEq, opType, String(p), targetVar);
       if (match(result)) {
-        return { typeId: opType, parameter: String(p), description: result!.description };
+        return normaliseOp(opType, String(p), result!.description);
       }
     }
   }

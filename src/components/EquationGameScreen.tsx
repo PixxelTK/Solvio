@@ -41,6 +41,21 @@ function eqStructEqual(a: Equation, b: Equation): boolean {
   return exprEqual(a.left, b.left) && exprEqual(a.right, b.right);
 }
 
+function normaliseOp(typeId: string, parameter: string, description: string): { typeId: string; parameter: string; description: string } {
+  const p = parseFloat(parameter);
+  if (!isNaN(p) && p < 0) {
+    if (typeId === 'add_both') {
+      const pos = String(-p);
+      return { typeId: 'sub_both', parameter: pos, description: `Subtract ${pos} from both sides` };
+    }
+    if (typeId === 'sub_both') {
+      const pos = String(-p);
+      return { typeId: 'add_both', parameter: pos, description: `Add ${pos} to both sides` };
+    }
+  }
+  return { typeId, parameter, description };
+}
+
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
@@ -52,7 +67,7 @@ function inferOperation(
     if (result) {
       const rsNorm = normaliseEquation(result.result);
       if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
-        return { typeId: opType, parameter: '', description: result.description };
+        return normaliseOp(opType, '', result.description);
       }
     }
   }
@@ -64,7 +79,7 @@ function inferOperation(
       if (result) {
         const rsNorm = normaliseEquation(result.result);
         if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
-          return { typeId: opType, parameter: String(p), description: result.description };
+          return normaliseOp(opType, String(p), result.description);
         }
       }
     }
