@@ -43,10 +43,10 @@ export default function NavHeader() {
 
   return (
     <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-lg">
-      <div className="mx-auto flex h-14 max-w-5xl w-[90%] items-center gap-3">
+      <div className="mx-auto flex flex-wrap max-w-5xl w-[90%] items-center gap-x-3">
         <SolvioLogo/>
         {breadcrumbs.length > 1 && (
-          <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+          <nav className="flex flex-wrap items-center gap-x-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
             {breadcrumbs.map((crumb, i) => (
               <span key={crumb.href + crumb.label} className="flex items-center gap-1.5">
                 {i > 0 && <FontAwesomeIcon icon={faAngleRight} className="h-3 w-3 shrink-0" />}

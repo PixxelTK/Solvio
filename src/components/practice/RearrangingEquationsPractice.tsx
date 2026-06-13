@@ -337,7 +337,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
       <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-6 py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
 
-          <h1 className="text-lg lg:text-xl py-2 font-bold"><span className='font-light'>{question.topic}</span> Practice</h1>
+          <h1 className="lg:text-lg py-2 font-bold"><span className='font-light'>{question.topic}</span> Practice</h1>
 
           <div className="flex items-center gap-2 flex-wrap justify-center">
             <button
