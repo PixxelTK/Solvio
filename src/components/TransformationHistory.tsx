@@ -18,32 +18,34 @@ export default function TransformationHistory({ steps, isComplete, completionMes
     <div className="space-y-0">
       {steps.map((step, idx) => (
         <div key={idx}>
-          <div className="flex items-start gap-2">
-            {step.operation && (
-              <div className="flex items-center gap-2 w-full">
-                <span className={`text-xs px-2 py-1 my-2 rounded font-mono ${step.isValid === true
-                  ? 'bg-green-500 text-white dark:bg-green-800 dark:text-green-300'
-                  : step.isValid === false
-                    ? 'bg-red-500 text-white dark:bg-red-800 dark:text-red-300'
-                    : 'bg-gray-300 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+          {(() => {
+            const prev = idx > 0 ? steps[idx - 1] : undefined;
+            if (!prev?.operation) return null;
+            return (
+              <div className="flex items-center gap-3 py-3">
+                <div className="h-px flex-1 bg-slate-300/50 dark:bg-slate-700/50" />
+                <span className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${prev.isValid === true
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                  : prev.isValid === false
+                    ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300'
+                    : 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                   }`}>
-                  {step.operation.description}
+                  {prev.operation.description}
                 </span>
+                <div className="h-px flex-1 bg-slate-300/50 dark:bg-slate-700/50" />
               </div>
-            )}
-          </div>
-          <div className="border-l-2 border-gray-300 dark:border-gray-800 py-2">
-            <MathDisplay
-              latex={step.state.latex}
-              className={
-                isComplete && idx === steps.length - 1
-                  ? 'text-2xl sm:text-3xl text-green-600 dark:text-green-400'
-                  : idx === 0
-                    ? 'text-2xl sm:text-3xl'
-                    : 'text-base sm:text-lg'
-              }
-            />
-          </div>
+            );
+          })()}
+          <MathDisplay
+            latex={step.state.latex}
+            className={
+              isComplete && idx === steps.length - 1
+                ? 'text-2xl sm:text-3xl text-green-600 dark:text-green-400'
+                : idx === 0
+                  ? 'text-2xl sm:text-3xl'
+                  : 'text-base sm:text-lg'
+            }
+          />
         </div>
       ))}
       {isComplete && (
@@ -52,12 +54,10 @@ export default function TransformationHistory({ steps, isComplete, completionMes
             icon={faCircleCheck}
             className="text-emerald-500 text-2xl"
           />
-
           <div className="flex flex-col">
             <div className="text-emerald-500 font-bold text-lg">
               Completed
             </div>
-
             {completionMessage && (
               <div className="text-emerald-400 text-sm">
                 {completionMessage}
