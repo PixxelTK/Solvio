@@ -25,6 +25,7 @@ const modeInfo = {
 };
 
 const difficulties: { value: Difficulty; label: string; eqDescription: string; laDescription: string }[] = [
+  { value: 'random', label: 'Random', eqDescription: 'Mixed difficulty problems', laDescription: 'Mixed difficulty systems' },
   { value: 'beginner', label: 'Beginner', eqDescription: 'x + a = b, x - a = b', laDescription: '2×2 systems, simple operations' },
   { value: 'easy', label: 'Easy', eqDescription: 'ax = b, ax + b = c', laDescription: '2×2 systems, more steps' },
   { value: 'intermediate', label: 'Intermediate', eqDescription: 'a(x+b) = c, like terms, fractions', laDescription: '3×3 systems, Gaussian elimination' },

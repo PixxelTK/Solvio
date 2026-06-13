@@ -446,7 +446,10 @@ function generateAdvancedProblem(): AlgebraProblem {
 }
 
 function generateProblem(difficulty: Difficulty): AlgebraProblem {
-  switch (difficulty) {
+  const d = difficulty === 'random'
+    ? (['beginner', 'easy', 'intermediate', 'advanced'] as const)[Math.floor(Math.random() * 4)]
+    : difficulty;
+  switch (d) {
     case 'beginner': return generateBeginnerProblem();
     case 'easy': return generateEasyProblem();
     case 'intermediate': return generateIntermediateProblem();

@@ -363,7 +363,10 @@ export const linearAlgebraModule: MathModule = {
 
   generateQuestion(difficulty: Difficulty): Question {
     let matrix: AugmentedMatrix;
-    switch (difficulty) {
+    const d = difficulty === 'random'
+      ? (['beginner', 'easy', 'intermediate', 'advanced'] as const)[Math.floor(Math.random() * 4)]
+      : difficulty;
+    switch (d) {
       case 'beginner':
       case 'easy':
         matrix = generate2x2Matrix();

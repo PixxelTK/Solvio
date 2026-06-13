@@ -1,6 +1,6 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-export type Difficulty = 'beginner' | 'easy' | 'intermediate' | 'advanced';
+export type Difficulty = 'beginner' | 'easy' | 'intermediate' | 'advanced' | 'random';
 
 export interface OperationType {
   id: string;
