@@ -98,7 +98,7 @@ function inferOperation(
 
 export default function MultivariableEquationScreen({ difficulty, onBack }: MultivariableEquationScreenProps) {
   const router = useRouter();
-  const [question] = useState(() => multivariableModule.generateQuestion(difficulty));
+  const [question, setQuestion] = useState(() => multivariableModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [targetVar, setTargetVar] = useState(() => getTargetVariable(question.initialState));
   const [steps, setSteps] = useState<TransformationStep[]>([
@@ -305,6 +305,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
 
   const handleNewProblem = useCallback(() => {
     const q = multivariableModule.generateQuestion(difficulty);
+    setQuestion(q);
     setCurrentState(q.initialState);
     setTargetVar(getTargetVariable(q.initialState));
     setSteps([{ state: q.initialState }]);
@@ -355,7 +356,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
           <section className="mb-6">
             <div className='flex gap-4 justify-between items-center'>
               <div>
-                <div className="font-bold text-xl">
+                <div className="font-bold text-xl" suppressHydrationWarning>
                   Solve for <span className="font-bold text-2xl font-serif text-blue-500 dark:text-blue-300">{targetVar}</span>
                 </div>
 

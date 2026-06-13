@@ -75,7 +75,7 @@ function inferOperation(
 
 export default function EquationGameScreen({ difficulty, onBack }: EquationGameScreenProps) {
   const router = useRouter();
-  const [question] = useState(() => equationTransformationModule.generateQuestion(difficulty));
+  const [question, setQuestion] = useState(() => equationTransformationModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [steps, setSteps] = useState<TransformationStep[]>([
     { state: question.initialState },
@@ -254,6 +254,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
   const handleNewProblem = useCallback(() => {
     const q = equationTransformationModule.generateQuestion(difficulty);
+    setQuestion(q);
     setCurrentState(q.initialState);
     setSteps([{ state: q.initialState }]);
     setValidation(null);
@@ -303,7 +304,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
           <section className="mb-6">
             <div className='flex gap-4 justify-between items-center'>
               <div>
-                <div className="font-bold text-xl">
+                <div className="font-bold text-xl" suppressHydrationWarning>
                   {question.targetDescription}
                 </div>
 
