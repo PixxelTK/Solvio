@@ -29,7 +29,7 @@ const OPERATION_TYPES: OperationType[] = [
     label: 'Swap rows',
     description: 'Interchange two rows in the matrix.',
     needsParameter: true,
-    parameterLabel: 'e.g. R1<->R2',
+    parameterLabel: 'Example: R1<->R2',
     parameterType: 'expression',
   },
   {
@@ -37,7 +37,7 @@ const OPERATION_TYPES: OperationType[] = [
     label: 'Scale a row',
     description: 'Multiply a row by a non-zero constant.',
     needsParameter: true,
-    parameterLabel: 'e.g. 2*R1',
+    parameterLabel: 'Example: 2*R1',
     parameterType: 'expression',
   },
   {
@@ -45,7 +45,7 @@ const OPERATION_TYPES: OperationType[] = [
     label: 'Row replacement',
     description: 'Replace a row with a linear combination of rows.',
     needsParameter: true,
-    parameterLabel: 'e.g. R2-2*R1',
+    parameterLabel: 'Example: R2-2*R1',
     parameterType: 'expression',
   },
 ];

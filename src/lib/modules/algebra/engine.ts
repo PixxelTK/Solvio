@@ -39,7 +39,7 @@ export const OPERATION_TYPES: OperationType[] = [
     description: "Add the same value to both sides of the equation.",
     icon: faPlus,
     needsParameter: true,
-    parameterLabel: "e.g. 3",
+    parameterLabel: "Example: 3",
     parameterType: "number",
   },
   {
@@ -48,7 +48,7 @@ export const OPERATION_TYPES: OperationType[] = [
     description: "Subtract the same value from both sides of the equation.",
     icon: faMinus,
     needsParameter: true,
-    parameterLabel: "e.g. 2",
+    parameterLabel: "Example: 2",
     parameterType: "number",
   },
   {
@@ -57,7 +57,7 @@ export const OPERATION_TYPES: OperationType[] = [
     description: "Multiply both sides by the same value.",
     icon: faXmark,
     needsParameter: true,
-    parameterLabel: "e.g. 5",
+    parameterLabel: "Example: 5",
     parameterType: "number",
   },
   {
@@ -66,7 +66,7 @@ export const OPERATION_TYPES: OperationType[] = [
     description: "Divide both sides by the same non-zero value.",
     icon: faDivide,
     needsParameter: true,
-    parameterLabel: "e.g. 4",
+    parameterLabel: "Example: 4",
     parameterType: "number",
   },
   {

@@ -379,7 +379,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
                     onChange={(e) => setOpParam(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={help?.examples[0] || 'Enter operation'}
-                    className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500 font-mono"
+                    className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                     aria-label="Row operation"
                   />
                   <button

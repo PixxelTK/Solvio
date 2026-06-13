@@ -444,7 +444,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                         onChange={(e) => setUserEquation(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEquationModeSubmit(); } }}
                         placeholder="Example: 2x = 8"
-                        className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
+                        className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                       />
 
                       <button
@@ -588,7 +588,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                           Enter a value
                         </div>
 
-                        <div className="mb-3 flex gap-2">
+                        <div className="mb-3">
                           <input
                             ref={paramRef}
                             type="text"
@@ -596,20 +596,20 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                             onChange={(e) => setOpParam(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleOperationModeSubmit(); } }}
                             placeholder={currentOp.parameterLabel || "Enter value"}
-                            className="w-full h-12 px-4 text-lg rounded-xl bg-transparent border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-500"
+                            className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                           />
 
-                          <button
-                            onClick={handleOperationModeSubmit}
-                            disabled={currentOp?.needsParameter && !opParam.trim()}
-                            className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
-                          >
-                            <FontAwesomeIcon icon={faCheck} className='mr-1' />
-                            Apply
-                          </button>
                         </div>
                       </>
                     )}
+                    <button
+                      onClick={handleOperationModeSubmit}
+                      disabled={currentOp?.needsParameter && !opParam.trim()}
+                      className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faCheck} className='mr-1' />
+                      Apply
+                    </button>
                   </>
                 )}
               </section>

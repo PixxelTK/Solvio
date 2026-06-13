@@ -35,7 +35,13 @@ export default function TransformationHistory({ steps, isComplete, completionMes
           <div className="border-l-2 border-gray-300 dark:border-gray-800 py-2">
             <MathDisplay
               latex={step.state.latex}
-              className={`${idx == 0 ? 'text-2xl sm:text-3xl' : 'text-base sm:text-lg'}`}
+              className={
+                isComplete && idx === steps.length - 1
+                  ? 'text-2xl sm:text-3xl text-green-600 dark:text-green-400'
+                  : idx === 0
+                    ? 'text-2xl sm:text-3xl'
+                    : 'text-base sm:text-lg'
+              }
             />
           </div>
         </div>
