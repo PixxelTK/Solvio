@@ -77,7 +77,7 @@ export const OPERATION_TYPES: OperationType[] = [
   },
   {
     id: "collect",
-    label: "Simplify",
+    label: "Combine like term",
     description: "Combine like terms into a simpler expression.",
     needsParameter: false,
   },

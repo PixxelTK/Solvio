@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import DifficultySelector from '@/components/DifficultySelector';
 
-const validModes = ['equation-transformation', 'gaussian-elimination'];
+const validModes = ['equation-transformation', 'gaussian-elimination', 'multivariable-equation-system'];
 
 export default async function ModePage({
   params,
@@ -14,5 +14,5 @@ export default async function ModePage({
     redirect('/');
   }
 
-  return <DifficultySelector mode={mode as 'equation-transformation' | 'gaussian-elimination'} />;
+  return <DifficultySelector mode={mode as 'equation-transformation' | 'gaussian-elimination' | 'multivariable-equation-system'} />;
 }

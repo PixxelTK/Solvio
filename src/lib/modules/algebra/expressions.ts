@@ -346,12 +346,12 @@ export function collectLikeTerms(e: Expr): Expr {
   return termsToExpr(terms);
 }
 
-interface Term {
+export interface Term {
   coefficient: number;
   variable: string | null;
 }
 
-function collectTerms(e: Expr): Term[] {
+export function collectTerms(e: Expr): Term[] {
   const expanded = expand(e);
   const rawTerms = extractTerms(expanded);
   const map = new Map<string, number>();
@@ -373,7 +373,7 @@ function collectTerms(e: Expr): Term[] {
   });
 }
 
-function extractTerms(e: Expr): Term[] {
+export function extractTerms(e: Expr): Term[] {
   switch (e.tag) {
     case 'num':
       return [{ coefficient: e.value, variable: null }];
@@ -409,7 +409,7 @@ function extractTerms(e: Expr): Term[] {
   }
 }
 
-function termsToExpr(terms: Term[]): Expr {
+export function termsToExpr(terms: Term[]): Expr {
   let result: Expr | null = null;
   for (const t of terms) {
     const termExpr = t.variable

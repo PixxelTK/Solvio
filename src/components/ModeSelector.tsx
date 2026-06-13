@@ -5,9 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEquals,
   faTableCells,
+  faX,
 } from '@fortawesome/free-solid-svg-icons';
 
-type Mode = 'equation-transformation' | 'gaussian-elimination';
+type Mode = 'equation-transformation' | 'gaussian-elimination' | 'multivariable-equation-system';
 
 const modes = [
   {
@@ -19,6 +20,14 @@ const modes = [
     topics: ['Linear equations', 'Parentheses', 'Fractions', 'Like terms'],
   },
   {
+    id: 'multivariable-equation-system' as const,
+    icon: faX,
+    title: 'Multivariable Equation System',
+    description: 'Solve equations with multiple variables (x, y, z)',
+    examples: ['x + y = 10', '2x + 3y = 12', 'x + y + z = 15'],
+    topics: ['Multiple variables', 'Isolation', 'Term rearrangement', 'Expression solving'],
+  },
+  {
     id: 'gaussian-elimination' as const,
     icon: faTableCells,
     title: 'Gaussian Elimination',
@@ -28,7 +37,7 @@ const modes = [
   },
 ];
 
-const validModes: Mode[] = ['equation-transformation', 'gaussian-elimination'];
+const validModes: Mode[] = ['equation-transformation', 'gaussian-elimination', 'multivariable-equation-system'];
 
 export default function ModeSelector() {
   const router = useRouter();

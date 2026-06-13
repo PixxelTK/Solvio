@@ -3,20 +3,24 @@
 import { useRouter } from 'next/navigation';
 import { Difficulty } from '@/lib/engine/types';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faEquals, faTableCells } from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faEquals, faTableCells, faX } from "@fortawesome/free-solid-svg-icons";
 
-type Mode = 'equation-transformation' | 'gaussian-elimination';
+type Mode = 'equation-transformation' | 'gaussian-elimination' | 'multivariable-equation-system';
 
 interface DifficultySelectorProps {
   mode: Mode;
 }
 
-const validModes: Mode[] = ['equation-transformation', 'gaussian-elimination'];
+const validModes: Mode[] = ['equation-transformation', 'gaussian-elimination', 'multivariable-equation-system'];
 
 const modeInfo = {
   'equation-transformation': {
     title: 'Equation Transformation',
     icon: faEquals,
+  },
+  'multivariable-equation-system': {
+    title: 'Multivariable Equation System',
+    icon: faX,
   },
   'gaussian-elimination': {
     title: 'Gaussian Elimination',
@@ -24,12 +28,12 @@ const modeInfo = {
   },
 };
 
-const difficulties: { value: Difficulty; label: string; eqDescription: string; laDescription: string }[] = [
-  { value: 'random', label: 'Random', eqDescription: 'Mixed difficulty problems', laDescription: 'Mixed difficulty systems' },
-  { value: 'beginner', label: 'Beginner', eqDescription: 'x + a = b, x - a = b', laDescription: '2×2 systems, simple operations' },
-  { value: 'easy', label: 'Easy', eqDescription: 'ax = b, ax + b = c', laDescription: '2×2 systems, more steps' },
-  { value: 'intermediate', label: 'Intermediate', eqDescription: 'a(x+b) = c, like terms, fractions', laDescription: '3×3 systems, Gaussian elimination' },
-  { value: 'advanced', label: 'Advanced', eqDescription: 'a(x+b) + cx = d, nested operations', laDescription: '3×3 systems, complex elimination' },
+const difficulties: { value: Difficulty; label: string; eqDescription: string; mvDescription: string; laDescription: string }[] = [
+  { value: 'random', label: 'Random', eqDescription: 'Mixed difficulty problems', mvDescription: 'Mixed difficulty equations', laDescription: 'Mixed difficulty systems' },
+  { value: 'beginner', label: 'Beginner', eqDescription: 'x + a = b, x - a = b', mvDescription: 'x + y = c', laDescription: '2×2 systems, simple operations' },
+  { value: 'easy', label: 'Easy', eqDescription: 'ax = b, ax + b = c', mvDescription: 'ax + by = c', laDescription: '2×2 systems, more steps' },
+  { value: 'intermediate', label: 'Intermediate', eqDescription: 'a(x+b) = c, like terms, fractions', mvDescription: 'a(x+b) + cy = d', laDescription: '3×3 systems, Gaussian elimination' },
+  { value: 'advanced', label: 'Advanced', eqDescription: 'a(x+b) + cx = d, nested operations', mvDescription: 'ax + by + cz = d', laDescription: '3×3 systems, complex elimination' },
 ];
 
 export default function DifficultySelector({ mode }: DifficultySelectorProps) {
@@ -66,7 +70,7 @@ export default function DifficultySelector({ mode }: DifficultySelectorProps) {
             >
               <div className="text-lg font-bold mb-1">{d.label}</div>
               <div className="text-sm text-slate-500 dark:text-slate-400">
-                {mode === 'equation-transformation' ? d.eqDescription : d.laDescription}
+                {mode === 'equation-transformation' ? d.eqDescription : mode === 'multivariable-equation-system' ? d.mvDescription : d.laDescription}
               </div>
             </button>
           ))}

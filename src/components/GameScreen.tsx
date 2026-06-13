@@ -267,7 +267,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
           <div
             className={`md:hidden fixed top-2 left-0 right-0 z-50 px-4 transition-all duration-300 ${floatingEquation
               ? "translate-y-0"
-              : "-translate-y-50 pointer-events-none"
+              : "-translate-y-80 pointer-events-none"
               }`}
           >
             <EquationCard title='Current Matrix' latex={currentState.latex} size='text-xl sm:text-3xl'/>

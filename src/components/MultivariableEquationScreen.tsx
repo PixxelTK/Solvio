@@ -2,9 +2,15 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
-import { equationTransformationModule } from '@/lib/modules/algebra';
-import { applyAlgebraOperation, stateToEquation, computeHint, equationToState } from '@/lib/modules/algebra/engine';
-import { equationToString, parseEquation, simplify, exprToLatex, equationsEquivalent } from '@/lib/modules/algebra/expressions';
+import { multivariableModule } from '@/lib/modules/multivariable';
+import {
+  applyMultivariableOperation,
+  stateToEquation,
+  getTargetVariable,
+  getEquationFromState,
+  computeHint,
+} from '@/lib/modules/multivariable/engine';
+import { equationToString, parseEquation, parseExpr, simplify, exprToLatex, equationsEquivalent } from '@/lib/modules/algebra/expressions';
 import TransformationHistory from './TransformationHistory';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -26,7 +32,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { EquationCard } from './EquationCard';
 
-interface EquationGameScreenProps {
+interface MultivariableEquationScreenProps {
   difficulty: Difficulty;
   onBack: () => void;
 }
@@ -36,11 +42,12 @@ type SolveMode = 'equation' | 'operation';
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
+  targetVar: string,
 ): { typeId: string; parameter: string; description: string } | null {
   const userSimplified = { left: simplify(userEq.left), right: simplify(userEq.right) };
 
-  for (const opType of ['expand', 'collect'] as const) {
-    const result = applyAlgebraOperation(currentEq, opType, '');
+  for (const opType of ['expand', 'collect', 'isolate'] as const) {
+    const result = applyMultivariableOperation(currentEq, opType, '', targetVar);
     if (result) {
       const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
       if (equationsEquivalent(rs, userSimplified)) {
@@ -52,7 +59,7 @@ function inferOperation(
   for (let p = -20; p <= 20; p++) {
     if (p === 0) continue;
     for (const opType of ['add_both', 'sub_both', 'mul_both', 'div_both'] as const) {
-      const result = applyAlgebraOperation(currentEq, opType, String(p));
+      const result = applyMultivariableOperation(currentEq, opType, String(p), targetVar);
       if (result) {
         const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
         if (equationsEquivalent(rs, userSimplified)) {
@@ -62,18 +69,41 @@ function inferOperation(
     }
   }
 
+  const currentStr = equationToString(currentEq);
+  const eqParts = currentStr.split(' = ');
+  if (eqParts.length === 2) {
+    const allTerms = [...eqParts[0].split(/(?=[+-])/), ...eqParts[1].split(/(?=[+-])/)].map(t => t.trim());
+    for (const term of allTerms) {
+      if (term === '0' || term === '') continue;
+      try {
+        const cleanedTerm = term.replace(/^\+/, '').trim();
+        if (!cleanedTerm) continue;
+        const result = applyMultivariableOperation(currentEq, 'move_term', cleanedTerm, targetVar);
+        if (result) {
+          const rs = { left: simplify(result.result.left), right: simplify(result.result.right) };
+          if (equationsEquivalent(rs, userSimplified)) {
+            return { typeId: 'move_term', parameter: cleanedTerm, description: result.description };
+          }
+        }
+      } catch {
+        continue;
+      }
+    }
+  }
+
   return null;
 }
 
-export default function EquationGameScreen({ difficulty, onBack }: EquationGameScreenProps) {
+export default function MultivariableEquationScreen({ difficulty, onBack }: MultivariableEquationScreenProps) {
   const router = useRouter();
-  const [question] = useState(() => equationTransformationModule.generateQuestion(difficulty));
+  const [question] = useState(() => multivariableModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
+  const [targetVar, setTargetVar] = useState(() => getTargetVariable(question.initialState));
   const [steps, setSteps] = useState<TransformationStep[]>([
     { state: question.initialState },
   ]);
   const [solveMode, setSolveMode] = useState<SolveMode>('equation');
-  const [selectedOp, setSelectedOp] = useState<string>('sub_both');
+  const [selectedOp, setSelectedOp] = useState<string>('move_term');
   const [opParam, setOpParam] = useState('');
   const [userEquation, setUserEquation] = useState('');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
@@ -93,18 +123,15 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       ([entry]) => {
         setFloatingEquation(!entry.isIntersecting);
       },
-      {
-        threshold: 0,
-      }
+      { threshold: 0 }
     );
 
     observer.observe(el);
-
     return () => observer.disconnect();
   }, []);
 
   const operations = useMemo(
-    () => equationTransformationModule.getAvailableOperations(currentState),
+    () => multivariableModule.getAvailableOperations(currentState),
     [currentState]
   );
 
@@ -119,7 +146,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
   const commitStep = useCallback(
     (nextStateFull: MathState, operation: Operation): boolean => {
-      const solved = equationTransformationModule.isSolved(nextStateFull);
+      const solved = multivariableModule.isSolved(nextStateFull);
       setCurrentState(nextStateFull);
       setSteps(prev => [
         ...prev.slice(0, -1).map(s => ({ ...s })),
@@ -142,8 +169,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
     try {
       const userEq = parseEquation(userEquation);
-      const currentEq = stateToEquation(currentState);
-      const inferred = inferOperation(currentEq, userEq);
+      const currentEq = getEquationFromState(currentState);
+      const inferred = inferOperation(currentEq, userEq, targetVar);
 
       if (!inferred) {
         setValidation({
@@ -159,7 +186,10 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       const nextStateFull: MathState = {
         display: equationToString({ left: lhs, right: rhs }),
         latex: `${exprToLatex(lhs)} = ${exprToLatex(rhs)}`,
-        data: JSON.stringify(userEq),
+        data: JSON.stringify({
+          equation: { left: lhs, right: rhs },
+          targetVariable: targetVar,
+        }),
       };
 
       const operation: Operation = {
@@ -170,14 +200,14 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
       const solved = commitStep(nextStateFull, operation);
       if (solved) {
-        setValidation({ valid: true, message: 'Exercise Complete! Equation solved.', isSolved: true });
+        setValidation({ valid: true, message: 'Exercise Complete! Variable isolated.', isSolved: true });
       } else {
         setValidation({ valid: true, message: `Correct! ${inferred.description}`, isSolved: false });
       }
     } catch {
       setValidation({ valid: false, message: 'Could not parse equation. Use format: expression = expression', isSolved: false });
     }
-  }, [currentState, userEquation, commitStep]);
+  }, [currentState, userEquation, commitStep, targetVar]);
 
   const handleOperationModeSubmit = useCallback(() => {
     setValidation(null);
@@ -189,34 +219,54 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     }
 
     try {
-      const eq = stateToEquation(currentState);
-      const opResult = applyAlgebraOperation(eq, selectedOp, opParam || '');
+      const eq = getEquationFromState(currentState);
+
+      const param = opParam || '';
+      if (currentOp?.id === 'move_term') {
+        try {
+          parseExpr(param);
+        } catch {
+          setValidation({ valid: false, message: 'Could not parse the term. Use format like 3x, y, or 5.', isSolved: false });
+          return;
+        }
+      }
+
+      const opResult = applyMultivariableOperation(eq, selectedOp, param, targetVar);
 
       if (!opResult) {
         setValidation({ valid: false, message: 'This operation cannot be applied here. The expression may not change.', isSolved: false });
         return;
       }
 
-      const newState = equationToState(opResult.result);
+      const newState: MathState = {
+        display: equationToString(opResult.result),
+        latex: equationToString(opResult.result),
+        data: JSON.stringify({
+          equation: opResult.result,
+          targetVariable: targetVar,
+        }),
+      };
+      newState.latex = `${exprToLatex(opResult.result.left)} = ${exprToLatex(opResult.result.right)}`;
+
       const operation: Operation = {
         typeId: selectedOp,
-        parameter: opParam || '',
+        parameter: param,
         description: opResult.description,
       };
 
       const solved = commitStep(newState, operation);
       if (solved) {
-        setValidation({ valid: true, message: 'Exercise Complete! Equation solved.', isSolved: true });
+        setValidation({ valid: true, message: 'Exercise Complete! Variable isolated.', isSolved: true });
       } else {
         setValidation({ valid: true, message: 'Operation applied successfully.', isSolved: false });
       }
     } catch {
       setValidation({ valid: false, message: 'Error applying operation.', isSolved: false });
     }
-  }, [currentState, selectedOp, opParam, currentOp, commitStep]);
+  }, [currentState, selectedOp, opParam, currentOp, commitStep, targetVar]);
 
   const handleGetHint = useCallback(() => {
-    const h = equationTransformationModule.getHint(currentState);
+    const h = multivariableModule.getHint(currentState);
     setHint(h);
   }, [currentState]);
 
@@ -224,17 +274,24 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     setHint(null);
     setValidation(null);
 
-    const eq = stateToEquation(currentState);
-    const computed = computeHint(eq);
+    const eq = getEquationFromState(currentState);
+    const computed = computeHint(eq, targetVar);
     if (!computed.opType) return;
 
     const param = computed.parameter;
     if (!computed.parameter && (computed.opType === 'add_both' || computed.opType === 'sub_both' || computed.opType === 'mul_both' || computed.opType === 'div_both')) return;
 
-    const opResult = applyAlgebraOperation(eq, computed.opType, param || '');
+    const opResult = applyMultivariableOperation(eq, computed.opType, param || '', targetVar);
     if (!opResult) return;
 
-    const newState = equationToState(opResult.result);
+    const newState: MathState = {
+      display: equationToString(opResult.result),
+      latex: `${exprToLatex(opResult.result.left)} = ${exprToLatex(opResult.result.right)}`,
+      data: JSON.stringify({
+        equation: opResult.result,
+        targetVariable: targetVar,
+      }),
+    };
     const operation: Operation = {
       typeId: computed.opType,
       parameter: param,
@@ -242,11 +299,12 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     };
 
     commitStep(newState, operation);
-  }, [currentState, commitStep]);
+  }, [currentState, commitStep, targetVar]);
 
   const handleNewProblem = useCallback(() => {
-    const q = equationTransformationModule.generateQuestion(difficulty);
+    const q = multivariableModule.generateQuestion(difficulty);
     setCurrentState(q.initialState);
+    setTargetVar(getTargetVariable(q.initialState));
     setSteps([{ state: q.initialState }]);
     setValidation(null);
     setHint(null);
@@ -296,11 +354,11 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
             <div className='flex gap-4 justify-between items-center'>
               <div>
                 <div className="font-bold text-xl">
-                  {question.targetDescription}
+                  Solve for <span className="font-bold text-2xl font-serif text-blue-500 dark:text-blue-300">{targetVar}</span>
                 </div>
 
                 <div className="text-sm text-gray-500 space-y-1">
-                  <p>Apply transformations step by step to solve the equation.</p>
+                  <p>Use operations to isolate the target variable.</p>
                 </div>
               </div>
               <button
@@ -348,7 +406,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 <TransformationHistory
                   steps={steps}
                   isComplete={isComplete}
-                  completionMessage="Equation solved"
+                  completionMessage="Variable isolated"
                 />
               </div>
             </div>
@@ -443,7 +501,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                         value={userEquation}
                         onChange={(e) => setUserEquation(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEquationModeSubmit(); } }}
-                        placeholder="Example: 2x = 8"
+                        placeholder="Example: x = 5 - y"
                         className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                       />
 
@@ -489,8 +547,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                           type="button"
                           onClick={() => insertSymbol(item.key)}
                           className={`h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition 
-                            ${["x", "y", "z"].includes(item.key) && "font-serif"}`
-                          }
+                            ${["x", "y", "z"].includes(item.key) && "font-serif"}`}
                         >
                           {item.icon ? (
                             <FontAwesomeIcon icon={item.icon} />
@@ -585,7 +642,9 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                     {currentOp?.needsParameter && (
                       <>
                         <div className="mb-3 font-medium">
-                          Enter a value
+                          {currentOp.id === 'move_term'
+                            ? 'Enter the term to move'
+                            : 'Enter a value'}
                         </div>
 
                         <div className="mb-3">
@@ -598,7 +657,6 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                             placeholder={currentOp.parameterLabel || "Enter value"}
                             className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                           />
-
                         </div>
                       </>
                     )}

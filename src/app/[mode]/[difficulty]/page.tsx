@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import GameScreenWrapper from '@/components/GameScreenWrapper';
 
-const validModes = ['equation-transformation', 'gaussian-elimination'];
+const validModes = ['equation-transformation', 'gaussian-elimination', 'multivariable-equation-system'];
 const validDifficulties = ['beginner', 'easy', 'intermediate', 'advanced', 'random'];
 
 export default async function GamePage({
@@ -17,7 +17,7 @@ export default async function GamePage({
 
   return (
     <GameScreenWrapper
-      mode={mode as 'equation-transformation' | 'gaussian-elimination'}
+      mode={mode as 'equation-transformation' | 'gaussian-elimination' | 'multivariable-equation-system'}
       difficulty={difficulty as 'beginner' | 'easy' | 'intermediate' | 'advanced' | 'random'}
     />
   );
