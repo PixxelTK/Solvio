@@ -512,7 +512,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                           key={item.key}
                           type="button"
                           onClick={() => insertSymbol(item.key)}
-                          className={`h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition 
+                          className={`h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 active:bg-gray-200 dark:active:bg-slate-700 cursor-pointer text-lg font-semibold active:scale-95 transition 
                             ${["x", "y", "z"].includes(item.key) && "font-serif"}`
                           }
                         >
