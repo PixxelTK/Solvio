@@ -25,6 +25,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import { EquationCard } from './EquationCard';
+import MathDisplay from './MathDisplay';
 
 interface EquationGameScreenProps {
   difficulty: Difficulty;
@@ -488,7 +489,9 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                           key={item.key}
                           type="button"
                           onClick={() => insertSymbol(item.key)}
-                          className="h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
+                          className={`h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition 
+                            ${["x", "y", "z"].includes(item.key) && "font-serif"}`
+                          }
                         >
                           {item.icon ? (
                             <FontAwesomeIcon icon={item.icon} />
