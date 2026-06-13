@@ -25,7 +25,7 @@ export default function StepsPanel({ steps, isComplete, stepCount, completionMes
           {stepCount === 0 ? 'Begin' : `${stepCount} ${stepCount === 1 ? 'Step' : 'Steps'}`}
         </div>
       </div>
-      <div className="pl-3">
+      <div>
         <TransformationHistory
           steps={steps}
           isComplete={isComplete}
