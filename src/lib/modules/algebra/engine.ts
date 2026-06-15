@@ -743,3 +743,11 @@ export function isSolved(currentState: MathState): boolean {
 export function getAvailableOperations(): OperationType[] {
   return OPERATION_TYPES;
 }
+
+export const DIFFICULTY_DESCRIPTIONS: Record<Difficulty, string> = {
+  random: 'Mixed difficulty linear equations',
+  beginner: 'One-step equations with addition and subtraction',
+  easy: 'Two-step equations with multiplication and division',
+  intermediate: 'Multi-step equations with parentheses and like terms',
+  advanced: 'Equations with nested parentheses and fractions',
+};

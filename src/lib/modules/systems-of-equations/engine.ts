@@ -739,3 +739,11 @@ export function getAvailableOperations(_state: MathState): OperationType[] {
   }
   return all;
 }
+
+export const DIFFICULTY_DESCRIPTIONS: Record<Difficulty, string> = {
+  random: 'Systems of varying difficulty',
+  beginner: 'Systems with ±1 coefficients and positive solutions',
+  easy: 'Systems with opposite coefficients for easy elimination',
+  intermediate: 'Systems requiring scaling before elimination',
+  advanced: 'Systems with larger coefficients and negative solutions',
+};

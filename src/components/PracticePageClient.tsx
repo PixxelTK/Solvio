@@ -2,26 +2,36 @@
 
 import { useRouter } from 'next/navigation';
 import { Difficulty } from '@/lib/engine/types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
-import Link from 'next/link';
+import type { PracticeModuleId } from '@/lib/practice/types';
+import { getDifficultyDescriptions } from '@/lib/practice/registry';
 
-const difficulties: { value: Difficulty; label: string; description: string }[] = [
-  { value: 'random', label: 'Random', description: 'Mixed difficulty problems' },
-  { value: 'beginner', label: 'Beginner', description: 'Fundamental problems to build confidence' },
-  { value: 'easy', label: 'Easy', description: 'Slightly more challenging problems' },
-  { value: 'intermediate', label: 'Intermediate', description: 'Problems requiring multiple steps' },
-  { value: 'advanced', label: 'Advanced', description: 'Complex problems for mastery' },
-];
+const FALLBACK_DESCRIPTIONS: Record<Difficulty, string> = {
+  random: 'Mixed difficulty problems',
+  beginner: 'Fundamental problems to build confidence',
+  easy: 'Slightly more challenging problems',
+  intermediate: 'Problems requiring multiple steps',
+  advanced: 'Complex problems for mastery',
+};
+
+const DIFFICULTY_LABELS: Record<Difficulty, string> = {
+  random: 'Random',
+  beginner: 'Beginner',
+  easy: 'Easy',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
+};
 
 interface PracticePageClientProps {
   lessonTitle: string;
   lessonId: string;
   subject: string;
+  practiceModule: PracticeModuleId;
 }
 
-export default function PracticePageClient({ lessonTitle, lessonId, subject }: PracticePageClientProps) {
+export default function PracticePageClient({ lessonTitle, lessonId, subject, practiceModule }: PracticePageClientProps) {
   const router = useRouter();
+
+  const descriptions = getDifficultyDescriptions(practiceModule) ?? FALLBACK_DESCRIPTIONS;
 
   const handleSelect = (difficulty: Difficulty) => {
     router.push(`/learn/${subject}/${lessonId}/practice/${difficulty}`);
@@ -36,14 +46,14 @@ export default function PracticePageClient({ lessonTitle, lessonId, subject }: P
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          {difficulties.map((d) => (
+          {(Object.keys(DIFFICULTY_LABELS) as Difficulty[]).map((d) => (
             <button
-              key={d.value}
-              onClick={() => handleSelect(d.value)}
+              key={d}
+              onClick={() => handleSelect(d)}
               className="p-6 rounded-2xl cursor-pointer bg-slate-100 dark:bg-slate-900 text-left transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-500/5 focus:outline-none group"
             >
-              <div className="text-lg font-bold mb-1">{d.label}</div>
-              <div className="text-sm text-slate-500 dark:text-slate-400">{d.description}</div>
+              <div className="text-lg font-bold mb-1">{DIFFICULTY_LABELS[d]}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">{descriptions[d]}</div>
             </button>
           ))}
         </div>

@@ -446,3 +446,11 @@ export const linearAlgebraModule: MathModule = {
     return OPERATION_TYPES;
   },
 };
+
+export const DIFFICULTY_DESCRIPTIONS: Record<Difficulty, string> = {
+  random: 'Matrices of varying size and complexity',
+  beginner: '2×2 matrices with integer entries',
+  easy: '2×2 matrices with integer entries',
+  intermediate: '3×3 matrices with integer entries',
+  advanced: '3×3 matrices with integer entries',
+};

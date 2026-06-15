@@ -675,3 +675,11 @@ export function isSolved(currentState: MathState): boolean {
 export function getAvailableOperations(): OperationType[] {
   return OPERATION_TYPES;
 }
+
+export const DIFFICULTY_DESCRIPTIONS: Record<Difficulty, string> = {
+  random: 'Formulas of varying complexity',
+  beginner: 'Simple formulas with one variable to isolate',
+  easy: 'Formulas with a coefficient on the target variable',
+  intermediate: 'Formulas requiring parentheses expansion',
+  advanced: 'Formulas with three or more variables',
+};

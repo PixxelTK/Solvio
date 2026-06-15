@@ -42,6 +42,7 @@ export default async function PracticePage({
       lessonTitle={lesson.title}
       lessonId={lesson.id}
       subject={subject}
+      practiceModule={lesson.practiceModule!}
     />
   );
 }
