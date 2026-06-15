@@ -1,11 +1,161 @@
 title: Systems of Equations
 subject: algebra
 subjectTitle: Algebra
-description: "Solve systems of two or more equations simultaneously using substitution, elimination, and graphical methods."
+description: "A system of equations is a set of two or more equations that share the same variables. Solving a system means finding values for the variables that satisfy all equations simultaneously. This lesson covers the primary methods: graphing, substitution, and elimination."
 order: 3
-topics: []
-practiceModule: null
-comingSoon: true
-relatedTopics: []
-concepts: []
-examples: []
+topics:
+  - title: Introduction to Systems
+    description: "Understand what a system of equations represents and what it means to solve one."
+    body: |
+      A **system of equations** is a collection of two or more equations involving the same set of variables. The solution to a system is the set of values that make *all* equations true at the same time.
+
+      For a system of two linear equations in two variables ($x$ and $y$), the solution corresponds to the **point of intersection** of the two lines when graphed.
+
+      There are three possible outcomes:
+      - **One solution**: The lines intersect at exactly one point.
+      - **No solution**: The lines are parallel and never intersect.
+      - **Infinite solutions**: The lines are the same (coincident).
+
+      Three common methods for solving systems are **graphing**, **substitution**, and **elimination**.
+  - title: Solving by Graphing
+    description: "Solve systems by graphing both equations and finding their intersection."
+    body: |
+      To solve by graphing, plot both equations on the same coordinate plane and identify the point where they cross.
+
+      For example, consider $y = x + 1$ and $y = -x + 5$:
+      1. Graph the line $y = x + 1$ (slope $1$, $y$-intercept $1$).
+      2. Graph the line $y = -x + 5$ (slope $-1$, $y$-intercept $5$).
+      3. The lines intersect at $(2, 3)$, so the solution is $x = 2$, $y = 3$.
+
+      **Limitations**: Graphing is visual and intuitive, but it can be imprecise when the solution involves fractions or very large numbers.
+  - title: Solving by Substitution
+    description: "Solve systems by isolating one variable and substituting into the other equation."
+    body: |
+      The **substitution method** solves a system by expressing one variable in terms of the other, then substituting that expression into the remaining equation.
+
+      **Steps:**
+      1. Solve one equation for one variable.
+      2. Substitute this expression into the other equation.
+      3. Solve the resulting single-variable equation.
+      4. Back-substitute to find the other variable.
+
+      **Example:** Solve $y = 2x$ and $x + y = 9$:
+      1. Equation 1 already gives $y$ in terms of $x$: $y = 2x$.
+      2. Substitute into equation 2: $x + 2x = 9$.
+      3. Simplify: $3x = 9$, so $x = 3$.
+      4. Back-substitute: $y = 2(3) = 6$.
+
+      The solution is $(3, 6)$.
+
+      Substitution works well when at least one equation already has a variable isolated or can be easily solved for a variable.
+  - title: Solving by Elimination
+    description: "Solve systems by adding or subtracting equations to eliminate a variable."
+    body: |
+      The **elimination method** (also called the addition method) combines the two equations to cancel one variable.
+
+      **Steps:**
+      1. Write both equations in standard form: $Ax + By = C$.
+      2. Multiply one or both equations by constants so that the coefficients of one variable are opposites.
+      3. Add the equations to eliminate that variable.
+      4. Solve the resulting single-variable equation.
+      5. Back-substitute to find the other variable.
+
+      **Example:** Solve $2x + y = 7$ and $x - y = 2$:
+      1. Notice the $y$ coefficients are $1$ and $-1$.
+      2. Add the equations: $(2x + y) + (x - y) = 7 + 2$.
+      3. Simplify: $3x = 9$, so $x = 3$.
+      4. Substitute $x = 3$ into $x - y = 2$: $3 - y = 2$, so $y = 1$.
+
+      The solution is $(3, 1)$.
+
+      Elimination is especially powerful when coefficients are already aligned or can be easily matched by scaling.
+  - title: Special Cases
+    description: "Identify systems with no solution or infinitely many solutions."
+    body: |
+      Not all systems have a unique solution. Two special cases arise:
+
+      **No Solution (Inconsistent System):**
+      The lines are parallel. When solving, you arrive at a false statement like $0 = 5$.
+
+      **Example:** $y = 2x + 3$ and $y = 2x - 1$.
+      Using substitution: $2x + 3 = 2x - 1$ → $3 = -1$ (false). No solution.
+
+      **Infinite Solutions (Dependent System):**
+      The lines are identical. When solving, you arrive at a true statement like $0 = 0$.
+
+      **Example:** $y = 3x + 2$ and $2y = 6x + 4$.
+      Using substitution: $2(3x + 2) = 6x + 4$ → $6x + 4 = 6x + 4$ → $0 = 0$ (true). Infinite solutions.
+  - title: Choosing a Method
+    description: "Learn which method to use based on the form of the system."
+    body: |
+      The best method depends on the system's structure:
+
+      - **Graphing**: Good for quick estimates or when only an approximate solution is needed.
+      - **Substitution**: Best when one variable is already isolated (e.g., $y = 2x + 3$) or when solving for a variable requires minimal work.
+      - **Elimination**: Best when both equations are in standard form and coefficients can be matched. This is the most efficient method for most systems.
+
+      As you practice, you will develop an intuition for which method works best in each situation.
+practiceModule: system-of-equations
+comingSoon: false
+relatedTopics:
+  - title: Linear Equations
+    path: /learn/algebra/linear-equations
+  - title: Rearranging Equations
+    path: /learn/algebra/rearranging-equations
+  - title: Gaussian Elimination
+    path: /learn/linear-algebra/gaussian-elimination
+concepts:
+  - title: What is a System of Equations?
+    body: "A system of equations is two or more equations with the same variables. The solution is the set of values that satisfy every equation in the system."
+  - title: Consistent vs Inconsistent
+    body: "A system is **consistent** if it has at least one solution (unique or infinite). It is **inconsistent** if it has no solution (parallel lines)."
+  - title: Dependent vs Independent
+    body: "A system is **independent** if it has exactly one solution. It is **dependent** if the equations represent the same line, producing infinitely many solutions."
+  - title: The Elimination Principle
+    body: "Adding or subtracting two equations produces a valid equation. By strategically scaling and combining, you can eliminate one variable to solve for the other."
+examples:
+  - title: Solving by Substitution
+    problem: "Solve: $y = 3x$ and $x + 2y = 21$"
+    solution: "$(3, 9)$"
+    steps:
+      - "$y = 3x$ (equation 1)"
+      - "$x + 2y = 21$ (equation 2)"
+      - "Substitute $y = 3x$ into equation 2: $x + 2(3x) = 21$"
+      - "$x + 6x = 21$"
+      - "$7x = 21$"
+      - "$x = 3$"
+      - "Back-substitute: $y = 3(3) = 9$"
+      - "Solution: $(3, 9)$"
+  - title: Solving by Elimination
+    problem: "Solve: $3x + 2y = 12$ and $2x - y = 1$"
+    solution: "$(2, 3)$"
+    steps:
+      - "$3x + 2y = 12$ (equation 1)"
+      - "$2x - y = 1$ (equation 2)"
+      - "Multiply equation 2 by $2$: $4x - 2y = 2$"
+      - "Add to equation 1: $(3x + 2y) + (4x - 2y) = 12 + 2$"
+      - "$7x = 14$"
+      - "$x = 2$"
+      - "Back-substitute: $2(2) - y = 1$"
+      - "$4 - y = 1$"
+      - "$y = 3$"
+      - "Solution: $(2, 3)$"
+  - title: No Solution
+    problem: "Solve: $y = 2x + 4$ and $y = 2x - 3$"
+    solution: "No solution (inconsistent)"
+    steps:
+      - "$y = 2x + 4$ (equation 1)"
+      - "$y = 2x - 3$ (equation 2)"
+      - "Substitute: $2x + 4 = 2x - 3$"
+      - "$4 = -3$ (false)"
+      - "The system has no solution. The lines are parallel."
+  - title: Infinite Solutions
+    problem: "Solve: $x + y = 5$ and $2x + 2y = 10$"
+    solution: "Infinite solutions (dependent)"
+    steps:
+      - "$x + y = 5$ (equation 1)"
+      - "$2x + 2y = 10$ (equation 2)"
+      - "Multiply equation 1 by $2$: $2x + 2y = 10$"
+      - "This is identical to equation 2."
+      - "The equations represent the same line: $y = -x + 5$"
+      - "Every point on the line is a solution."

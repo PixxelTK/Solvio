@@ -2,6 +2,7 @@ export const PRACTICE_MODULES = {
   LINEAR_EQUATIONS: 'equation-transformation',
   REARRANGING_EQUATIONS: 'multivariable-equation-system',
   GAUSSIAN_ELIMINATION: 'gaussian-elimination',
+  SYSTEMS_OF_EQUATIONS: 'system-of-equations',
 } as const;
 
 export type PracticeModuleId = typeof PRACTICE_MODULES[keyof typeof PRACTICE_MODULES];
