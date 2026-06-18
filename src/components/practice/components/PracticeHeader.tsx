@@ -10,7 +10,7 @@ interface PracticeHeaderProps {
 
 export default function PracticeHeader({ topic, difficulty, onBack }: PracticeHeaderProps) {
   return (
-    <header className="sm:sticky top-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-2xl">
+    <header className="sm:sticky top-0 z-20 bg-white/50 dark:bg-slate-950/50 backdrop-blur-2xl">
       <div className="max-w-5xl mx-auto w-[90%] py-2 flex-wrap sm:flex-row flex items-center justify-between gap-x-4">
         <h1 className="lg:text-lg py-2 font-bold"><span className="font-light">{topic}</span> Practice</h1>
         <div className="flex items-center gap-2 flex-wrap justify-center">

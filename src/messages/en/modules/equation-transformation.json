@@ -1,0 +1,60 @@
+{
+  "practice": {
+    "instruction": "Apply transformations step by step to solve the equation.",
+    "newProblem": "New Problem",
+    "currentEquation": "Current Equation",
+    "equationSolved": "Equation solved",
+    "solveNextStep": "Solve the next step",
+    "chooseMode": "Choose a mode and apply a transformation.",
+    "enterResult": "Enter the resulting equation",
+    "examplePlaceholder": "Example: 2x = 8",
+    "check": "Check",
+    "chooseOperation": "Choose an operation",
+    "selectedOperation": "Selected Operation",
+    "enterValue": "Enter a value",
+    "enterValuePlaceholder": "Enter value",
+    "apply": "Apply",
+    "solveForX": "Solve for x",
+    "solveForVariable": "Solve for the variable",
+    "validation": {
+      "noValidTransformation": "No valid transformation found for this equation. Check your calculation.",
+      "complete": "Exercise Complete! Equation solved.",
+      "cannotParse": "Could not parse equation. Use format: expression = expression",
+      "requiresValue": "This operation requires a value.",
+      "cannotApply": "This operation cannot be applied here. The expression may not change.",
+      "appliedSuccessfully": "Operation applied successfully.",
+      "errorApplying": "Error applying operation.",
+      "correct": "Correct!"
+    }
+  },
+  "operations": {
+    "add": {
+      "label": "Add",
+      "desc": "Add the same value to both sides of the equation.",
+      "paramLabel": "Example: 3"
+    },
+    "sub": {
+      "label": "Subtract",
+      "desc": "Subtract the same value from both sides of the equation.",
+      "paramLabel": "Example: 2"
+    },
+    "mul": {
+      "label": "Multiply",
+      "desc": "Multiply both sides by the same value.",
+      "paramLabel": "Example: 5"
+    },
+    "div": {
+      "label": "Divide",
+      "desc": "Divide both sides by the same non-zero value.",
+      "paramLabel": "Example: 4"
+    },
+    "expand": {
+      "label": "Expand",
+      "desc": "Distribute multiplication and remove parentheses."
+    },
+    "collect": {
+      "label": "Combine like terms",
+      "desc": "Combine like terms into a simpler expression."
+    }
+  }
+}

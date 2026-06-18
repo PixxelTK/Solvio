@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useCallback, useRef, useMemo } from 'react';
-import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint } from '@/lib/engine/types';
+import { Difficulty, MathState, Operation, TransformationStep, ValidationResult, Hint, OperationType } from '@/lib/engine/types';
 import { equationTransformationModule } from '@/lib/modules/algebra';
 import { applyAlgebraOperation, stateToEquation, computeHint, equationToState } from '@/lib/modules/algebra/engine';
 import { equationToString, parseEquation, simplify, exprToLatex, collectLikeTerms, exprEqual, Equation } from '@/lib/modules/algebra/expressions';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { useI18n } from '@/i18n/I18nContext';
 import PracticeHeader from './components/PracticeHeader';
 import FloatingEquation from './components/FloatingEquation';
 import StepsPanel from './components/StepsPanel';
@@ -16,6 +17,7 @@ import ValidationBanner from './components/ValidationBanner';
 import NextProblemButton from './components/NextProblemButton';
 import EquationKeyboard from './components/EquationKeyboard';
 import ModeTabs from './components/ModeTabs';
+
 
 interface EquationGameScreenProps {
   difficulty: Difficulty;
@@ -80,7 +82,51 @@ function inferOperation(
 }
 
 export default function EquationGameScreen({ difficulty, onBack }: EquationGameScreenProps) {
+  const { t } = useI18n();
+  const getTargetDescription = (desc: string) => {
+    if (desc === 'Solve for x') return t('practice.solveForX');
+    if (desc === 'Solve for the variable') return t('practice.solveForVariable');
+    return desc;
+  };
+
+  const getOpLabel = (op: OperationType) => {
+    switch (op.id) {
+      case 'add_both': return t('operations.add.label');
+      case 'sub_both': return t('operations.sub.label');
+      case 'mul_both': return t('operations.mul.label');
+      case 'div_both': return t('operations.div.label');
+      case 'expand': return t('operations.expand.label');
+      case 'collect': return t('operations.collect.label');
+      default: return op.label;
+    }
+  };
+
+  const getOpDesc = (op: OperationType) => {
+    switch (op.id) {
+      case 'add_both': return t('operations.add.desc');
+      case 'sub_both': return t('operations.sub.desc');
+      case 'mul_both': return t('operations.mul.desc');
+      case 'div_both': return t('operations.div.desc');
+      case 'expand': return t('operations.expand.desc');
+      case 'collect': return t('operations.collect.desc');
+      default: return op.description || '';
+    }
+  };
+
+  const getOpParamLabel = (op: OperationType) => {
+    switch (op.id) {
+      case 'add_both': return t('operations.add.paramLabel');
+      case 'sub_both': return t('operations.sub.paramLabel');
+      case 'mul_both': return t('operations.mul.paramLabel');
+      case 'div_both': return t('operations.div.paramLabel');
+      default: return op.parameterLabel || '';
+    }
+  };
+
   const [question, setQuestion] = useState(() => equationTransformationModule.generateQuestion(difficulty));
+
+
+
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [steps, setSteps] = useState<TransformationStep[]>([
     { state: question.initialState },
@@ -140,7 +186,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       if (!inferred) {
         setValidation({
           valid: false,
-          message: 'No valid transformation found for this equation. Check your calculation.',
+          message: t('practice.validation.noValidTransformation'),
           isSolved: false,
         });
         return;
@@ -162,21 +208,21 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
       const solved = commitStep(nextStateFull, operation);
       if (solved) {
-        setValidation({ valid: true, message: 'Exercise Complete! Equation solved.', isSolved: true });
+        setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: `Correct! ${inferred.description}`, isSolved: false });
+        setValidation({ valid: true, message: `${t('practice.validation.correct')} ${inferred.description}`, isSolved: false });
       }
     } catch {
-      setValidation({ valid: false, message: 'Could not parse equation. Use format: expression = expression', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.cannotParse'), isSolved: false });
     }
-  }, [currentState, userEquation, commitStep]);
+  }, [currentState, userEquation, commitStep, t]);
 
   const handleOperationModeSubmit = useCallback(() => {
     setValidation(null);
     setHint(null);
 
     if (currentOp?.needsParameter && !opParam.trim()) {
-      setValidation({ valid: false, message: 'This operation requires a value.', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.requiresValue'), isSolved: false });
       return;
     }
 
@@ -185,7 +231,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       const opResult = applyAlgebraOperation(eq, selectedOp, opParam || '');
 
       if (!opResult) {
-        setValidation({ valid: false, message: 'This operation cannot be applied here. The expression may not change.', isSolved: false });
+        setValidation({ valid: false, message: t('practice.validation.cannotApply'), isSolved: false });
         return;
       }
 
@@ -198,14 +244,14 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
 
       const solved = commitStep(newState, operation);
       if (solved) {
-        setValidation({ valid: true, message: 'Exercise Complete! Equation solved.', isSolved: true });
+        setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: 'Operation applied successfully.', isSolved: false });
+        setValidation({ valid: true, message: t('practice.validation.appliedSuccessfully'), isSolved: false });
       }
     } catch {
-      setValidation({ valid: false, message: 'Error applying operation.', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.errorApplying'), isSolved: false });
     }
-  }, [currentState, selectedOp, opParam, currentOp, commitStep]);
+  }, [currentState, selectedOp, opParam, currentOp, commitStep, t]);
 
   const handleGetHint = useCallback(() => {
     const h = equationTransformationModule.getHint(currentState);
@@ -262,11 +308,11 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
             <div className='flex gap-4 justify-between items-center'>
               <div>
                 <div className="font-bold text-xl" suppressHydrationWarning>
-                  {question.targetDescription}
+                  {getTargetDescription(question.targetDescription)}
                 </div>
 
                 <div className="text-sm text-gray-500 space-y-1">
-                  <p>Apply transformations step by step to solve the equation.</p>
+                  <p>{t('practice.instruction')}</p>
                 </div>
               </div>
               <button
@@ -274,14 +320,14 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-200 cursor-pointer dark:bg-gray-800 text-slate-600 dark:text-gray-300 hover:opacity-90 transition-opacity"
               >
                 <FontAwesomeIcon icon={faRotate} />
-                New Problem
+                {t('practice.newProblem')}
               </button>
             </div>
           </section>
 
-          <FloatingEquation title="Current Equation" latex={currentState.latex} />
+          <FloatingEquation title={t('practice.currentEquation')} latex={currentState.latex} />
 
-          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage="Equation solved" />
+          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage={t('practice.equationSolved')} />
 
           {hint && <HintBanner hint={hint} />}
 
@@ -295,11 +341,11 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
               <section className="mb-4">
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold">
-                    Solve the next step
+                    {t('practice.solveNextStep')}
                   </h2>
 
                   <p className="text-sm text-slate-500 mt-1">
-                    Choose a mode and apply a transformation.
+                    {t('practice.chooseMode')}
                   </p>
                 </div>
 
@@ -309,7 +355,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 {solveMode === 'equation' && (
                   <>
                     <div className="mb-3 font-medium">
-                      Enter the resulting equation
+                      {t('practice.enterResult')}
                     </div>
 
                     <div className="flex flex-row gap-3">
@@ -319,7 +365,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                         value={userEquation}
                         onChange={(e) => setUserEquation(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEquationModeSubmit(); } }}
-                        placeholder="Example: 2x = 8"
+                        placeholder={t('practice.examplePlaceholder')}
                         className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                       />
 
@@ -329,7 +375,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                         className="h-12 px-4 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
                       >
                         <FontAwesomeIcon icon={faCheck} className='mr-1' />
-                        Check
+                        {t('practice.check')}
                       </button>
                     </div>
 
@@ -341,7 +387,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                 {solveMode === 'operation' && (
                   <>
                     <div className="mb-3 font-medium">
-                      Choose an operation
+                      {t('practice.chooseOperation')}
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
@@ -382,7 +428,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                             )}
 
                             <span className="font-medium text-sm">
-                              {op.label}
+                              {getOpLabel(op)}
                             </span>
                           </div>
                         </button>
@@ -392,11 +438,11 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                     {currentOp && (
                       <div className="mb-6 rounded-2xl">
                         <div className="text-xs text-slate-600 dark:text-slate-200 mb-1">
-                          Selected Operation
+                          {t('practice.selectedOperation')}
                         </div>
 
                         <div className="font-medium text-slate-500 dark:text-slate-300">
-                          {currentOp.description}
+                          {getOpDesc(currentOp)}
                         </div>
                       </div>
                     )}
@@ -404,7 +450,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                     {currentOp?.needsParameter && (
                       <>
                         <div className="mb-3 font-medium">
-                          Enter a value
+                          {t('practice.enterValue')}
                         </div>
 
                         <div className="mb-3">
@@ -414,7 +460,7 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                             value={opParam}
                             onChange={(e) => setOpParam(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleOperationModeSubmit(); } }}
-                            placeholder={currentOp.parameterLabel || "Enter value"}
+                            placeholder={getOpParamLabel(currentOp) || t('practice.enterValuePlaceholder')}
                             className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                           />
 
@@ -427,8 +473,9 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
                       className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
                     >
                       <FontAwesomeIcon icon={faCheck} className='mr-1' />
-                      Apply
+                      {t('practice.apply')}
                     </button>
+
                   </>
                 )}
               </section>

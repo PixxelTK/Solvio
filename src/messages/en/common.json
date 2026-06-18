@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "practice": "Practice",
+    "home": "Home"
+  },
+  "home": {
+    "title": "Solvio Math",
+    "subtitle": "Learn mathematics through step-by-step transformations"
+  },
+  "common": {
+    "comingSoon": "Coming Soon"
+  }
+}

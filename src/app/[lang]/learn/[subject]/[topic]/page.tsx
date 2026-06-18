@@ -3,18 +3,24 @@ import { getLesson, getAllLessons } from '@/lib/content/catalog';
 import LessonContent from '@/components/LessonContent';
 
 export async function generateStaticParams() {
-  return getAllLessons()
-    .filter(l => !l.comingSoon)
-    .map(l => ({
-      subject: l.subject,
-      topic: l.id,
-    }));
+  const paths: { lang: string; subject: string; topic: string }[] = [];
+  const lessons = getAllLessons().filter(l => !l.comingSoon);
+  for (const lang of ['en', 'th']) {
+    for (const l of lessons) {
+      paths.push({
+        lang,
+        subject: l.subject,
+        topic: l.id,
+      });
+    }
+  }
+  return paths;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ subject: string; topic: string }>;
+  params: Promise<{ lang: string; subject: string; topic: string }>;
 }) {
   const { subject, topic } = await params;
   const lesson = getLesson(subject, topic);
@@ -28,7 +34,7 @@ export async function generateMetadata({
 export default async function TopicPage({
   params,
 }: {
-  params: Promise<{ subject: string; topic: string }>;
+  params: Promise<{ lang: string; subject: string; topic: string }>;
 }) {
   const { subject, topic } = await params;
   const lesson = getLesson(subject, topic);
@@ -39,3 +45,4 @@ export default async function TopicPage({
 
   return <LessonContent lesson={lesson} />;
 }
+
