@@ -9,5 +9,21 @@
   },
   "common": {
     "comingSoon": "เร็วๆ นี้"
+  },
+  "practice": {
+    "newProblem": "โจทย์ใหม่",
+    "hint": "คำใบ้",
+    "steps": "ขั้นตอน",
+    "begin": "เริ่ม",
+    "step": "ขั้นตอน",
+    "stepsCount": "ขั้นตอน",
+    "showHint": "แสดงคำใบ้",
+    "skipStep": "ข้ามขั้นตอนนี้",
+    "nextProblem": "โจทย์ถัดไป",
+    "topicPractice": "แบบฝึกหัด",
+    "mode": {
+      "equation": "สมการ",
+      "operation": "การดำเนินการ"
+    }
   }
 }

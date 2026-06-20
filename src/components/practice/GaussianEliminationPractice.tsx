@@ -10,6 +10,7 @@ import {
   faChevronDown,
   faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
+import { useI18n } from '@/i18n/I18nContext';
 import PracticeHeader from './components/PracticeHeader';
 import FloatingEquation from './components/FloatingEquation';
 import StepsPanel from './components/StepsPanel';
@@ -42,6 +43,7 @@ const OPERATION_HELP: Record<string, { syntax: string; examples: string[]; expla
 };
 
 export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
+  const { t } = useI18n();
   const [question] = useState(() => linearAlgebraModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [steps, setSteps] = useState<TransformationStep[]>([
@@ -68,7 +70,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
     const opResult = applyRowOperation(stateToData(currentState).matrix, selectedOp, opParam);
     if (!opResult) {
       const h = OPERATION_HELP[selectedOp];
-      setValidation({ valid: false, message: `Invalid format. Try: ${h.syntax} — Examples: ${h.examples.join(', ')}`, isSolved: false });
+      setValidation({ valid: false, message: `${t('practice.validation.invalidFormat').replace('{syntax}', h.syntax).replace('{examples}', h.examples.join(', '))}`, isSolved: false });
       return;
     }
 
@@ -94,9 +96,9 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
       setIsComplete(solved);
       setOpParam('');
       if (solved) {
-        setValidation({ valid: true, message: 'Done! The matrix is now in RREF — you can read the solution from the rightmost column.', isSolved: true });
+        setValidation({ valid: true, message: t('practice.validation.done'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: 'Correct! Keep going — find the next pivot to eliminate.', isSolved: false });
+        setValidation({ valid: true, message: t('practice.validation.correct'), isSolved: false });
       }
     } else {
       setValidation(result);
@@ -174,7 +176,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
                   {question.targetDescription}
                 </div>
                 <div className="text-sm text-gray-500 space-y-1">
-                  <p>Use row operations to simplify the matrix until each pivot is 1 and all other entries in pivot columns are 0.</p>
+                  <p>{t('practice.instruction')}</p>
                 </div>
               </div>
               <button
@@ -182,7 +184,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
                 className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-200 cursor-pointer dark:bg-gray-800 text-slate-600 dark:text-gray-300 hover:opacity-90 transition-opacity"
               >
                 <FontAwesomeIcon icon={faRotate} />
-                New Problem
+                {t('practice.newProblem')}
               </button>
             </div>
 
@@ -191,28 +193,28 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
               className="mt-3 text-sm text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1"
             >
               <FontAwesomeIcon icon={showGuide ? faChevronUp : faChevronDown} className="text-xs" />
-              {showGuide ? 'Hide RREF Guide' : 'What is RREF?'}
+              {showGuide ? t('practice.rrefGuide.hide') : t('practice.rrefGuide.whatIs')}
             </button>
 
             {showGuide && (
               <div className="mt-2 rounded-2xl bg-blue-50 dark:bg-blue-950/20 px-5 py-4 text-sm text-slate-600 dark:text-slate-300 space-y-3">
-                <p className="font-medium text-slate-800 dark:text-slate-100">Reduced Row Echelon Form (RREF) Rules:</p>
+                <p className="font-medium text-slate-800 dark:text-slate-100">{t('practice.rrefGuide.rules')}</p>
                 <ol className="list-decimal list-inside space-y-1.5">
-                  <li>All zero rows are at the bottom.</li>
+                  <li>{t('practice.rrefGuide.rule1')}</li>
                   <li>The first non-zero number in each row (the <strong>pivot</strong>) is <strong>1</strong>.</li>
-                  <li>Each pivot is to the right of the pivot in the row above.</li>
+                  <li>{t('practice.rrefGuide.rule3')}</li>
                   <li>All other entries in a pivot column are <strong>0</strong>.</li>
                 </ol>
                 <p className="text-xs text-slate-400 dark:text-slate-500 pt-1">
-                  Tip: Work column by column from left to right. For each pivot, scale to make it 1, then eliminate all other entries in that column.
+                  {t('practice.rrefGuide.tip')}
                 </p>
               </div>
             )}
           </section>
 
-          <FloatingEquation title="Current Matrix" latex={currentState.latex} size="text-xl sm:text-3xl" />
+          <FloatingEquation title={t('practice.currentMatrix')} latex={currentState.latex} size="text-xl sm:text-3xl" />
 
-          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage="Matrix is in RREF" />
+          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage={t('practice.matrixInRref')} />
 
           {hint && <HintBanner hint={hint} />}
 
@@ -224,9 +226,9 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
             {!isComplete && (
               <section className="mb-4">
                 <div className="mb-6">
-                  <h2 className="text-xl font-semibold">Apply Operation</h2>
+                  <h2 className="text-xl font-semibold">{t('practice.applyOperation')}</h2>
                   <p className="text-sm text-slate-500 mt-1">
-                    Select a row operation and enter the parameters.
+                    {t('practice.selectRowOp')}
                   </p>
                 </div>
 
@@ -245,7 +247,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
                         {op.icon && (
                           <FontAwesomeIcon icon={op.icon} className="text-base" />
                         )}
-                        <span className="font-medium text-sm">{op.label}</span>
+                        <span className="font-medium text-sm">{t(`operations.${op.id}.label`)}</span>
                       </div>
                     </button>
                   ))}
@@ -254,14 +256,14 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
                 {help && (
                   <div className="mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/20 px-4 py-3 space-y-2">
                     <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {help.explanation}
+                      {t(`operations.${selectedOp}.explanation`)}
                     </p>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-slate-400 dark:text-slate-500">Format:</span>
+                      <span className="text-slate-400 dark:text-slate-500">{t('practice.format')}</span>
                       <span className="font-mono font-medium text-slate-700 dark:text-slate-200">{help.syntax}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-slate-400 dark:text-slate-500">Examples:</span>
+                      <span className="text-slate-400 dark:text-slate-500">{t('practice.examples')}</span>
                       {help.examples.map(ex => (
                         <span key={ex} className="font-mono bg-white dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">{ex}</span>
                       ))}
@@ -276,7 +278,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
                     value={opParam}
                     onChange={(e) => setOpParam(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={help?.examples[0] || 'Enter operation'}
+                    placeholder={help?.examples[0] || t('practice.enterOperation')}
                     className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                     aria-label="Row operation"
                   />
@@ -286,7 +288,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
                     className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
                   >
                     <FontAwesomeIcon icon={faCheck} className="mr-1" />
-                    Apply
+                    {t('practice.apply')}
                   </button>
                 </div>
               </section>

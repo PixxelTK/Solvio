@@ -1,0 +1,25 @@
+{
+  "practice": {
+    "instruction": "แก้ระบบสมการโดยการแทนค่าหรือการกำจัดตัวแปร",
+    "currentSystem": "ระบบสมการปัจจุบัน",
+    "systemSolved": "แก้ระบบสมการสำเร็จ",
+    "solveNextStep": "แก้ขั้นตอนถัดไป",
+    "chooseMode": "เลือกโหมดและใช้การแปลง",
+    "enterResult": "ใส่สมการผลลัพธ์",
+    "examplePlaceholder": "ตัวอย่าง: x = 5",
+    "chooseOperation": "เลือกการดำเนินการ",
+    "selectedOperation": "การดำเนินการที่เลือก",
+    "enterValue": "ใส่ค่า",
+    "enterValuePlaceholder": "ใส่ค่า",
+    "validation": {
+      "noValidTransformation": "ไม่พบการแปลงที่ถูกต้อง",
+      "complete": "ทำแบบฝึกหัดเสร็จสมบูรณ์! แก้ระบบสมการสำเร็จ",
+      "cannotParse": "ไม่สามารถอ่านสมการได้",
+      "requiresValue": "การดำเนินการนี้จำเป็นต้องระบุค่าตัวเลข",
+      "cannotApply": "ไม่สามารถใช้การดำเนินการนี้ตรงนี้ได้",
+      "appliedSuccessfully": "ใช้การดำเนินการสำเร็จแล้ว",
+      "errorApplying": "เกิดข้อผิดพลาดในการใช้การดำเนินการ",
+      "correct": "ถูกต้อง!"
+    }
+  }
+}

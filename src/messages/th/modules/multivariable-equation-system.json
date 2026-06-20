@@ -1,0 +1,59 @@
+{
+  "practice": {
+    "instruction": "ใช้การดำเนินการต่างๆ เพื่อแยกตัวแปรเป้าหมาย",
+    "solveForX": "แก้สมการหาค่า {targetVar}",
+    "currentEquation": "สมการปัจจุบัน",
+    "variableIsolated": "แยกตัวแปรสำเร็จ",
+    "solveNextStep": "แก้ขั้นตอนถัดไป",
+    "chooseMode": "เลือกโหมดและใช้การแปลง",
+    "enterResult": "ใส่สมการผลลัพธ์",
+    "examplePlaceholder": "ตัวอย่าง: x = 5 - y",
+    "chooseOperation": "เลือกการดำเนินการ",
+    "selectedOperation": "การดำเนินการที่เลือก",
+    "enterValue": "ใส่ค่า",
+    "enterTermToMove": "ใส่พจน์ที่ต้องการย้าย",
+    "enterValuePlaceholder": "ใส่ค่า",
+    "validation": {
+      "noValidTransformation": "ไม่พบการแปลงที่ถูกต้องสำหรับสมการนี้ โปรดตรวจสอบการคำนวณของคุณอีกครั้ง",
+      "complete": "ทำแบบฝึกหัดเสร็จสมบูรณ์! แยกตัวแปรสำเร็จ",
+      "correct": "ถูกต้อง! {description}",
+      "cannotParse": "ไม่สามารถอ่านสมการได้ โปรดใช้รูปแบบ: นิพจน์ = นิพจน์",
+      "requiresValue": "การดำเนินการนี้จำเป็นต้องระบุค่าตัวเลข",
+      "cannotParseTerm": "ไม่สามารถอ่านพจน์ได้ โปรดใช้รูปแบบเช่น 3x, y, หรือ 5",
+      "cannotApply": "ไม่สามารถใช้การดำเนินการนี้ตรงนี้ได้ นิพจน์อาจไม่มีการเปลี่ยนแปลง",
+      "appliedSuccessfully": "ใช้การดำเนินการสำเร็จแล้ว",
+      "errorApplying": "เกิดข้อผิดพลาดในการใช้การดำเนินการ"
+    }
+  },
+  "operations": {
+    "move_term": {
+      "label": "ย้ายพจน์",
+      "paramLabel": "ตัวอย่าง: 3x"
+    },
+    "add_both": {
+      "label": "บวกเข้า",
+      "paramLabel": "ตัวอย่าง: 3"
+    },
+    "sub_both": {
+      "label": "ลบออก",
+      "paramLabel": "ตัวอย่าง: 2"
+    },
+    "mul_both": {
+      "label": "คูณด้วย",
+      "paramLabel": "ตัวอย่าง: 5"
+    },
+    "div_both": {
+      "label": "หารด้วย",
+      "paramLabel": "ตัวอย่าง: 4"
+    },
+    "expand": {
+      "label": "กระจายวงเล็บ"
+    },
+    "collect": {
+      "label": "รวมพจน์ที่คล้ายกัน"
+    },
+    "isolate": {
+      "label": "แยกตัวแปร"
+    }
+  }
+}

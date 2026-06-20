@@ -13,6 +13,7 @@ import {
 import { equationToString, parseEquation, parseExpr, simplify, exprToLatex, collectLikeTerms, exprEqual, Equation, Expr } from '@/lib/modules/algebra/expressions';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { useI18n } from '@/i18n/I18nContext';
 import PracticeHeader from './components/PracticeHeader';
 import FloatingEquation from './components/FloatingEquation';
 import StepsPanel from './components/StepsPanel';
@@ -103,6 +104,7 @@ function inferOperation(
 }
 
 export default function MultivariableEquationScreen({ difficulty, onBack }: MultivariableEquationScreenProps) {
+  const { t } = useI18n();
   const [question, setQuestion] = useState(() => multivariableModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [targetVar, setTargetVar] = useState(() => getTargetVariable(question.initialState));
@@ -165,7 +167,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
       if (!inferred) {
         setValidation({
           valid: false,
-          message: 'No valid transformation found for this equation. Check your calculation.',
+          message: t('practice.validation.noValidTransformation'),
           isSolved: false,
         });
         return;
@@ -190,21 +192,21 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
 
       const solved = commitStep(nextStateFull, operation);
       if (solved) {
-        setValidation({ valid: true, message: 'Exercise Complete! Variable isolated.', isSolved: true });
+        setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: `Correct! ${inferred.description}`, isSolved: false });
+        setValidation({ valid: true, message: t('practice.validation.correct').replace('{description}', inferred.description), isSolved: false });
       }
     } catch {
-      setValidation({ valid: false, message: 'Could not parse equation. Use format: expression = expression', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.cannotParse'), isSolved: false });
     }
-  }, [currentState, userEquation, commitStep, targetVar]);
+  }, [currentState, userEquation, commitStep, targetVar, t]);
 
   const handleOperationModeSubmit = useCallback(() => {
     setValidation(null);
     setHint(null);
 
     if (currentOp?.needsParameter && !opParam.trim()) {
-      setValidation({ valid: false, message: 'This operation requires a value.', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.requiresValue'), isSolved: false });
       return;
     }
 
@@ -216,7 +218,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
         try {
           parseExpr(param);
         } catch {
-          setValidation({ valid: false, message: 'Could not parse the term. Use format like 3x, y, or 5.', isSolved: false });
+          setValidation({ valid: false, message: t('practice.validation.cannotParseTerm'), isSolved: false });
           return;
         }
       }
@@ -224,7 +226,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
       const opResult = applyMultivariableOperation(eq, selectedOp, param, targetVar);
 
       if (!opResult) {
-        setValidation({ valid: false, message: 'This operation cannot be applied here. The expression may not change.', isSolved: false });
+        setValidation({ valid: false, message: t('practice.validation.cannotApply'), isSolved: false });
         return;
       }
 
@@ -246,14 +248,14 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
 
       const solved = commitStep(newState, operation);
       if (solved) {
-        setValidation({ valid: true, message: 'Exercise Complete! Variable isolated.', isSolved: true });
+        setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: 'Operation applied successfully.', isSolved: false });
+        setValidation({ valid: true, message: t('practice.validation.appliedSuccessfully'), isSolved: false });
       }
     } catch {
-      setValidation({ valid: false, message: 'Error applying operation.', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.errorApplying'), isSolved: false });
     }
-  }, [currentState, selectedOp, opParam, currentOp, commitStep, targetVar]);
+  }, [currentState, selectedOp, opParam, currentOp, commitStep, targetVar, t]);
 
   const handleGetHint = useCallback(() => {
     const h = multivariableModule.getHint(currentState);
@@ -318,11 +320,11 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
             <div className='flex gap-4 justify-between items-center'>
               <div>
                 <div className="font-bold text-xl" suppressHydrationWarning>
-                  Solve for <span className="font-bold text-2xl font-serif text-blue-500 dark:text-blue-300">{targetVar}</span>
+                  {t('practice.solveForX').replace('{targetVar}', '')} <span className="font-bold text-2xl font-serif text-blue-500 dark:text-blue-300" suppressHydrationWarning>{targetVar}</span>
                 </div>
 
                 <div className="text-sm text-gray-500 space-y-1">
-                  <p>Use operations to isolate the target variable.</p>
+                  <p>{t('practice.instruction')}</p>
                 </div>
               </div>
               <button
@@ -330,14 +332,14 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                 className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-200 cursor-pointer dark:bg-gray-800 text-slate-600 dark:text-gray-300 hover:opacity-90 transition-opacity"
               >
                 <FontAwesomeIcon icon={faRotate} />
-                New Problem
+                {t('practice.newProblem')}
               </button>
             </div>
           </section>
 
-          <FloatingEquation title="Current Equation" latex={currentState.latex} />
+          <FloatingEquation title={t('practice.currentEquation')} latex={currentState.latex} />
 
-          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage="Variable isolated" />
+          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage={t('practice.variableIsolated')} />
 
           {hint && <HintBanner hint={hint} />}
 
@@ -351,11 +353,11 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
               <section className="mb-4">
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold">
-                    Solve the next step
+                    {t('practice.solveNextStep')}
                   </h2>
 
                   <p className="text-sm text-slate-500 mt-1">
-                    Choose a mode and apply a transformation.
+                    {t('practice.chooseMode')}
                   </p>
                 </div>
 
@@ -365,7 +367,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                 {solveMode === 'equation' && (
                   <>
                     <div className="mb-3 font-medium">
-                      Enter the resulting equation
+                      {t('practice.enterResult')}
                     </div>
 
                     <div className="flex flex-row gap-3">
@@ -375,7 +377,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                         value={userEquation}
                         onChange={(e) => setUserEquation(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEquationModeSubmit(); } }}
-                        placeholder="Example: x = 5 - y"
+                        placeholder={t('practice.examplePlaceholder')}
                         className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                       />
 
@@ -385,7 +387,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                         className="h-12 px-4 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
                       >
                         <FontAwesomeIcon icon={faCheck} className='mr-1' />
-                        Check
+                        {t('practice.check')}
                       </button>
                     </div>
 
@@ -397,7 +399,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                 {solveMode === 'operation' && (
                   <>
                     <div className="mb-3 font-medium">
-                      Choose an operation
+                      {t('practice.chooseOperation')}
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
@@ -438,7 +440,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                             )}
 
                             <span className="font-medium text-sm">
-                              {op.label}
+                              {t(`operations.${op.id}.label`)}
                             </span>
                           </div>
                         </button>
@@ -448,7 +450,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                     {currentOp && (
                       <div className="mb-6 rounded-2xl">
                         <div className="text-xs text-slate-600 dark:text-slate-200 mb-1">
-                          Selected Operation
+                          {t('practice.selectedOperation')}
                         </div>
 
                         <div className="font-medium text-slate-500 dark:text-slate-300">
@@ -460,9 +462,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                     {currentOp?.needsParameter && (
                       <>
                         <div className="mb-3 font-medium">
-                          {currentOp.id === 'move_term'
-                            ? 'Enter the term to move'
-                            : 'Enter a value'}
+                          {currentOp.id === 'move_term' ? t('practice.enterTermToMove') : t('practice.enterValue')}
                         </div>
 
                         <div className="mb-3">
@@ -472,7 +472,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                             value={opParam}
                             onChange={(e) => setOpParam(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleOperationModeSubmit(); } }}
-                            placeholder={currentOp.parameterLabel || "Enter value"}
+                            placeholder={t(`operations.${currentOp.id}.paramLabel`) || t('practice.enterValuePlaceholder')}
                             className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                           />
                         </div>
@@ -484,7 +484,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                       className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
                     >
                       <FontAwesomeIcon icon={faCheck} className='mr-1' />
-                      Apply
+                      {t('practice.apply')}
                     </button>
                   </>
                 )}

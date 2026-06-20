@@ -1,0 +1,59 @@
+{
+  "practice": {
+    "instruction": "Use operations to isolate the target variable.",
+    "solveForX": "Solve for {targetVar}",
+    "currentEquation": "Current Equation",
+    "variableIsolated": "Variable isolated",
+    "solveNextStep": "Solve the next step",
+    "chooseMode": "Choose a mode and apply a transformation.",
+    "enterResult": "Enter the resulting equation",
+    "examplePlaceholder": "Example: x = 5 - y",
+    "chooseOperation": "Choose an operation",
+    "selectedOperation": "Selected Operation",
+    "enterValue": "Enter a value",
+    "enterTermToMove": "Enter the term to move",
+    "enterValuePlaceholder": "Enter value",
+    "validation": {
+      "noValidTransformation": "No valid transformation found for this equation. Check your calculation.",
+      "complete": "Exercise Complete! Variable isolated.",
+      "correct": "Correct! {description}",
+      "cannotParse": "Could not parse equation. Use format: expression = expression",
+      "requiresValue": "This operation requires a value.",
+      "cannotParseTerm": "Could not parse the term. Use format like 3x, y, or 5.",
+      "cannotApply": "This operation cannot be applied here. The expression may not change.",
+      "appliedSuccessfully": "Operation applied successfully.",
+      "errorApplying": "Error applying operation."
+    }
+  },
+  "operations": {
+    "move_term": {
+      "label": "Move Term",
+      "paramLabel": "Example: 3x"
+    },
+    "add_both": {
+      "label": "Add",
+      "paramLabel": "Example: 3"
+    },
+    "sub_both": {
+      "label": "Subtract",
+      "paramLabel": "Example: 2"
+    },
+    "mul_both": {
+      "label": "Multiply",
+      "paramLabel": "Example: 5"
+    },
+    "div_both": {
+      "label": "Divide",
+      "paramLabel": "Example: 4"
+    },
+    "expand": {
+      "label": "Expand"
+    },
+    "collect": {
+      "label": "Combine like terms"
+    },
+    "isolate": {
+      "label": "Isolate"
+    }
+  }
+}

@@ -1,5 +1,7 @@
 'use client';
 
+import { useI18n } from '@/i18n/I18nContext';
+
 interface ModeTabsProps {
   mode: 'equation' | 'operation';
   onChange: (mode: 'equation' | 'operation') => void;
@@ -7,6 +9,8 @@ interface ModeTabsProps {
 }
 
 export default function ModeTabs({ mode, onChange, onClearValidation }: ModeTabsProps) {
+  const { t } = useI18n();
+
   return (
     <div className="flex gap-2 mb-3 p-1 rounded-xl bg-gray-100 dark:bg-slate-900">
       {(['equation', 'operation'] as const).map((tab) => (
@@ -19,7 +23,7 @@ export default function ModeTabs({ mode, onChange, onClearValidation }: ModeTabs
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
           }`}
         >
-          {tab}
+          {tab === 'equation' ? t('practice.mode.equation') : t('practice.mode.operation')}
         </button>
       ))}
     </div>

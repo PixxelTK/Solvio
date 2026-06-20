@@ -12,6 +12,7 @@ import {
 import { simplify, collectLikeTerms, expand, exprToLatex, Equation } from '@/lib/modules/algebra/expressions';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { useI18n } from '@/i18n/I18nContext';
 import PracticeHeader from './components/PracticeHeader';
 import { EquationCard } from '../EquationCard';
 import StepsPanel from './components/StepsPanel';
@@ -28,6 +29,7 @@ interface SystemsPracticeProps {
 }
 
 export default function SystemsOfEquationsPractice({ difficulty, onBack }: SystemsPracticeProps) {
+  const { t } = useI18n();
   const [question, setQuestion] = useState(() => systemsOfEquationsModule.generateQuestion(difficulty));
   const [currentState, setCurrentState] = useState<MathState>(question.initialState);
   const [currentData, setCurrentData] = useState(() => stateToData(question.initialState));
@@ -78,12 +80,12 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
     setHint(null);
 
     if (needsParam && !opParam.trim()) {
-      setValidation({ valid: false, message: 'This operation requires a value.', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.requiresValue'), isSolved: false });
       return;
     }
 
     if (!preview) {
-      setValidation({ valid: false, message: 'This operation cannot be applied in the current state.', isSolved: false });
+      setValidation({ valid: false, message: t('practice.validation.cannotApply'), isSolved: false });
       return;
     }
 
@@ -96,11 +98,11 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
     const newState = dataToState(preview.newData);
     const solved = updateState(newState, operation);
     if (solved) {
-      setValidation({ valid: true, message: 'System solved!', isSolved: true });
+      setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
     } else {
       setValidation({ valid: true, message: preview.description, isSolved: false });
     }
-  }, [preview, selectedTarget, opParam, needsParam, updateState]);
+  }, [preview, selectedTarget, opParam, needsParam, updateState, t]);
 
   const handleGetHint = useCallback(() => {
     const h = systemsOfEquationsModule.getHint(currentState);
@@ -170,7 +172,7 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                   {question.targetDescription}
                 </div>
                 <div className="text-sm text-gray-500 space-y-1">
-                  <p>Use elimination and substitution to solve the system.</p>
+                  <p>{t('practice.instruction')}</p>
                 </div>
               </div>
               <button
@@ -178,20 +180,20 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                 className="flex items-center min-w-max gap-2 px-4 py-2 text-sm rounded-full bg-gray-200 cursor-pointer dark:bg-gray-800 text-slate-600 dark:text-gray-300 hover:opacity-90 transition-opacity"
               >
                 <FontAwesomeIcon icon={faRotate} />
-                New Problem
+                {t('practice.newProblem')}
               </button>
             </div>
           </section>
 
           <div className="mb-6" suppressHydrationWarning>
             {isSolved ? (
-              <EquationCard title="Solution" latex={`x = ${currentData.solvedX} \\quad y = ${currentData.solvedY}`} />
+              <EquationCard title={t('practice.systemSolved')} latex={`x = ${currentData.solvedX} \\quad y = ${currentData.solvedY}`} />
             ) : (
-              <FloatingEquation size='text-xl sm:text-3xl' title="Current System" latex={systemLatex} />
+              <FloatingEquation size='text-xl sm:text-3xl' title={t('practice.currentSystem')} latex={systemLatex} />
             )}
           </div>
 
-          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage="System solved" />
+          <StepsPanel steps={steps} isComplete={isComplete} stepCount={stepCount} completionMessage={t('practice.systemSolved')} />
 
           {hint && <HintBanner hint={hint} />}
 
@@ -203,7 +205,7 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
             {!isComplete && (
               <section className="mb-4">
                 <div className="mb-6">
-                  <h2 className="text-xl font-semibold">Solve the next step</h2>
+                  <h2 className="text-xl font-semibold">{t('practice.solveNextStep')}</h2>
                   <p className="text-sm text-slate-500 mt-1">
                     {currentData.solvedX !== null || currentData.solvedY !== null
                       ? 'Substitute the known variable into the other equation.'
@@ -312,7 +314,7 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                   className="h-12 px-6 min-w-max rounded-xl bg-green-500 dark:bg-green-700 text-white font-bold hover:bg-green-600 dark:hover:bg-green-800 transition-colors disabled:opacity-40 cursor-pointer"
                 >
                   <FontAwesomeIcon icon={faCheck} className="mr-1" />
-                  Apply
+                  {t('practice.apply')}
                 </button>
               </section>
             )}

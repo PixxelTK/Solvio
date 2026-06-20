@@ -1,0 +1,41 @@
+{
+  "practice": {
+    "instruction": "Use row operations to simplify the matrix until each pivot is 1 and all other entries in pivot columns are 0.",
+    "currentMatrix": "Current Matrix",
+    "matrixInRref": "Matrix is in RREF",
+    "applyOperation": "Apply Operation",
+    "selectRowOp": "Select a row operation and enter the parameters.",
+    "format": "Format:",
+    "examples": "Examples:",
+    "enterOperation": "Enter operation",
+    "validation": {
+      "invalidFormat": "Invalid format. Try: {syntax} — Examples: {examples}",
+      "done": "Done! The matrix is now in RREF — you can read the solution from the rightmost column.",
+      "correct": "Correct! Keep going — find the next pivot to eliminate."
+    },
+    "rrefGuide": {
+      "whatIs": "What is RREF?",
+      "hide": "Hide RREF Guide",
+      "rules": "Reduced Row Echelon Form (RREF) Rules:",
+      "rule1": "All zero rows are at the bottom.",
+      "rule2": "The first non-zero number in each row (the <1>pivot</1>) is <2>1</2>.",
+      "rule3": "Each pivot is to the right of the pivot in the row above.",
+      "rule4": "All other entries in a pivot column are <1>0</1>.",
+      "tip": "Tip: Work column by column from left to right. For each pivot, scale to make it 1, then eliminate all other entries in that column."
+    }
+  },
+  "operations": {
+    "row_swap": {
+      "label": "Swap Rows",
+      "explanation": "Swap two rows to move a non-zero entry into the pivot position."
+    },
+    "row_scale": {
+      "label": "Scale Row",
+      "explanation": "Multiply a row by a non-zero number to make the pivot equal to 1."
+    },
+    "row_add": {
+      "label": "Add Row",
+      "explanation": "Add a multiple of one row to another to create zeros below or above a pivot."
+    }
+  }
+}

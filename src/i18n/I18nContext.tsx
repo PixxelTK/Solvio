@@ -2,19 +2,21 @@
 
 import React, { createContext, useContext, useMemo } from 'react';
 
+export type JsonDictionary = Record<string, unknown>;
+
 interface I18nContextProps {
   locale: string;
-  messages: any;
+  messages: JsonDictionary;
   t: (key: string) => string;
 }
 
 const I18nContext = createContext<I18nContextProps | null>(null);
 
-function isObject(item: any): item is Record<string, any> {
-  return item && typeof item === 'object' && !Array.isArray(item);
+function isObject(item: unknown): item is JsonDictionary {
+  return item !== null && typeof item === 'object' && !Array.isArray(item);
 }
 
-function mergeDeep(target: any, ...sources: any[]): any {
+function mergeDeep(target: JsonDictionary, ...sources: JsonDictionary[]): JsonDictionary {
   if (!sources.length) return target;
   const source = sources.shift();
 
@@ -22,7 +24,7 @@ function mergeDeep(target: any, ...sources: any[]): any {
     for (const key in source) {
       if (isObject(source[key])) {
         if (!target[key]) Object.assign(target, { [key]: {} });
-        mergeDeep(target[key], source[key]);
+        mergeDeep(target[key] as JsonDictionary, source[key] as JsonDictionary);
       } else {
         Object.assign(target, { [key]: source[key] });
       }
@@ -38,7 +40,7 @@ export function I18nProvider({
   children,
 }: {
   locale: string;
-  messages: any;
+  messages: JsonDictionary;
   children: React.ReactNode;
 }) {
   const parent = useContext(I18nContext);
@@ -50,10 +52,10 @@ export function I18nProvider({
 
   const t = (key: string): string => {
     const keys = key.split('.');
-    let value = mergedMessages;
+    let value: unknown = mergedMessages;
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
-        value = value[k];
+        value = (value as Record<string, unknown>)[k];
       } else {
         return key;
       }

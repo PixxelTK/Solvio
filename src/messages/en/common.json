@@ -9,5 +9,21 @@
   },
   "common": {
     "comingSoon": "Coming Soon"
+  },
+  "practice": {
+    "newProblem": "New Problem",
+    "hint": "Hint",
+    "steps": "Steps",
+    "begin": "Begin",
+    "step": "Step",
+    "stepsCount": "Steps",
+    "showHint": "Show Hint",
+    "skipStep": "Skip Step",
+    "nextProblem": "Next Problem",
+    "topicPractice": "Practice",
+    "mode": {
+      "equation": "Equation",
+      "operation": "Operation"
+    }
   }
 }

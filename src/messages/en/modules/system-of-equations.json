@@ -1,0 +1,25 @@
+{
+  "practice": {
+    "instruction": "Solve the system using substitution or elimination.",
+    "currentSystem": "Current System",
+    "systemSolved": "System solved",
+    "solveNextStep": "Solve the next step",
+    "chooseMode": "Choose a mode and apply a transformation.",
+    "enterResult": "Enter the resulting equation",
+    "examplePlaceholder": "Example: x = 5",
+    "chooseOperation": "Choose an operation",
+    "selectedOperation": "Selected Operation",
+    "enterValue": "Enter a value",
+    "enterValuePlaceholder": "Enter value",
+    "validation": {
+      "noValidTransformation": "No valid transformation found.",
+      "complete": "Exercise Complete! System solved.",
+      "cannotParse": "Could not parse equation.",
+      "requiresValue": "This operation requires a value.",
+      "cannotApply": "This operation cannot be applied here.",
+      "appliedSuccessfully": "Operation applied successfully.",
+      "errorApplying": "Error applying operation.",
+      "correct": "Correct!"
+    }
+  }
+}
