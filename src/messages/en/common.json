@@ -21,6 +21,8 @@
     "skipStep": "Skip Step",
     "nextProblem": "Next Problem",
     "topicPractice": "Practice",
+    "apply": "Apply",
+    "check": "Check",
     "mode": {
       "equation": "Equation",
       "operation": "Operation"

@@ -208,14 +208,14 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                   <h2 className="text-xl font-semibold">{t('practice.solveNextStep')}</h2>
                   <p className="text-sm text-slate-500 mt-1">
                     {currentData.solvedX !== null || currentData.solvedY !== null
-                      ? 'Substitute the known variable into the other equation.'
-                      : 'Choose an operation to eliminate a variable.'}
+                      ? t('practice.systems.substituteKnown') || 'Substitute the known variable into the other equation.'
+                      : t('practice.systems.chooseOperation') || 'Choose an operation to eliminate a variable.'}
                   </p>
                 </div>
 
                 {/* ---- Operation Categories ---- */}
                 <div className="mb-2 text-xs text-slate-500 font-medium uppercase tracking-wide">
-                  Operation
+                  {t('practice.systems.operationCategory') || 'Operation'}
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {CATEGORIES.map(cat => {
@@ -238,7 +238,7 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                           }
                         `}
                       >
-                        {cat.label}
+                        {t(`systems.categories.${cat.id}.label`) || cat.label}
                       </button>
                     );
                   })}
@@ -246,28 +246,28 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
 
                 {/* ---- Targets ---- */}
                 <div className="mb-2 text-xs text-slate-500 font-medium uppercase tracking-wide">
-                  Target
+                  {t('practice.systems.operationTarget') || 'Target'}
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {currentTargets.map(t => (
+                  {currentTargets.map(tObj => (
                     <button
-                      key={t.id}
+                      key={tObj.id}
                       onClick={() => {
-                        setSelectedTarget(t.id);
+                        setSelectedTarget(tObj.id);
                         setOpParam('');
                         setValidation(null);
-                        if (t.needsParameter && paramRef.current) {
+                        if (tObj.needsParameter && paramRef.current) {
                           paramRef.current.focus();
                         }
                       }}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer
-                        ${selectedTarget === t.id
+                        ${selectedTarget === tObj.id
                           ? 'bg-blue-400 dark:bg-blue-900 text-white'
                           : 'bg-slate-200 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800'
                         }
                       `}
                     >
-                      {t.label}
+                      {t(`systems.targets.${tObj.id}.label`) || tObj.label}
                     </button>
                   ))}
                 </div>
@@ -276,7 +276,7 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                 {needsParam && (
                   <>
                     <div className="mb-1 text-xs text-slate-500 font-medium uppercase tracking-wide">
-                      {currentTargets.find(t => t.id === selectedTarget)?.parameterLabel ?? 'Value'}
+                      {t(`systems.targets.${selectedTarget}.paramLabel`) || currentTargets.find(tObj => tObj.id === selectedTarget)?.parameterLabel || 'Value'}
                     </div>
                     <div className="mb-4">
                       <input
@@ -290,7 +290,7 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                             handleApply();
                           }
                         }}
-                        placeholder="Enter a number (n)"
+                        placeholder={t('practice.systems.enterNumber') || "Enter a number (n)"}
                         className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                       />
                     </div>
@@ -301,7 +301,7 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
                 {preview && (
                   <div className="mb-4 p-3 rounded-xl bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700" suppressHydrationWarning>
                     <div className="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">
-                      Preview
+                      {t('practice.preview') || 'Preview'}
                     </div>
                     <MathDisplay latex={previewSystemLatex} displayMode />
                   </div>

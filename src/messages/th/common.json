@@ -21,6 +21,8 @@
     "skipStep": "ข้ามขั้นตอนนี้",
     "nextProblem": "โจทย์ถัดไป",
     "topicPractice": "แบบฝึกหัด",
+    "apply": "นำไปใช้",
+    "check": "ตรวจสอบ",
     "mode": {
       "equation": "สมการ",
       "operation": "การดำเนินการ"

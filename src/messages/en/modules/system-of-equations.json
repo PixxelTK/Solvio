@@ -11,6 +11,14 @@
     "selectedOperation": "Selected Operation",
     "enterValue": "Enter a value",
     "enterValuePlaceholder": "Enter value",
+    "systems": {
+      "substituteKnown": "Substitute the known variable into the other equation.",
+      "chooseOperation": "Choose an operation to eliminate a variable.",
+      "operationCategory": "Operation",
+      "operationTarget": "Target",
+      "enterNumber": "Enter a number (n)"
+    },
+    "preview": "Preview",
     "validation": {
       "noValidTransformation": "No valid transformation found.",
       "complete": "Exercise Complete! System solved.",
@@ -20,6 +28,83 @@
       "appliedSuccessfully": "Operation applied successfully.",
       "errorApplying": "Error applying operation.",
       "correct": "Correct!"
+    }
+  },
+  "systems": {
+    "categories": {
+      "add": {
+        "label": "Add Equations"
+      },
+      "subtract": {
+        "label": "Subtract Equations"
+      },
+      "add_value": {
+        "label": "Add Value"
+      },
+      "sub_value": {
+        "label": "Subtract Value"
+      },
+      "multiply": {
+        "label": "Multiply Equation"
+      },
+      "divide": {
+        "label": "Divide Equation"
+      },
+      "substitute": {
+        "label": "Substitute Variable"
+      }
+    },
+    "targets": {
+      "add_eq1_eq2": {
+        "label": "Eq1 ← Eq1 + Eq2"
+      },
+      "add_eq2_eq1": {
+        "label": "Eq2 ← Eq2 + Eq1"
+      },
+      "sub_eq1_eq2": {
+        "label": "Eq1 ← Eq1 − Eq2"
+      },
+      "sub_eq2_eq1": {
+        "label": "Eq2 ← Eq2 − Eq1"
+      },
+      "add_both_eq1": {
+        "label": "Eq1 + n",
+        "paramLabel": "Value to add"
+      },
+      "add_both_eq2": {
+        "label": "Eq2 + n",
+        "paramLabel": "Value to add"
+      },
+      "sub_both_eq1": {
+        "label": "Eq1 − n",
+        "paramLabel": "Value to subtract"
+      },
+      "sub_both_eq2": {
+        "label": "Eq2 − n",
+        "paramLabel": "Value to subtract"
+      },
+      "mul_eq1": {
+        "label": "Eq1 × n",
+        "paramLabel": "Factor"
+      },
+      "mul_eq2": {
+        "label": "Eq2 × n",
+        "paramLabel": "Factor"
+      },
+      "div_eq1": {
+        "label": "Eq1 ÷ n",
+        "paramLabel": "Divisor"
+      },
+      "div_eq2": {
+        "label": "Eq2 ÷ n",
+        "paramLabel": "Divisor"
+      },
+      "subs_into_eq1": {
+        "label": "Substitute into Eq1"
+      },
+      "subs_into_eq2": {
+        "label": "Substitute into Eq2"
+      }
     }
   }
 }

@@ -11,6 +11,14 @@
     "selectedOperation": "การดำเนินการที่เลือก",
     "enterValue": "ใส่ค่า",
     "enterValuePlaceholder": "ใส่ค่า",
+    "systems": {
+      "substituteKnown": "แทนค่าตัวแปรที่ทราบค่าลงในอีกสมการ",
+      "chooseOperation": "เลือกการดำเนินการเพื่อกำจัดตัวแปร",
+      "operationCategory": "การดำเนินการ",
+      "operationTarget": "เป้าหมาย",
+      "enterNumber": "ใส่ตัวเลข (n)"
+    },
+    "preview": "ดูตัวอย่าง",
     "validation": {
       "noValidTransformation": "ไม่พบการแปลงที่ถูกต้อง",
       "complete": "ทำแบบฝึกหัดเสร็จสมบูรณ์! แก้ระบบสมการสำเร็จ",
@@ -20,6 +28,33 @@
       "appliedSuccessfully": "ใช้การดำเนินการสำเร็จแล้ว",
       "errorApplying": "เกิดข้อผิดพลาดในการใช้การดำเนินการ",
       "correct": "ถูกต้อง!"
+    }
+  },
+  "systems": {
+    "categories": {
+      "add": { "label": "บวกสมการ" },
+      "subtract": { "label": "ลบสมการ" },
+      "add_value": { "label": "บวกค่าคงที่" },
+      "sub_value": { "label": "ลบค่าคงที่" },
+      "multiply": { "label": "คูณสมการ" },
+      "divide": { "label": "หารสมการ" },
+      "substitute": { "label": "แทนค่าตัวแปร" }
+    },
+    "targets": {
+      "add_eq1_eq2": { "label": "สมการ1 ← สมการ1 + สมการ2" },
+      "add_eq2_eq1": { "label": "สมการ2 ← สมการ2 + สมการ1" },
+      "sub_eq1_eq2": { "label": "สมการ1 ← สมการ1 − สมการ2" },
+      "sub_eq2_eq1": { "label": "สมการ2 ← สมการ2 − สมการ1" },
+      "add_both_eq1": { "label": "สมการ1 + n", "paramLabel": "ค่าที่ต้องการบวก" },
+      "add_both_eq2": { "label": "สมการ2 + n", "paramLabel": "ค่าที่ต้องการบวก" },
+      "sub_both_eq1": { "label": "สมการ1 − n", "paramLabel": "ค่าที่ต้องการลบ" },
+      "sub_both_eq2": { "label": "สมการ2 − n", "paramLabel": "ค่าที่ต้องการลบ" },
+      "mul_eq1": { "label": "สมการ1 × n", "paramLabel": "ตัวคูณ" },
+      "mul_eq2": { "label": "สมการ2 × n", "paramLabel": "ตัวคูณ" },
+      "div_eq1": { "label": "สมการ1 ÷ n", "paramLabel": "ตัวหาร" },
+      "div_eq2": { "label": "สมการ2 ÷ n", "paramLabel": "ตัวหาร" },
+      "subs_into_eq1": { "label": "แทนค่าลงในสมการ1" },
+      "subs_into_eq2": { "label": "แทนค่าลงในสมการ2" }
     }
   }
 }

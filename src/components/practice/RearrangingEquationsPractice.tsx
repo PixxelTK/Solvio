@@ -127,6 +127,18 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
     [currentState]
   );
 
+  const getOpLabel = (op: { id: string, label?: string }) => {
+    return t(`operations.${op.id}.label`) || op.label;
+  };
+
+  const getOpDesc = (op: { id: string, description?: string }) => {
+    return t(`operations.${op.id}.desc`) || op.description;
+  };
+
+  const getOpParamLabel = (op: { id: string, parameterLabel?: string }) => {
+    return t(`operations.${op.id}.paramLabel`) || op.parameterLabel;
+  };
+
   const currentOp = useMemo(
     () => operations.find(o => o.id === selectedOp),
     [operations, selectedOp]
@@ -440,7 +452,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                             )}
 
                             <span className="font-medium text-sm">
-                              {t(`operations.${op.id}.label`)}
+                              {getOpLabel(op)}
                             </span>
                           </div>
                         </button>
@@ -454,7 +466,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                         </div>
 
                         <div className="font-medium text-slate-500 dark:text-slate-300">
-                          {currentOp.description}
+                          {getOpDesc(currentOp)}
                         </div>
                       </div>
                     )}
@@ -472,7 +484,7 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
                             value={opParam}
                             onChange={(e) => setOpParam(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleOperationModeSubmit(); } }}
-                            placeholder={t(`operations.${currentOp.id}.paramLabel`) || t('practice.enterValuePlaceholder')}
+                            placeholder={getOpParamLabel(currentOp) || t('practice.enterValuePlaceholder')}
                             className="w-full h-12 px-4 text-lg rounded-xl bg-gray-100 dark:bg-slate-900 focus:outline-none placeholder:text-slate-400"
                           />
                         </div>

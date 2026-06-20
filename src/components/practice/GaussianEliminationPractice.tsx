@@ -218,7 +218,7 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
 
           {hint && <HintBanner hint={hint} />}
 
-          {!isComplete && <ActionButtons onHint={handleGetHint} onSkip={handleSkip} skipLabel="Next Step" />}
+          {!isComplete && <ActionButtons onHint={handleGetHint} onSkip={handleSkip} />}
         </main>
 
         <aside className="lg:w-5xl">
