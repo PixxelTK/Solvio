@@ -37,28 +37,25 @@ function eqStructEqual(a: Equation, b: Equation): boolean {
 function normaliseOp(
   typeId: string,
   parameter: string,
-  description: string,
   translationKey?: string,
   translationParams?: Record<string, string>
-): { typeId: string; parameter: string; description: string; translationKey?: string; translationParams?: Record<string, string> } {
-  const p = parseFloat(parameter);
-  if (!isNaN(p) && p < 0 && !parameter.match(/[a-zA-Z]/)) {
+): { typeId: string; parameter: string; translationKey?: string; translationParams?: Record<string, string> } {
+  if (parameter.startsWith('-')) {
+    const pos = parameter.substring(1);
     if (typeId === 'add_both') {
-      const pos = String(-p);
-      return { typeId: 'sub_both', parameter: pos, description: `Subtract ${pos} from both sides`, translationKey: 'operations.sub.history', translationParams: { param: pos } };
+      return { typeId: 'sub_both', parameter: pos, translationKey: 'operations.sub.history', translationParams: { param: pos } };
     }
     if (typeId === 'sub_both') {
-      const pos = String(-p);
-      return { typeId: 'add_both', parameter: pos, description: `Add ${pos} to both sides`, translationKey: 'operations.add.history', translationParams: { param: pos } };
+      return { typeId: 'add_both', parameter: pos, translationKey: 'operations.add.history', translationParams: { param: pos } };
     }
   }
-  return { typeId, parameter, description, translationKey, translationParams };
+  return { typeId, parameter, translationKey, translationParams };
 }
 
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
-): { typeId: string; parameter: string; description: string; translationKey?: string; translationParams?: Record<string, string> } | null {
+): { typeId: string; parameter: string; translationKey?: string; translationParams?: Record<string, string> } | null {
   const userNorm = normaliseEquation(userEq);
 
   for (const opType of ['expand', 'collect'] as const) {
@@ -66,7 +63,7 @@ function inferOperation(
     if (result) {
       const rsNorm = normaliseEquation(result.result);
       if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
-        return normaliseOp(opType, '', result.description, result.translationKey, result.translationParams as Record<string, string>);
+        return normaliseOp(opType, '', result.translationKey, result.translationParams as Record<string, string>);
       }
     }
   }
@@ -90,7 +87,7 @@ function inferOperation(
       if (result) {
         const rsNorm = normaliseEquation(result.result);
         if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
-          return normaliseOp(opType, pStr, result.description, result.translationKey, result.translationParams as Record<string, string>);
+          return normaliseOp(opType, pStr, result.translationKey, result.translationParams as Record<string, string>);
         }
       }
     }
@@ -221,7 +218,6 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       const operation: Operation = {
         typeId: inferred.typeId,
         parameter: inferred.parameter,
-        description: inferred.description,
         translationKey: inferred.translationKey,
         translationParams: inferred.translationParams,
       };
@@ -233,8 +229,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
         const opDesc = inferred.translationKey
           ? t(inferred.translationKey, inferred.translationParams || {}) as string !== inferred.translationKey
             ? t(inferred.translationKey, inferred.translationParams || {})
-            : inferred.description
-          : inferred.description;
+            : ''
+          : '';
         setValidation({ valid: true, message: `${t('practice.validation.correct')} ${opDesc}`, isSolved: false });
       }
     } catch {
@@ -264,7 +260,6 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       const operation: Operation = {
         typeId: selectedOp,
         parameter: opParam,
-        description: opResult.description,
         translationKey: opResult.translationKey,
         translationParams: opResult.translationParams as Record<string, string>,
       };
@@ -303,7 +298,6 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
     const operation: Operation = {
       typeId: computed.opType,
       parameter: param,
-      description: opResult.description,
       translationKey: opResult.translationKey,
       translationParams: opResult.translationParams as Record<string, string>,
     };

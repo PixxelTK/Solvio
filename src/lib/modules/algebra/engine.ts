@@ -73,7 +73,7 @@ export const OPERATION_TYPES: OperationType[] = [
   },
 ];
 
-export function applyAlgebraOperation(eq: Equation, opType: string, param: string): { result: Equation; description: string; translationKey?: string; translationParams?: Record<string, string> } | null {
+export function applyAlgebraOperation(eq: Equation, opType: string, param: string): { result: Equation; description?: string; translationKey?: string; translationParams?: Record<string, string> } | null {
   let pExpr: Expr | undefined;
   if (opType !== 'expand' && opType !== 'collect') {
     try {
@@ -88,32 +88,32 @@ export function applyAlgebraOperation(eq: Equation, opType: string, param: strin
       const newLeft = collectLikeTerms(simplify(add(eq.left, pExpr)));
       const newRight = collectLikeTerms(simplify(add(eq.right, pExpr)));
       const pStr = exprToString(pExpr);
-      return { result: { left: newLeft, right: newRight }, description: `Add ${pStr} to both sides`, translationKey: 'operations.add.history', translationParams: { param: pStr } };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.add.history', translationParams: { param: pStr } };
     }
     case 'sub_both': {
       if (!pExpr) return null;
       const newLeft = collectLikeTerms(simplify(sub(eq.left, pExpr)));
       const newRight = collectLikeTerms(simplify(sub(eq.right, pExpr)));
       const pStr = exprToString(pExpr);
-      return { result: { left: newLeft, right: newRight }, description: `Subtract ${pStr} from both sides`, translationKey: 'operations.sub.history', translationParams: { param: pStr } };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.sub.history', translationParams: { param: pStr } };
     }
     case 'mul_both': {
       if (!pExpr || !isNum(pExpr) || pExpr.value === 0) return null;
       const newEq: Equation = { left: simplify(mul(eq.left, pExpr)), right: simplify(mul(eq.right, pExpr)) };
       const pStr = exprToString(pExpr);
-      return { result: newEq, description: `Multiply both sides by ${pStr}`, translationKey: 'operations.mul.history', translationParams: { param: pStr } };
+      return { result: newEq, translationKey: 'operations.mul.history', translationParams: { param: pStr } };
     }
     case 'div_both': {
       if (!pExpr || !isNum(pExpr) || pExpr.value === 0) return null;
       const newEq: Equation = { left: simplify(div(eq.left, pExpr)), right: simplify(div(eq.right, pExpr)) };
       const pStr = exprToString(pExpr);
-      return { result: newEq, description: `Divide both sides by ${pStr}`, translationKey: 'operations.div.history', translationParams: { param: pStr } };
+      return { result: newEq, translationKey: 'operations.div.history', translationParams: { param: pStr } };
     }
     case 'expand': {
       const newLeft = simplify(expand(eq.left));
       const newRight = simplify(expand(eq.right));
       if (exprEqual(newLeft, simplify(eq.left)) && exprEqual(newRight, simplify(eq.right))) return null;
-      return { result: { left: newLeft, right: newRight }, description: 'Expand parentheses', translationKey: 'operations.expand.history' };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.expand.history' };
     }
     case 'collect': {
       const newLeft = collectLikeTerms(eq.left);
@@ -122,7 +122,7 @@ export function applyAlgebraOperation(eq: Equation, opType: string, param: strin
       const sr = simplify(eq.right);
       if (exprEqual(newLeft, sl) && exprEqual(newRight, sr)) return null;
       if (!hasLikeTerms(sl) && !hasLikeTerms(sr)) return null;
-      return { result: { left: newLeft, right: newRight }, description: 'Combine like terms', translationKey: 'operations.collect.history' };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.collect.history' };
     }
     default:
       return null;
@@ -654,17 +654,16 @@ function getVariableCoeff(e: Expr): number | null {
   return null;
 }
 
-export function computeHint(eq: Equation): { operationDescription: string; level: 'gentle' | 'moderate' | 'specific'; opType: string; parameter: string; translationKey?: string; translationParams?: Record<string, string> } {
+export function computeHint(eq: Equation): { operationDescription?: string; level: 'gentle' | 'moderate' | 'specific'; opType: string; parameter: string; translationKey?: string; translationParams?: Record<string, string> } {
   const sl = simplify(eq.left);
   const sr = simplify(eq.right);
 
   if (isSolvedEquation(eq)) {
-    return { operationDescription: 'The equation is already solved!', level: 'specific', opType: '', parameter: '', translationKey: 'practice.validation.complete' };
+    return { level: 'specific', opType: '', parameter: '', translationKey: 'practice.validation.complete' };
   }
 
   if (needsExpansion(sl) || needsExpansion(sr)) {
     return {
-      operationDescription: 'Expand the parentheses first',
       level: 'moderate',
       opType: 'expand',
       parameter: '',
@@ -674,7 +673,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
 
   if (hasLikeTerms(sl) || hasLikeTerms(sr)) {
     return {
-      operationDescription: 'Combine like terms',
       level: 'moderate',
       opType: 'collect',
       parameter: '',
@@ -708,7 +706,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
     
     if (toSubtract > 0) {
       return {
-        operationDescription: `Subtract ${paramStr} from both sides to gather variables`,
         level: 'specific',
         opType: 'sub_both',
         parameter: paramStr,
@@ -717,7 +714,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
       };
     } else {
       return {
-        operationDescription: `Add ${paramStr} to both sides to gather variables`,
         level: 'specific',
         opType: 'add_both',
         parameter: paramStr,
@@ -732,7 +728,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
     if (isNum(denomExpr)) {
       const pStr = String(denomExpr.value);
       return {
-        operationDescription: `Multiply both sides by ${pStr}`,
         level: 'specific',
         opType: 'mul_both',
         parameter: pStr,
@@ -748,7 +743,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
       if (constVal > 0) {
         const pStr = String(constVal);
         return {
-          operationDescription: `Subtract ${pStr} from both sides`,
           level: 'specific',
           opType: 'sub_both',
           parameter: pStr,
@@ -758,7 +752,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
       } else {
         const pStr = String(Math.abs(constVal));
         return {
-          operationDescription: `Add ${pStr} to both sides`,
           level: 'specific',
           opType: 'add_both',
           parameter: pStr,
@@ -775,7 +768,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
       if (constVal > 0) {
         const pStr = String(constVal);
         return {
-          operationDescription: `Subtract ${pStr} from both sides`,
           level: 'moderate',
           opType: 'sub_both',
           parameter: pStr,
@@ -785,7 +777,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
       } else {
         const pStr = String(Math.abs(constVal));
         return {
-          operationDescription: `Add ${pStr} to both sides`,
           level: 'moderate',
           opType: 'add_both',
           parameter: pStr,
@@ -800,7 +791,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
   if (leftCoeff !== null && leftCoeff !== 1 && isNum(sr)) {
     const pStr = String(leftCoeff);
     return {
-      operationDescription: `Divide both sides by ${pStr}`,
       level: 'specific',
       opType: 'div_both',
       parameter: pStr,
@@ -813,7 +803,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
   if (rightCoeff !== null && rightCoeff !== 1 && isNum(sl)) {
     const pStr = String(rightCoeff);
     return {
-      operationDescription: `Divide both sides by ${pStr}`,
       level: 'specific',
       opType: 'div_both',
       parameter: pStr,
@@ -823,7 +812,6 @@ export function computeHint(eq: Equation): { operationDescription: string; level
   }
 
   return {
-    operationDescription: 'Look for a way to isolate the variable',
     level: 'gentle',
     opType: '',
     parameter: '',
@@ -844,7 +832,7 @@ export function getHint(currentState: MathState): Hint {
       translationParams: h.translationParams,
     };
   } catch {
-    return { operationDescription: 'Try simplifying one side of the equation', level: 'gentle', translationKey: 'practice.hint_simplify' };
+    return { level: 'gentle', translationKey: 'practice.hint_simplify' };
   }
 }
 

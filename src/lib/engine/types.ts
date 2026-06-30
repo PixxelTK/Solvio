@@ -45,7 +45,7 @@ export interface MathState {
 export interface Operation {
   typeId: string;
   parameter?: string;
-  description: string;
+  description?: string;
   translationKey?: string;
   translationParams?: Record<string, string | number>;
 }
@@ -57,7 +57,7 @@ export interface ValidationResult {
 }
 
 export interface Hint {
-  operationDescription: string;
+  operationDescription?: string;
   level: 'gentle' | 'moderate' | 'specific';
   opType?: string;
   parameter?: string;
