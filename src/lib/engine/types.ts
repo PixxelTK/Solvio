@@ -46,6 +46,8 @@ export interface Operation {
   typeId: string;
   parameter?: string;
   description: string;
+  translationKey?: string;
+  translationParams?: Record<string, string | number>;
 }
 
 export interface ValidationResult {
@@ -57,6 +59,10 @@ export interface ValidationResult {
 export interface Hint {
   operationDescription: string;
   level: 'gentle' | 'moderate' | 'specific';
+  opType?: string;
+  parameter?: string;
+  translationKey?: string;
+  translationParams?: Record<string, string | number>;
 }
 
 export interface TransformationStep {

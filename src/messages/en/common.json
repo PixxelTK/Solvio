@@ -23,6 +23,7 @@
     "topicPractice": "Practice",
     "apply": "Apply",
     "check": "Check",
+    "completed": "Completed",
     "mode": {
       "equation": "Equation",
       "operation": "Operation"

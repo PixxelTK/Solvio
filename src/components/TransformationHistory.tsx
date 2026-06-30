@@ -4,6 +4,7 @@ import { TransformationStep } from '@/lib/engine/types';
 import MathDisplay from './MathDisplay';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface TransformationHistoryProps {
   steps: TransformationStep[];
@@ -12,6 +13,7 @@ interface TransformationHistoryProps {
 }
 
 export default function TransformationHistory({ steps, isComplete, completionMessage }: TransformationHistoryProps) {
+  const { t } = useI18n();
   if (steps.length === 0) return null;
 
   return (
@@ -30,7 +32,11 @@ export default function TransformationHistory({ steps, isComplete, completionMes
                     ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300'
                     : 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                   }`}>
-                  {prev.operation.description}
+                  {prev.operation.translationKey
+                    ? (t(prev.operation.translationKey, prev.operation.translationParams || {}) as string !== prev.operation.translationKey
+                      ? t(prev.operation.translationKey, prev.operation.translationParams || {})
+                      : prev.operation.description)
+                    : prev.operation.description}
                 </span>
                 <div className="h-px flex-1 bg-slate-300/50 dark:bg-slate-700/50" />
               </div>
@@ -56,7 +62,7 @@ export default function TransformationHistory({ steps, isComplete, completionMes
           />
           <div className="flex flex-col">
             <div className="text-emerald-500 font-bold text-lg">
-              Completed
+              {t('practice.completed')}
             </div>
             {completionMessage && (
               <div className="text-emerald-400 text-sm">

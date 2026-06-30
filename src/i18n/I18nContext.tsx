@@ -7,7 +7,7 @@ export type JsonDictionary = Record<string, unknown>;
 interface I18nContextProps {
   locale: string;
   messages: JsonDictionary;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const I18nContext = createContext<I18nContextProps | null>(null);
@@ -50,7 +50,7 @@ export function I18nProvider({
     return mergeDeep(JSON.parse(JSON.stringify(parent.messages)), messages);
   }, [parent, messages]);
 
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: unknown = mergedMessages;
     for (const k of keys) {
@@ -60,7 +60,14 @@ export function I18nProvider({
         return key;
       }
     }
-    return typeof value === 'string' ? value : key;
+    
+    let str = typeof value === 'string' ? value : key;
+    if (params && typeof str === 'string') {
+      Object.entries(params).forEach(([k, v]) => {
+        str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+      });
+    }
+    return str;
   };
 
   return (

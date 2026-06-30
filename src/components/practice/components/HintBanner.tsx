@@ -18,7 +18,13 @@ export default function HintBanner({ hint }: HintBannerProps) {
         <FontAwesomeIcon icon={faLightbulb} />
         <span className="font-medium">{t('practice.hint')}</span>
       </div>
-      <div>{hint.operationDescription}</div>
+      <div>
+        {hint.translationKey
+          ? (t(hint.translationKey, hint.translationParams || {}) as string !== hint.translationKey
+              ? t(hint.translationKey, hint.translationParams || {})
+              : hint.operationDescription)
+          : hint.operationDescription}
+      </div>
     </div>
   );
 }

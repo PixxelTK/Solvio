@@ -34,25 +34,31 @@ function eqStructEqual(a: Equation, b: Equation): boolean {
   return exprEqual(a.left, b.left) && exprEqual(a.right, b.right);
 }
 
-function normaliseOp(typeId: string, parameter: string, description: string): { typeId: string; parameter: string; description: string } {
+function normaliseOp(
+  typeId: string,
+  parameter: string,
+  description: string,
+  translationKey?: string,
+  translationParams?: Record<string, string>
+): { typeId: string; parameter: string; description: string; translationKey?: string; translationParams?: Record<string, string> } {
   const p = parseFloat(parameter);
-  if (!isNaN(p) && p < 0) {
+  if (!isNaN(p) && p < 0 && !parameter.match(/[a-zA-Z]/)) {
     if (typeId === 'add_both') {
       const pos = String(-p);
-      return { typeId: 'sub_both', parameter: pos, description: `Subtract ${pos} from both sides` };
+      return { typeId: 'sub_both', parameter: pos, description: `Subtract ${pos} from both sides`, translationKey: 'operations.sub.history', translationParams: { param: pos } };
     }
     if (typeId === 'sub_both') {
       const pos = String(-p);
-      return { typeId: 'add_both', parameter: pos, description: `Add ${pos} to both sides` };
+      return { typeId: 'add_both', parameter: pos, description: `Add ${pos} to both sides`, translationKey: 'operations.add.history', translationParams: { param: pos } };
     }
   }
-  return { typeId, parameter, description };
+  return { typeId, parameter, description, translationKey, translationParams };
 }
 
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
-): { typeId: string; parameter: string; description: string } | null {
+): { typeId: string; parameter: string; description: string; translationKey?: string; translationParams?: Record<string, string> } | null {
   const userNorm = normaliseEquation(userEq);
 
   for (const opType of ['expand', 'collect'] as const) {
@@ -60,7 +66,7 @@ function inferOperation(
     if (result) {
       const rsNorm = normaliseEquation(result.result);
       if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
-        return normaliseOp(opType, '', result.description);
+        return normaliseOp(opType, '', result.description, result.translationKey, result.translationParams as Record<string, string>);
       }
     }
   }
@@ -84,7 +90,7 @@ function inferOperation(
       if (result) {
         const rsNorm = normaliseEquation(result.result);
         if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
-          return normaliseOp(opType, pStr, result.description);
+          return normaliseOp(opType, pStr, result.description, result.translationKey, result.translationParams as Record<string, string>);
         }
       }
     }
@@ -216,6 +222,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
         typeId: inferred.typeId,
         parameter: inferred.parameter,
         description: inferred.description,
+        translationKey: inferred.translationKey,
+        translationParams: inferred.translationParams,
       };
 
       const solved = commitStep(nextStateFull, operation);
@@ -250,8 +258,10 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       const newState = equationToState(opResult.result);
       const operation: Operation = {
         typeId: selectedOp,
-        parameter: opParam || '',
+        parameter: opParam,
         description: opResult.description,
+        translationKey: opResult.translationKey,
+        translationParams: opResult.translationParams as Record<string, string>,
       };
 
       const solved = commitStep(newState, operation);
@@ -289,6 +299,8 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       typeId: computed.opType,
       parameter: param,
       description: opResult.description,
+      translationKey: opResult.translationKey,
+      translationParams: opResult.translationParams as Record<string, string>,
     };
 
     commitStep(newState, operation);

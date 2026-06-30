@@ -5,6 +5,7 @@ import {
   faPlus, faMinus, faXmark, faDivide, faEquals,
   faRotateLeft, faDeleteLeft,
 } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 interface EquationKeyboardProps {
   onInsert: (value: string) => void;
@@ -12,7 +13,7 @@ interface EquationKeyboardProps {
   onDelete: () => void;
 }
 
-const keys: { key: string; label?: string; icon?: any }[] = [
+const keys: { key: string; label?: string; icon?: IconDefinition }[] = [
   { key: '7', label: '7' },
   { key: '8', label: '8' },
   { key: '9', label: '9' },
@@ -38,15 +39,14 @@ const keys: { key: string; label?: string; icon?: any }[] = [
 
 export default function EquationKeyboard({ onInsert, onClear, onDelete }: EquationKeyboardProps) {
   return (
-    <div className="mt-3 grid grid-cols-5 gap-2 p-2 text-slate-600 dark:text-slate-100 rounded-2xl bg-gray-100 dark:bg-slate-900">
+    <div className="mt-3 grid grid-cols-5 gap-2 text-slate-600 dark:text-slate-100 rounded-2xl">
       {keys.map((item) => (
         <button
           key={item.key}
           type="button"
           onClick={() => onInsert(item.key)}
-          className={`h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 active:bg-gray-200 dark:active:bg-slate-700 cursor-pointer text-lg font-semibold active:scale-95 transition ${
-            ['x', 'y', 'z'].includes(item.key) ? 'font-serif' : ''
-          }`}
+          className={`h-11 rounded-xl bg-white dark:bg-slate-900 hover:scale-105 active:bg-gray-200 dark:active:bg-slate-700 cursor-pointer text-lg font-semibold active:scale-95 transition ${['x', 'y', 'z'].includes(item.key) ? 'font-serif' : ''
+            }`}
         >
           {item.icon ? <FontAwesomeIcon icon={item.icon} /> : item.label}
         </button>
@@ -54,14 +54,14 @@ export default function EquationKeyboard({ onInsert, onClear, onDelete }: Equati
       <button
         type="button"
         onClick={onClear}
-        className="col-span-1 h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
+        className="col-span-1 h-11 rounded-xl bg-white dark:bg-slate-900 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
       >
         <FontAwesomeIcon icon={faRotateLeft} />
       </button>
       <button
         type="button"
         onClick={onDelete}
-        className="col-span-2 h-11 rounded-xl bg-white dark:bg-slate-800 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
+        className="col-span-2 h-11 rounded-xl bg-white dark:bg-slate-900 hover:scale-105 cursor-pointer text-lg font-semibold active:scale-95 transition"
       >
         <FontAwesomeIcon icon={faDeleteLeft} />
       </button>

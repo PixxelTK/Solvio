@@ -3,33 +3,49 @@
     "add": {
       "label": "Add",
       "desc": "Add the same value or term to both sides of the equation.",
-      "paramLabel": "Example: 3 or 2x"
+      "paramLabel": "Example: 3 or 2x",
+      "history": "Add {param} to both sides",
+      "hint": "Add {param} to both sides",
+      "hint_gather": "Add {param} to both sides to gather variables"
     },
     "sub": {
       "label": "Subtract",
       "desc": "Subtract the same value or term from both sides of the equation.",
-      "paramLabel": "Example: 2 or 5x"
+      "paramLabel": "Example: 2 or 5x",
+      "history": "Subtract {param} from both sides",
+      "hint": "Subtract {param} from both sides",
+      "hint_gather": "Subtract {param} from both sides to gather variables"
     },
     "mul": {
       "label": "Multiply",
       "desc": "Multiply both sides by the same value.",
-      "paramLabel": "Example: 5"
+      "paramLabel": "Example: 5",
+      "history": "Multiply both sides by {param}",
+      "hint": "Multiply both sides by {param}"
     },
     "div": {
       "label": "Divide",
       "desc": "Divide both sides by the same non-zero value.",
-      "paramLabel": "Example: 4"
+      "paramLabel": "Example: 4",
+      "history": "Divide both sides by {param}",
+      "hint": "Divide both sides by {param}"
     },
     "expand": {
       "label": "Expand",
-      "desc": "Distribute multiplication and remove parentheses."
+      "desc": "Distribute multiplication and remove parentheses.",
+      "history": "Expand parentheses",
+      "hint": "Expand the parentheses first"
     },
     "collect": {
       "label": "Combine like terms",
-      "desc": "Combine like terms into a simpler expression."
+      "desc": "Combine like terms into a simpler expression.",
+      "history": "Combine like terms",
+      "hint": "Combine like terms"
     }
   },
   "practice": {
+    "hint_isolate": "Look for a way to isolate the variable",
+    "hint_simplify": "Try simplifying one side of the equation",
     "instruction": "Apply transformations step by step to solve the equation.",
     "currentEquation": "Current Equation",
     "equationSolved": "Equation solved",
