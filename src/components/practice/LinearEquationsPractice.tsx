@@ -230,7 +230,12 @@ export default function EquationGameScreen({ difficulty, onBack }: EquationGameS
       if (solved) {
         setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: `${t('practice.validation.correct')} ${inferred.description}`, isSolved: false });
+        const opDesc = inferred.translationKey
+          ? t(inferred.translationKey, inferred.translationParams || {}) as string !== inferred.translationKey
+            ? t(inferred.translationKey, inferred.translationParams || {})
+            : inferred.description
+          : inferred.description;
+        setValidation({ valid: true, message: `${t('practice.validation.correct')} ${opDesc}`, isSolved: false });
       }
     } catch {
       setValidation({ valid: false, message: t('practice.validation.cannotParse'), isSolved: false });
