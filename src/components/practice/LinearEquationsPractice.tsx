@@ -65,14 +65,26 @@ function inferOperation(
     }
   }
 
+  const guessParams: string[] = [];
   for (let p = -20; p <= 20; p++) {
-    if (p === 0) continue;
+    if (p !== 0) guessParams.push(String(p));
+  }
+  ['x', 'y', 'z', 'a', 'b', 'c', 'v'].forEach(v => {
+    for (let p = -10; p <= 10; p++) {
+      if (p === 0) guessParams.push(v);
+      else if (p === 1) guessParams.push(v);
+      else if (p === -1) guessParams.push(`-${v}`);
+      else guessParams.push(`${p}${v}`);
+    }
+  });
+
+  for (const pStr of guessParams) {
     for (const opType of ['add_both', 'sub_both', 'mul_both', 'div_both'] as const) {
-      const result = applyAlgebraOperation(currentEq, opType, String(p));
+      const result = applyAlgebraOperation(currentEq, opType, pStr);
       if (result) {
         const rsNorm = normaliseEquation(result.result);
         if (eqStructEqual(rsNorm, userNorm) || (eqStructEqual({ left: rsNorm.right, right: rsNorm.left }, userNorm))) {
-          return normaliseOp(opType, String(p), result.description);
+          return normaliseOp(opType, pStr, result.description);
         }
       }
     }

@@ -2,13 +2,13 @@
   "operations": {
     "add": {
       "label": "Add",
-      "desc": "Add the same value to both sides of the equation.",
-      "paramLabel": "Example: 3"
+      "desc": "Add the same value or term to both sides of the equation.",
+      "paramLabel": "Example: 3 or 2x"
     },
     "sub": {
       "label": "Subtract",
-      "desc": "Subtract the same value from both sides of the equation.",
-      "paramLabel": "Example: 2"
+      "desc": "Subtract the same value or term from both sides of the equation.",
+      "paramLabel": "Example: 2 or 5x"
     },
     "mul": {
       "label": "Multiply",

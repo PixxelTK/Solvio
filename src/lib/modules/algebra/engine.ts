@@ -6,7 +6,7 @@ import {
   simplify, expand, collectLikeTerms, equationsEquivalent,
   equationToString, equationToLatex, parseEquation,
   equationToJson, jsonToEquation, 
-  exprEqual,
+  exprEqual, parseExpr, exprToString, collectTerms,
 } from './expressions';
 
 interface AlgebraProblem {
@@ -36,77 +36,74 @@ export const OPERATION_TYPES: OperationType[] = [
   {
     id: "add_both",
     label: "Add",
-    description: "Add the same value to both sides of the equation.",
     icon: faPlus,
     needsParameter: true,
-    parameterLabel: "Example: 3",
-    parameterType: "number",
+    parameterType: "expression",
   },
   {
     id: "sub_both",
     label: "Subtract",
-    description: "Subtract the same value from both sides of the equation.",
     icon: faMinus,
     needsParameter: true,
-    parameterLabel: "Example: 2",
-    parameterType: "number",
+    parameterType: "expression",
   },
   {
     id: "mul_both",
     label: "Multiply",
-    description: "Multiply both sides by the same value.",
     icon: faXmark,
     needsParameter: true,
-    parameterLabel: "Example: 5",
     parameterType: "number",
   },
   {
     id: "div_both",
     label: "Divide",
-    description: "Divide both sides by the same non-zero value.",
     icon: faDivide,
     needsParameter: true,
-    parameterLabel: "Example: 4",
     parameterType: "number",
   },
   {
     id: "expand",
     label: "Expand",
-    description: "Distribute multiplication and remove parentheses.",
     needsParameter: false,
   },
   {
     id: "collect",
     label: "Combine like terms",
-    description: "Combine like terms into a simpler expression.",
     needsParameter: false,
   },
 ];
 
 export function applyAlgebraOperation(eq: Equation, opType: string, param: string): { result: Equation; description: string } | null {
-  const p = parseFloat(param);
+  let pExpr: Expr | undefined;
+  if (opType !== 'expand' && opType !== 'collect') {
+    try {
+      pExpr = parseExpr(param);
+    } catch {
+      return null;
+    }
+  }
   switch (opType) {
     case 'add_both': {
-      if (isNaN(p)) return null;
-      const newLeft = collectLikeTerms(simplify(add(eq.left, num(p))));
-      const newRight = collectLikeTerms(simplify(add(eq.right, num(p))));
-      return { result: { left: newLeft, right: newRight }, description: `Add ${p} to both sides` };
+      if (!pExpr) return null;
+      const newLeft = collectLikeTerms(simplify(add(eq.left, pExpr)));
+      const newRight = collectLikeTerms(simplify(add(eq.right, pExpr)));
+      return { result: { left: newLeft, right: newRight }, description: `Add ${exprToString(pExpr)} to both sides` };
     }
     case 'sub_both': {
-      if (isNaN(p)) return null;
-      const newLeft = collectLikeTerms(simplify(sub(eq.left, num(p))));
-      const newRight = collectLikeTerms(simplify(sub(eq.right, num(p))));
-      return { result: { left: newLeft, right: newRight }, description: `Subtract ${p} from both sides` };
+      if (!pExpr) return null;
+      const newLeft = collectLikeTerms(simplify(sub(eq.left, pExpr)));
+      const newRight = collectLikeTerms(simplify(sub(eq.right, pExpr)));
+      return { result: { left: newLeft, right: newRight }, description: `Subtract ${exprToString(pExpr)} from both sides` };
     }
     case 'mul_both': {
-      if (isNaN(p) || p === 0) return null;
-      const newEq: Equation = { left: simplify(mul(eq.left, num(p))), right: simplify(mul(eq.right, num(p))) };
-      return { result: newEq, description: `Multiply both sides by ${p}` };
+      if (!pExpr || !isNum(pExpr) || pExpr.value === 0) return null;
+      const newEq: Equation = { left: simplify(mul(eq.left, pExpr)), right: simplify(mul(eq.right, pExpr)) };
+      return { result: newEq, description: `Multiply both sides by ${exprToString(pExpr)}` };
     }
     case 'div_both': {
-      if (isNaN(p) || p === 0) return null;
-      const newEq: Equation = { left: simplify(div(eq.left, num(p))), right: simplify(div(eq.right, num(p))) };
-      return { result: newEq, description: `Divide both sides by ${p}` };
+      if (!pExpr || !isNum(pExpr) || pExpr.value === 0) return null;
+      const newEq: Equation = { left: simplify(div(eq.left, pExpr)), right: simplify(div(eq.right, pExpr)) };
+      return { result: newEq, description: `Divide both sides by ${exprToString(pExpr)}` };
     }
     case 'expand': {
       const newLeft = simplify(expand(eq.left));
@@ -350,7 +347,7 @@ function generateIntermediateProblem(): AlgebraProblem {
 function generateAdvancedProblem(): AlgebraProblem {
   const vars = [variable('x'), variable('y'), variable('z')];
   const v = vars[randInt(0, 2)];
-  const type = randInt(0, 2);
+  const type = randInt(0, 3);
   let equation: Equation;
   let solutionPath: SolutionStep[];
 
@@ -413,7 +410,7 @@ function generateAdvancedProblem(): AlgebraProblem {
         resultEquation: { left: v, right: num(xVal) },
       },
     ];
-  } else {
+  } else if (type === 2) {
     const a = randNonZero(2, 5);
     const b = randNonZero(1, 4);
     const c = randNonZero(2, 5);
@@ -438,6 +435,46 @@ function generateAdvancedProblem(): AlgebraProblem {
         operationType: 'div_both',
         parameter: String(a),
         description: `Divide both sides by ${a}`,
+        resultEquation: { left: v, right: num(xVal) },
+      },
+    ];
+  } else {
+    // Variables on both sides: a*v + b = c*v + d
+    // Ensure a != c
+    const a = randNonZero(2, 6);
+    let c = randNonZero(1, 5);
+    while (c === a) {
+      c = randNonZero(1, 5);
+    }
+    const xVal = randInt(1, 6);
+    const b = randInt(1, 10);
+    const d = (a * xVal + b) - (c * xVal);
+    
+    equation = { left: add(mul(num(a), v), num(b)), right: add(mul(num(c), v), num(d)) };
+    
+    const vName = (v as {tag: 'var', name: string}).name;
+    const paramStr = c > 0 ? (c === 1 ? vName : `${c}${vName}`) : (c === -1 ? vName : `${-c}${vName}`);
+    
+    const step1Left = c > 0 ? add(mul(num(a - c), v), num(b)) : add(mul(num(a - c), v), num(b));
+    const step1Right = num(d);
+    
+    solutionPath = [
+      {
+        operationType: c > 0 ? 'sub_both' : 'add_both',
+        parameter: paramStr,
+        description: c > 0 ? `Subtract ${paramStr} from both sides` : `Add ${paramStr} to both sides`,
+        resultEquation: { left: step1Left, right: step1Right },
+      },
+      {
+        operationType: 'sub_both',
+        parameter: String(b),
+        description: `Subtract ${b} from both sides`,
+        resultEquation: { left: mul(num(a - c), v), right: num(d - b) },
+      },
+      {
+        operationType: 'div_both',
+        parameter: String(a - c),
+        description: `Divide both sides by ${a - c}`,
         resultEquation: { left: v, right: num(xVal) },
       },
     ];
@@ -639,6 +676,47 @@ export function computeHint(eq: Equation): { operationDescription: string; level
     };
   }
 
+  // Check for variables on both sides
+  const lTerms = collectTerms(sl);
+  const rTerms = collectTerms(sr);
+  let varOnBothSides: string | null = null;
+  let lCoeff = 0;
+  let rCoeff = 0;
+  for (const lt of lTerms) {
+    if (lt.variable !== null && lt.coefficient !== 0) {
+      for (const rt of rTerms) {
+        if (rt.variable === lt.variable && rt.coefficient !== 0) {
+          varOnBothSides = lt.variable;
+          lCoeff = lt.coefficient;
+          rCoeff = rt.coefficient;
+          break;
+        }
+      }
+    }
+  }
+
+  if (varOnBothSides) {
+    const toSubtract = lCoeff < rCoeff ? lCoeff : rCoeff;
+    const absCoeff = Math.abs(toSubtract);
+    const paramStr = absCoeff === 1 ? varOnBothSides : `${absCoeff}${varOnBothSides}`;
+    
+    if (toSubtract > 0) {
+      return {
+        operationDescription: `Subtract ${paramStr} from both sides to gather variables`,
+        level: 'specific',
+        opType: 'sub_both',
+        parameter: paramStr,
+      };
+    } else {
+      return {
+        operationDescription: `Add ${paramStr} to both sides to gather variables`,
+        level: 'specific',
+        opType: 'add_both',
+        parameter: paramStr,
+      };
+    }
+  }
+
   if (isDiv(sl) && isNum(sr)) {
     const denomExpr = sl.right;
     if (isNum(denomExpr)) {
@@ -704,12 +782,12 @@ export function computeHint(eq: Equation): { operationDescription: string; level
   }
 
   const rightCoeff = getVariableCoeff(sr);
-  if (rightCoeff !== null && isNum(sl)) {
+  if (rightCoeff !== null && rightCoeff !== 1 && isNum(sl)) {
     return {
-      operationDescription: `Divide or rearrange to isolate the variable`,
-      level: 'gentle',
-      opType: '',
-      parameter: '',
+      operationDescription: `Divide both sides by ${rightCoeff}`,
+      level: 'specific',
+      opType: 'div_both',
+      parameter: String(rightCoeff),
     };
   }
 
