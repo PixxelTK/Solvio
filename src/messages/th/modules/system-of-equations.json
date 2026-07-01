@@ -56,5 +56,29 @@
       "subs_into_eq1": { "label": "แทนค่าลงในสมการ1" },
       "subs_into_eq2": { "label": "แทนค่าลงในสมการ2" }
     }
+  },
+  "operations": {
+    "sys_add_eq1_eq2": { "history": "Eq1 ← Eq1 + Eq2" },
+    "sys_add_eq2_eq1": { "history": "Eq2 ← Eq2 + Eq1" },
+    "sys_sub_eq1_eq2": { "history": "Eq1 ← Eq1 − Eq2" },
+    "sys_sub_eq2_eq1": { "history": "Eq2 ← Eq2 − Eq1" },
+    "sys_add_both_eq1": { "history": "บวก {param} เข้าในสมการ (1)" },
+    "sys_add_both_eq2": { "history": "บวก {param} เข้าในสมการ (2)" },
+    "sys_sub_both_eq1": { "history": "ลบ {param} ออกจากสมการ (1)" },
+    "sys_sub_both_eq2": { "history": "ลบ {param} ออกจากสมการ (2)" },
+    "sys_mul_eq1": { "history": "คูณสมการ (1) ด้วย {param}" },
+    "sys_mul_eq2": { "history": "คูณสมการ (2) ด้วย {param}" },
+    "sys_div_eq1": { "history": "หารสมการ (1) ด้วย {param}" },
+    "sys_div_eq2": { "history": "หารสมการ (2) ด้วย {param}" },
+    "sys_subs_into_eq1": { "history": "แทนค่า {var} = {val} ในสมการ (1)" },
+    "sys_subs_into_eq2": { "history": "แทนค่า {var} = {val} ในสมการ (2)" },
+    "sys_hint_divide": "หารสมการ {eq} ด้วย {coeff} เพื่อหาค่า {var}",
+    "sys_hint_substitute": "ใช้คำสั่ง Substitute เพื่อนำค่าที่รู้ไปแทนในอีกสมการ",
+    "sys_hint_add_x": "สัมประสิทธิ์หน้า x หักล้างกันได้เมื่อบวกกัน — ลองบวกสมการเข้าด้วยกัน",
+    "sys_hint_add_y": "สัมประสิทธิ์หน้า y หักล้างกันได้เมื่อบวกกัน — ลองบวกสมการเข้าด้วยกัน",
+    "sys_hint_sub_x": "สัมประสิทธิ์หน้า x เท่ากัน — นำ -1 ไปคูณสมการใดสมการหนึ่งแล้วนำมาบวกกัน",
+    "sys_hint_sub_y": "สัมประสิทธิ์หน้า y เท่ากัน — นำ -1 ไปคูณสมการใดสมการหนึ่งแล้วนำมาบวกกัน",
+    "sys_hint_scale": "คูณตัวเลขเพื่อทำให้สัมประสิทธิ์ตัวแปรเท่ากัน จากนั้นนำมาบวกหรือลบกัน",
+    "sys_hint_general": "ลองบวกหรือลบสมการทั้งสองเข้าด้วยกัน"
   }
 }

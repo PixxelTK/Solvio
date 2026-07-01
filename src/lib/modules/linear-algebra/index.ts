@@ -260,7 +260,7 @@ export function applyRowOperation(
   matrix: AugmentedMatrix,
   opType: string,
   param: string
-): { result: AugmentedMatrix; description: string } | null {
+): { result: AugmentedMatrix; translationKey?: string; translationParams?: Record<string, string> } | null {
   const m = deepCopy(matrix);
 
   if (opType === 'row_swap') {
@@ -270,7 +270,7 @@ export function applyRowOperation(
     const j = parseInt(match[2]) - 1;
     if (i < 0 || i >= m.rows.length || j < 0 || j >= m.rows.length || i === j) return null;
     [m.rows[i], m.rows[j]] = [m.rows[j], m.rows[i]];
-    return { result: roundMatrix(m), description: `R${i + 1} ↔ R${j + 1}` };
+    return { result: roundMatrix(m), translationKey: 'operations.row_swap.history', translationParams: { i: String(i + 1), j: String(j + 1) } };
   }
 
   if (opType === 'row_scale') {
@@ -282,7 +282,7 @@ export function applyRowOperation(
     for (let j = 0; j <= m.numVars; j++) {
       m.rows[i].values[j] *= k;
     }
-    return { result: roundMatrix(m), description: `${k}·R${i + 1} → R${i + 1}` };
+    return { result: roundMatrix(m), translationKey: 'operations.row_scale.history', translationParams: { k: String(k), i: String(i + 1) } };
   }
 
   if (opType === 'row_add') {
@@ -298,15 +298,15 @@ export function applyRowOperation(
       m.rows[targetRow].values[j] += sign * k * m.rows[sourceRow].values[j];
     }
     const signStr = match[2];
-    return { result: roundMatrix(m), description: `R${targetRow + 1} ${signStr} ${k}·R${sourceRow + 1} → R${targetRow + 1}` };
+    return { result: roundMatrix(m), translationKey: 'operations.row_add.history', translationParams: { i: String(targetRow + 1), signStr, k: String(k), j: String(sourceRow + 1) } };
   }
 
   return null;
 }
 
-export function computeHint(matrix: AugmentedMatrix): { operationDescription: string; level: 'gentle' | 'moderate' | 'specific'; opType: string; param: string } {
+export function computeHint(matrix: AugmentedMatrix): { operationDescription?: string; level: 'gentle' | 'moderate' | 'specific'; opType: string; param: string; translationKey?: string; translationParams?: Record<string, string> } {
   if (isRREF(matrix)) {
-    return { operationDescription: 'The matrix is already in RREF!', level: 'specific', opType: '', param: '' };
+    return { level: 'specific', opType: '', param: '', translationKey: 'practice.validation.complete' };
   }
 
   const usedPivotRows = new Set<number>();
@@ -327,10 +327,11 @@ export function computeHint(matrix: AugmentedMatrix): { operationDescription: st
       const val = matrix.rows[pivotRow].values[col];
       const k = Math.round((1 / val) * 1000) / 1000;
       return {
-        operationDescription: `Scale R${pivotRow + 1} by ${k} to get a leading 1 in column ${col + 1}`,
         level: 'moderate',
         opType: 'row_scale',
         param: `${k}*R${pivotRow + 1}`,
+        translationKey: 'operations.row_scale.hint',
+        translationParams: { pivotRow: String(pivotRow + 1), k: String(k), col: String(col + 1) },
       };
     }
 
@@ -343,16 +344,17 @@ export function computeHint(matrix: AugmentedMatrix): { operationDescription: st
         const k = Math.round(Math.abs(val) * 1000) / 1000;
         const sign = val > 0 ? '-' : '+';
         return {
-          operationDescription: `Use R${pivotRow + 1} to eliminate the ${formatNum(val)} in R${row + 1}, column ${col + 1}: R${row + 1} ${sign} ${k}·R${pivotRow + 1}`,
           level: 'specific',
           opType: 'row_add',
           param: `R${row + 1}${sign}${k}*R${pivotRow + 1}`,
+          translationKey: 'operations.row_add.hint',
+          translationParams: { pivotRow: String(pivotRow + 1), val: formatNum(val), row: String(row + 1), col: String(col + 1), sign, k: String(k) },
         };
       }
     }
   }
 
-  return { operationDescription: 'The matrix appears close to RREF. Check for any remaining non-zero entries above or below pivots.', level: 'gentle', opType: '', param: '' };
+  return { level: 'gentle', opType: '', param: '', translationKey: 'operations.linear_algebra.hint_gentle' };
 }
 
 export const linearAlgebraModule: MathModule = {
@@ -427,9 +429,14 @@ export const linearAlgebraModule: MathModule = {
     try {
       const data = stateToData(currentState);
       const hint = computeHint(data.matrix);
-      return { operationDescription: hint.operationDescription, level: hint.level };
+      return { 
+        operationDescription: hint.operationDescription, 
+        level: hint.level,
+        translationKey: hint.translationKey,
+        translationParams: hint.translationParams,
+      };
     } catch {
-      return { operationDescription: 'Try a row operation to simplify the matrix.', level: 'gentle' };
+      return { level: 'gentle', translationKey: 'operations.linear_algebra.hint_error' };
     }
   },
 

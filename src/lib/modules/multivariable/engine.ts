@@ -147,33 +147,33 @@ export function applyMultivariableOperation(
   opType: string,
   param: string,
   targetVar?: string,
-): { result: Equation; description: string } | null {
+): { result: Equation; description?: string; translationKey?: string; translationParams?: Record<string, string> } | null {
   switch (opType) {
     case 'add_both': {
       const p = parseFloat(param);
       if (isNaN(p)) return null;
       const newLeft = collectLikeTerms(simplify(add(eq.left, num(p))));
       const newRight = collectLikeTerms(simplify(add(eq.right, num(p))));
-      return { result: { left: newLeft, right: newRight }, description: `Add ${p} to both sides` };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.add_both.history', translationParams: { param: String(p) } };
     }
     case 'sub_both': {
       const p = parseFloat(param);
       if (isNaN(p)) return null;
       const newLeft = collectLikeTerms(simplify(sub(eq.left, num(p))));
       const newRight = collectLikeTerms(simplify(sub(eq.right, num(p))));
-      return { result: { left: newLeft, right: newRight }, description: `Subtract ${p} from both sides` };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.sub_both.history', translationParams: { param: String(p) } };
     }
     case 'mul_both': {
       const p = parseFloat(param);
       if (isNaN(p) || p === 0) return null;
       const newEq: Equation = { left: simplify(mul(eq.left, num(p))), right: simplify(mul(eq.right, num(p))) };
-      return { result: newEq, description: `Multiply both sides by ${p}` };
+      return { result: newEq, translationKey: 'operations.mul_both.history', translationParams: { param: String(p) } };
     }
     case 'div_both': {
       const p = parseFloat(param);
       if (isNaN(p) || p === 0) return null;
       const newEq: Equation = { left: simplify(div(eq.left, num(p))), right: simplify(div(eq.right, num(p))) };
-      return { result: newEq, description: `Divide both sides by ${p}` };
+      return { result: newEq, translationKey: 'operations.div_both.history', translationParams: { param: String(p) } };
     }
     case 'move_term': {
       try {
@@ -183,7 +183,7 @@ export function applyMultivariableOperation(
         const eqS = { left: simplify(eq.left), right: simplify(eq.right) };
         const resS = { left: simplify(newLeft), right: simplify(newRight) };
         if (exprEqual(resS.left, eqS.left) && exprEqual(resS.right, eqS.right)) return null;
-        return { result: { left: newLeft, right: newRight }, description: `Move ${param} to the other side` };
+        return { result: { left: newLeft, right: newRight }, translationKey: 'operations.move_term.history', translationParams: { param } };
       } catch {
         return null;
       }
@@ -192,7 +192,7 @@ export function applyMultivariableOperation(
       const newLeft = simplify(expand(eq.left));
       const newRight = simplify(expand(eq.right));
       if (exprEqual(newLeft, simplify(eq.left)) && exprEqual(newRight, simplify(eq.right))) return null;
-      return { result: { left: newLeft, right: newRight }, description: 'Expand parentheses' };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.expand.history' };
     }
     case 'collect': {
       const newLeft = collectLikeTerms(eq.left);
@@ -201,7 +201,7 @@ export function applyMultivariableOperation(
       const sr = simplify(eq.right);
       if (exprEqual(newLeft, sl) && exprEqual(newRight, sr)) return null;
       if (!hasLikeTerms(sl) && !hasLikeTerms(sr)) return null;
-      return { result: { left: newLeft, right: newRight }, description: 'Combine like terms' };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.collect.history' };
     }
     case 'isolate': {
       if (!targetVar) return null;
@@ -236,7 +236,7 @@ export function applyMultivariableOperation(
       const newS = { left: simplify(newLeft), right: simplify(newRight) };
       if (exprEqual(newS.left, eqS.left) && exprEqual(newS.right, eqS.right)) return null;
 
-      return { result: { left: newLeft, right: newRight }, description: `Isolate ${targetVar}` };
+      return { result: { left: newLeft, right: newRight }, translationKey: 'operations.isolate.history', translationParams: { param: targetVar } };
     }
     default:
       return null;
@@ -551,29 +551,29 @@ function hasLikeTermsInExpr(e: Expr): boolean {
   return false;
 }
 
-export function computeHint(eq: Equation, targetVar: string): { operationDescription: string; level: 'gentle' | 'moderate' | 'specific'; opType: string; parameter: string } {
+export function computeHint(eq: Equation, targetVar: string): { operationDescription?: string; level: 'gentle' | 'moderate' | 'specific'; opType: string; parameter: string; translationKey?: string; translationParams?: Record<string, string> } {
   const sl = simplify(eq.left);
   const sr = simplify(eq.right);
 
   if (isTargetVariableSolved(eq, targetVar)) {
-    return { operationDescription: 'The equation is already solved!', level: 'specific', opType: '', parameter: '' };
+    return { level: 'specific', opType: '', parameter: '', translationKey: 'practice.validation.complete' };
   }
 
   if (needsExpansion(sl) || needsExpansion(sr)) {
     return {
-      operationDescription: 'Expand the parentheses first',
       level: 'moderate',
       opType: 'expand',
       parameter: '',
+      translationKey: 'operations.expand.hint',
     };
   }
 
   if (hasLikeTermsInExpr(sl) || hasLikeTermsInExpr(sr)) {
     return {
-      operationDescription: 'Combine like terms',
       level: 'moderate',
       opType: 'collect',
       parameter: '',
+      translationKey: 'operations.collect.hint',
     };
   }
 
@@ -584,10 +584,11 @@ export function computeHint(eq: Equation, targetVar: string): { operationDescrip
 
   if (leftHasTarget && rightHasTarget) {
     return {
-      operationDescription: `Move all terms with ${targetVar} to one side using the Isolate operation`,
       level: 'moderate',
       opType: 'isolate',
       parameter: '',
+      translationKey: 'operations.isolate.hint_gather',
+      translationParams: { param: targetVar },
     };
   }
 
@@ -600,19 +601,21 @@ export function computeHint(eq: Equation, targetVar: string): { operationDescrip
         ? `${termToMove.coefficient}${termToMove.variable}`
         : String(termToMove.coefficient);
       return {
-        operationDescription: `Move ${termStr} to the right side`,
         level: 'specific',
         opType: 'move_term',
         parameter: termStr,
+        translationKey: 'operations.move_term.hint_right',
+        translationParams: { param: termStr },
       };
     }
     const targetCoeff = getVariableCoefficientInExpr(sl, targetVar);
     if (targetCoeff !== null && targetCoeff !== 1) {
       return {
-        operationDescription: `Divide both sides by ${targetCoeff}`,
         level: 'specific',
         opType: 'div_both',
         parameter: String(targetCoeff),
+        translationKey: 'operations.div_both.hint',
+        translationParams: { param: String(targetCoeff) },
       };
     }
   }
@@ -626,28 +629,31 @@ export function computeHint(eq: Equation, targetVar: string): { operationDescrip
         ? `${termToMove.coefficient}${termToMove.variable}`
         : String(termToMove.coefficient);
       return {
-        operationDescription: `Move ${termStr} to the left side`,
         level: 'specific',
         opType: 'move_term',
         parameter: termStr,
+        translationKey: 'operations.move_term.hint_left',
+        translationParams: { param: termStr },
       };
     }
     const targetCoeff = getVariableCoefficientInExpr(sr, targetVar);
     if (targetCoeff !== null && targetCoeff !== 1) {
       return {
-        operationDescription: `Divide both sides by ${targetCoeff}`,
         level: 'specific',
         opType: 'div_both',
         parameter: String(targetCoeff),
+        translationKey: 'operations.div_both.hint',
+        translationParams: { param: String(targetCoeff) },
       };
     }
   }
 
   return {
-    operationDescription: `Look for a way to isolate ${targetVar}`,
     level: 'gentle',
     opType: '',
     parameter: '',
+    translationKey: 'operations.isolate.hint_gentle',
+    translationParams: { param: targetVar },
   };
 }
 
@@ -656,9 +662,16 @@ export function getHint(currentState: MathState): Hint {
     const eq = getEquationFromState(currentState);
     const targetVar = getTargetVariable(currentState);
     const h = computeHint(eq, targetVar);
-    return { operationDescription: h.operationDescription, level: h.level };
+    return { 
+      operationDescription: h.operationDescription, 
+      level: h.level, 
+      opType: h.opType, 
+      parameter: h.parameter,
+      translationKey: h.translationKey,
+      translationParams: h.translationParams,
+    };
   } catch {
-    return { operationDescription: 'Try isolating the target variable on one side', level: 'gentle' };
+    return { level: 'gentle', translationKey: 'practice.hint_simplify' };
   }
 }
 

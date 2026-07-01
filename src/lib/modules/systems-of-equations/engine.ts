@@ -278,60 +278,65 @@ export function previewOperation(
   category: OperationCategory,
   targetId: string,
   param: string,
-): { newData: SystemStateData; description: string } | null {
+): { newData: SystemStateData; translationKey?: string; translationParams?: Record<string, string> } | null {
   try {
     const p = parseFloat(param);
     let newEq1 = { ...data.eq1 };
     let newEq2 = { ...data.eq2 };
-    let description = '';
+    let translationKey = '';
+    let translationParams: Record<string, string> = {};
 
     switch (targetId) {
       /* ---- add ---- */
       case 'add_eq1_eq2': {
         newEq1 = combineEquations(data.eq1, data.eq2);
-        description = 'Eq1 ← Eq1 + Eq2';
+        translationKey = 'operations.sys_add_eq1_eq2.history';
         break;
       }
       case 'add_eq2_eq1': {
         newEq2 = combineEquations(data.eq2, data.eq1);
-        description = 'Eq2 ← Eq2 + Eq1';
+        translationKey = 'operations.sys_add_eq2_eq1.history';
         break;
       }
       /* ---- subtract ---- */
       case 'sub_eq1_eq2': {
         newEq1 = subtractEquations(data.eq1, data.eq2);
-        description = 'Eq1 ← Eq1 − Eq2';
+        translationKey = 'operations.sys_sub_eq1_eq2.history';
         break;
       }
       case 'sub_eq2_eq1': {
         newEq2 = subtractEquations(data.eq2, data.eq1);
-        description = 'Eq2 ← Eq2 − Eq1';
+        translationKey = 'operations.sys_sub_eq2_eq1.history';
         break;
       }
       /* ---- add_value ---- */
       case 'add_both_eq1': {
         if (isNaN(p)) return null;
         newEq1 = addToBothSides(data.eq1, p);
-        description = `Add ${p} to Eq1`;
+        translationKey = 'operations.sys_add_both_eq1.history';
+        translationParams = { param: String(p) };
         break;
       }
       case 'add_both_eq2': {
         if (isNaN(p)) return null;
         newEq2 = addToBothSides(data.eq2, p);
-        description = `Add ${p} to Eq2`;
+        translationKey = 'operations.sys_add_both_eq2.history';
+        translationParams = { param: String(p) };
         break;
       }
       /* ---- sub_value ---- */
       case 'sub_both_eq1': {
         if (isNaN(p)) return null;
         newEq1 = subFromBothSides(data.eq1, p);
-        description = `Subtract ${p} from Eq1`;
+        translationKey = 'operations.sys_sub_both_eq1.history';
+        translationParams = { param: String(p) };
         break;
       }
       case 'sub_both_eq2': {
         if (isNaN(p)) return null;
         newEq2 = subFromBothSides(data.eq2, p);
-        description = `Subtract ${p} from Eq2`;
+        translationKey = 'operations.sys_sub_both_eq2.history';
+        translationParams = { param: String(p) };
         break;
       }
       /* ---- multiply ---- */
@@ -339,14 +344,16 @@ export function previewOperation(
         const scaled = scaleEquation(data.eq1, p);
         if (!scaled) return null;
         newEq1 = scaled;
-        description = `Multiply Eq1 by ${p}`;
+        translationKey = 'operations.sys_mul_eq1.history';
+        translationParams = { param: String(p) };
         break;
       }
       case 'mul_eq2': {
         const scaled = scaleEquation(data.eq2, p);
         if (!scaled) return null;
         newEq2 = scaled;
-        description = `Multiply Eq2 by ${p}`;
+        translationKey = 'operations.sys_mul_eq2.history';
+        translationParams = { param: String(p) };
         break;
       }
       /* ---- divide ---- */
@@ -354,24 +361,28 @@ export function previewOperation(
         const divided = divideEquation(data.eq1, p);
         if (!divided) return null;
         newEq1 = divided;
-        description = `Divide Eq1 by ${p}`;
+        translationKey = 'operations.sys_div_eq1.history';
+        translationParams = { param: String(p) };
         break;
       }
       case 'div_eq2': {
         const divided = divideEquation(data.eq2, p);
         if (!divided) return null;
         newEq2 = divided;
-        description = `Divide Eq2 by ${p}`;
+        translationKey = 'operations.sys_div_eq2.history';
+        translationParams = { param: String(p) };
         break;
       }
       /* ---- substitute ---- */
       case 'subs_into_eq1': {
         if (data.solvedX !== null) {
           newEq1 = substituteVar(data.eq1, 'x', data.solvedX);
-          description = `Substitute x = ${data.solvedX} into Eq1`;
+          translationKey = 'operations.sys_subs_into_eq1.history';
+          translationParams = { var: 'x', val: String(data.solvedX) };
         } else if (data.solvedY !== null) {
           newEq1 = substituteVar(data.eq1, 'y', data.solvedY);
-          description = `Substitute y = ${data.solvedY} into Eq1`;
+          translationKey = 'operations.sys_subs_into_eq1.history';
+          translationParams = { var: 'y', val: String(data.solvedY) };
         } else {
           return null;
         }
@@ -380,10 +391,12 @@ export function previewOperation(
       case 'subs_into_eq2': {
         if (data.solvedX !== null) {
           newEq2 = substituteVar(data.eq2, 'x', data.solvedX);
-          description = `Substitute x = ${data.solvedX} into Eq2`;
+          translationKey = 'operations.sys_subs_into_eq2.history';
+          translationParams = { var: 'x', val: String(data.solvedX) };
         } else if (data.solvedY !== null) {
           newEq2 = substituteVar(data.eq2, 'y', data.solvedY);
-          description = `Substitute y = ${data.solvedY} into Eq2`;
+          translationKey = 'operations.sys_subs_into_eq2.history';
+          translationParams = { var: 'y', val: String(data.solvedY) };
         } else {
           return null;
         }
@@ -397,7 +410,8 @@ export function previewOperation(
 
     return {
       newData: { eq1: newEq1, eq2: newEq2, answerX: data.answerX, answerY: data.answerY, solvedX, solvedY },
-      description,
+      translationKey,
+      translationParams,
     };
   } catch {
     return null;
@@ -570,7 +584,7 @@ export function getHint(currentState: MathState): Hint {
     const solvedOne = d.solvedX !== null || d.solvedY !== null;
 
     if (d.solvedX !== null && d.solvedY !== null) {
-      return { operationDescription: 'All variables solved!', level: 'specific' };
+      return { level: 'specific', translationKey: 'practice.validation.complete' };
     }
 
     if (solvedOne) {
@@ -578,21 +592,33 @@ export function getHint(currentState: MathState): Hint {
       const sv = isSingleVarEquation(otherEq);
       if (sv && sv.coeff !== 1) {
         const which = d.solvedX !== null ? 'Eq2' : 'Eq1';
-        return { operationDescription: `Divide ${which} by ${sv.coeff} to isolate ${sv.varName}.`, level: 'specific' };
+        return { 
+          level: 'specific',
+          translationKey: 'operations.sys_hint_divide',
+          translationParams: { eq: which, coeff: String(sv.coeff), var: sv.varName! }
+        };
       }
       return {
-        operationDescription: `Use Substitute to replace the known variable in the other equation.`,
         level: 'specific',
+        translationKey: 'operations.sys_hint_substitute',
       };
     }
 
     const sv1 = isSingleVarEquation(d.eq1);
     const sv2 = isSingleVarEquation(d.eq2);
     if (sv1 && sv1.coeff !== 1) {
-      return { operationDescription: `Divide Eq1 by ${sv1.coeff} to isolate ${sv1.varName}.`, level: 'specific' };
+      return { 
+        level: 'specific',
+        translationKey: 'operations.sys_hint_divide',
+        translationParams: { eq: 'Eq1', coeff: String(sv1.coeff), var: sv1.varName! }
+      };
     }
     if (sv2 && sv2.coeff !== 1) {
-      return { operationDescription: `Divide Eq2 by ${sv2.coeff} to isolate ${sv2.varName}.`, level: 'specific' };
+      return { 
+        level: 'specific',
+        translationKey: 'operations.sys_hint_divide',
+        translationParams: { eq: 'Eq2', coeff: String(sv2.coeff), var: sv2.varName! }
+      };
     }
 
     const xc1 = getVariableCoefficient(d.eq1.left, 'x');
@@ -601,21 +627,21 @@ export function getHint(currentState: MathState): Hint {
     const yc2 = getVariableCoefficient(d.eq2.left, 'y');
 
     if (xc1 + xc2 === 0) {
-      return { operationDescription: 'The x coefficients cancel when added — try Add Equations.', level: 'specific' };
+      return { level: 'specific', translationKey: 'operations.sys_hint_add_x' };
     }
     if (yc1 + yc2 === 0) {
-      return { operationDescription: 'The y coefficients cancel when added — try Add Equations.', level: 'specific' };
+      return { level: 'specific', translationKey: 'operations.sys_hint_add_y' };
     }
     if (xc1 === xc2 && xc1 !== 0) {
-      return { operationDescription: 'Same x coefficients — scale one equation by −1 then add.', level: 'moderate' };
+      return { level: 'moderate', translationKey: 'operations.sys_hint_sub_x' };
     }
     if (yc1 === yc2 && yc1 !== 0) {
-      return { operationDescription: 'Same y coefficients — scale one equation by −1 then add.', level: 'moderate' };
+      return { level: 'moderate', translationKey: 'operations.sys_hint_sub_y' };
     }
 
-    return { operationDescription: 'Scale equations so a variable cancels, then add or subtract.', level: 'gentle' };
+    return { level: 'gentle', translationKey: 'operations.sys_hint_scale' };
   } catch {
-    return { operationDescription: 'Try adding or subtracting the equations.', level: 'gentle' };
+    return { level: 'gentle', translationKey: 'operations.sys_hint_general' };
   }
 }
 
@@ -633,7 +659,7 @@ function tryScaleThenCombine(data: SystemStateData, which: 'mul_eq1' | 'mul_eq2'
   return addResult.newData.solvedX !== data.solvedX || addResult.newData.solvedY !== data.solvedY;
 }
 
-export function computeNextStep(data: SystemStateData): { category: OperationCategory; targetId: string; param: string; description: string } | null {
+export function computeNextStep(data: SystemStateData): { category: OperationCategory; targetId: string; param: string; translationKey?: string; translationParams?: Record<string, string> } | null {
   const bothSolved = data.solvedX !== null && data.solvedY !== null;
   if (bothSolved) return null;
 
@@ -647,14 +673,14 @@ export function computeNextStep(data: SystemStateData): { category: OperationCat
       const eq = which === 'eq1' ? data.eq1 : data.eq2;
       const info = isSingleVarEquation(eq);
       if (info && info.coeff !== 1) {
-        return { category: 'divide', targetId: which === 'eq1' ? 'div_eq1' : 'div_eq2', param: String(info.coeff), description: `Divide ${which === 'eq1' ? 'Eq1' : 'Eq2'} by ${info.coeff}` };
+        return { category: 'divide', targetId: which === 'eq1' ? 'div_eq1' : 'div_eq2', param: String(info.coeff), translationKey: `operations.sys_div_${which}.history`, translationParams: { param: String(info.coeff) } };
       }
     }
     const solvedVar = solvedX ? 'x' : 'y';
     const solvedVal = data.solvedX ?? data.solvedY ?? 0;
     const solvedInEq1 = isVarInEquation(data.eq1, solvedVar);
     const substituteInto = solvedInEq1 ? 'subs_into_eq2' : 'subs_into_eq1';
-    return { category: 'substitute', targetId: substituteInto, param: '', description: `Substitute ${solvedVar} = ${solvedVal} into ${solvedInEq1 ? 'Eq2' : 'Eq1'}` };
+    return { category: 'substitute', targetId: substituteInto, param: '', translationKey: substituteInto === 'subs_into_eq2' ? 'operations.sys_subs_into_eq2.history' : 'operations.sys_subs_into_eq1.history', translationParams: { var: solvedVar, val: String(solvedVal) } };
   }
 
   /* Check if any equation is ax=b and needs dividing (before elimination checks) */
@@ -663,7 +689,7 @@ export function computeNextStep(data: SystemStateData): { category: OperationCat
     const info = isSingleVarEquation(eq);
     if (info && info.coeff !== 1) {
       const targetId = which === 'eq1' ? 'div_eq1' : 'div_eq2';
-      return { category: 'divide', targetId, param: String(info.coeff), description: `Divide ${which === 'eq1' ? 'Eq1' : 'Eq2'} by ${info.coeff}` };
+      return { category: 'divide', targetId, param: String(info.coeff), translationKey: `operations.sys_div_${which}.history`, translationParams: { param: String(info.coeff) } };
     }
   }
 
@@ -673,41 +699,41 @@ export function computeNextStep(data: SystemStateData): { category: OperationCat
   const xc2 = getVariableCoefficient(data.eq2.left, 'x');
 
   if (yc1 + yc2 === 0) {
-    return { category: 'add', targetId: 'add_eq1_eq2', param: '', description: 'Add equations (y cancels)' };
+    return { category: 'add', targetId: 'add_eq1_eq2', param: '', translationKey: 'operations.sys_add_eq1_eq2.history' };
   }
   if (xc1 + xc2 === 0) {
-    return { category: 'add', targetId: 'add_eq1_eq2', param: '', description: 'Add equations (x cancels)' };
+    return { category: 'add', targetId: 'add_eq1_eq2', param: '', translationKey: 'operations.sys_add_eq1_eq2.history' };
   }
 
   if (yc1 === yc2 && yc1 !== 0) {
-    return { category: 'subtract', targetId: 'sub_eq1_eq2', param: '', description: 'Subtract equations (y cancels)' };
+    return { category: 'subtract', targetId: 'sub_eq1_eq2', param: '', translationKey: 'operations.sys_sub_eq1_eq2.history' };
   }
   if (xc1 === xc2 && xc1 !== 0) {
-    return { category: 'subtract', targetId: 'sub_eq1_eq2', param: '', description: 'Subtract equations (x cancels)' };
+    return { category: 'subtract', targetId: 'sub_eq1_eq2', param: '', translationKey: 'operations.sys_sub_eq1_eq2.history' };
   }
 
   if (yc2 !== 0 && yc1 !== 0 && yc1 % yc2 === 0) {
     const f = -(yc1 / yc2);
     if (f !== 0 && f !== 1 && Number.isInteger(f)) {
-      return { category: 'multiply', targetId: 'mul_eq2', param: String(f), description: `Multiply Eq2 by ${f}` };
+      return { category: 'multiply', targetId: 'mul_eq2', param: String(f), translationKey: 'operations.sys_mul_eq2.history', translationParams: { param: String(f) } };
     }
   }
   if (xc2 !== 0 && xc1 !== 0 && xc1 % xc2 === 0) {
     const f = -(xc1 / xc2);
     if (f !== 0 && f !== 1 && Number.isInteger(f)) {
-      return { category: 'multiply', targetId: 'mul_eq2', param: String(f), description: `Multiply Eq2 by ${f}` };
+      return { category: 'multiply', targetId: 'mul_eq2', param: String(f), translationKey: 'operations.sys_mul_eq2.history', translationParams: { param: String(f) } };
     }
   }
   if (yc1 !== 0 && yc2 !== 0 && yc2 % yc1 === 0) {
     const f = -(yc2 / yc1);
     if (f !== 0 && f !== 1 && Number.isInteger(f)) {
-      return { category: 'multiply', targetId: 'mul_eq1', param: String(f), description: `Multiply Eq1 by ${f}` };
+      return { category: 'multiply', targetId: 'mul_eq1', param: String(f), translationKey: 'operations.sys_mul_eq1.history', translationParams: { param: String(f) } };
     }
   }
   if (xc1 !== 0 && xc2 !== 0 && xc2 % xc1 === 0) {
     const f = -(xc2 / xc1);
     if (f !== 0 && f !== 1 && Number.isInteger(f)) {
-      return { category: 'multiply', targetId: 'mul_eq1', param: String(f), description: `Multiply Eq1 by ${f}` };
+      return { category: 'multiply', targetId: 'mul_eq1', param: String(f), translationKey: 'operations.sys_mul_eq1.history', translationParams: { param: String(f) } };
     }
   }
 
@@ -715,7 +741,7 @@ export function computeNextStep(data: SystemStateData): { category: OperationCat
     for (let f = -5; f <= 5; f++) {
       if (f === 0 || f === 1 || f === -1) continue;
       if (tryScaleThenCombine(data, which, f)) {
-        return { category: 'multiply', targetId: which, param: String(f), description: `Multiply ${which === 'mul_eq1' ? 'Eq1' : 'Eq2'} by ${f}` };
+        return { category: 'multiply', targetId: which, param: String(f), translationKey: `operations.sys_${which}.history`, translationParams: { param: String(f) } };
       }
     }
   }

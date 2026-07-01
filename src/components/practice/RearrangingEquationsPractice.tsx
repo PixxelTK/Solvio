@@ -35,26 +35,29 @@ function toEq(left: Expr, right: Expr): Equation {
   return { left, right };
 }
 
-function normaliseOp(typeId: string, parameter: string, description: string): { typeId: string; parameter: string; description: string } {
-  const p = parseFloat(parameter);
-  if (!isNaN(p) && p < 0) {
+function normaliseOp(
+  typeId: string,
+  parameter: string,
+  translationKey?: string,
+  translationParams?: Record<string, string>
+): { typeId: string; parameter: string; translationKey?: string; translationParams?: Record<string, string> } {
+  if (parameter.startsWith('-')) {
+    const pos = parameter.substring(1);
     if (typeId === 'add_both') {
-      const pos = String(-p);
-      return { typeId: 'sub_both', parameter: pos, description: `Subtract ${pos} from both sides` };
+      return { typeId: 'sub_both', parameter: pos, translationKey: 'operations.sub_both.history', translationParams: { param: pos } };
     }
     if (typeId === 'sub_both') {
-      const pos = String(-p);
-      return { typeId: 'add_both', parameter: pos, description: `Add ${pos} to both sides` };
+      return { typeId: 'add_both', parameter: pos, translationKey: 'operations.add_both.history', translationParams: { param: pos } };
     }
   }
-  return { typeId, parameter, description };
+  return { typeId, parameter, translationKey, translationParams };
 }
 
 function inferOperation(
   currentEq: ReturnType<typeof stateToEquation>,
   userEq: ReturnType<typeof parseEquation>,
   targetVar: string,
-): { typeId: string; parameter: string; description: string } | null {
+): { typeId: string; parameter: string; translationKey?: string; translationParams?: Record<string, string> } | null {
   const userNorm = toEq(collectLikeTerms(userEq.left), collectLikeTerms(userEq.right));
 
   function match(result: { result: Equation } | null): boolean {
@@ -67,7 +70,7 @@ function inferOperation(
   for (const opType of ['expand', 'collect', 'isolate'] as const) {
     const result = applyMultivariableOperation(currentEq, opType, '', targetVar);
     if (match(result)) {
-      return { typeId: opType, parameter: '', description: result!.description };
+      return { typeId: opType, parameter: '', translationKey: result!.translationKey, translationParams: result!.translationParams as Record<string, string> };
     }
   }
 
@@ -76,7 +79,7 @@ function inferOperation(
     for (const opType of ['add_both', 'sub_both', 'mul_both', 'div_both'] as const) {
       const result = applyMultivariableOperation(currentEq, opType, String(p), targetVar);
       if (match(result)) {
-        return normaliseOp(opType, String(p), result!.description);
+        return normaliseOp(opType, String(p), result!.translationKey, result!.translationParams as Record<string, string>);
       }
     }
   }
@@ -92,7 +95,7 @@ function inferOperation(
         if (!cleanedTerm) continue;
         const result = applyMultivariableOperation(currentEq, 'move_term', cleanedTerm, targetVar);
         if (match(result)) {
-          return { typeId: 'move_term', parameter: cleanedTerm, description: result!.description };
+          return { typeId: 'move_term', parameter: cleanedTerm, translationKey: result!.translationKey, translationParams: result!.translationParams as Record<string, string> };
         }
       } catch {
         continue;
@@ -199,14 +202,20 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
       const operation: Operation = {
         typeId: inferred.typeId,
         parameter: inferred.parameter,
-        description: inferred.description,
+        translationKey: inferred.translationKey,
+        translationParams: inferred.translationParams,
       };
 
       const solved = commitStep(nextStateFull, operation);
       if (solved) {
         setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: t('practice.validation.correct').replace('{description}', inferred.description), isSolved: false });
+        const opDesc = inferred.translationKey
+          ? t(inferred.translationKey, inferred.translationParams || {}) as string !== inferred.translationKey
+            ? t(inferred.translationKey, inferred.translationParams || {})
+            : ''
+          : '';
+        setValidation({ valid: true, message: `${t('practice.validation.correct')} ${opDesc}`, isSolved: false });
       }
     } catch {
       setValidation({ valid: false, message: t('practice.validation.cannotParse'), isSolved: false });
@@ -255,7 +264,8 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
       const operation: Operation = {
         typeId: selectedOp,
         parameter: param,
-        description: opResult.description,
+        translationKey: opResult.translationKey,
+        translationParams: opResult.translationParams as Record<string, string>,
       };
 
       const solved = commitStep(newState, operation);
@@ -299,7 +309,8 @@ export default function MultivariableEquationScreen({ difficulty, onBack }: Mult
     const operation: Operation = {
       typeId: computed.opType,
       parameter: param,
-      description: opResult.description,
+      translationKey: opResult.translationKey,
+      translationParams: opResult.translationParams as Record<string, string>,
     };
 
     commitStep(newState, operation);

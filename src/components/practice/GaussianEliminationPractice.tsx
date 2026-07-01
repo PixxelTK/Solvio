@@ -78,7 +78,8 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
     const operation: Operation = {
       typeId: selectedOp,
       parameter: opParam,
-      description: opResult.description,
+      translationKey: opResult.translationKey,
+      translationParams: opResult.translationParams as Record<string, string>,
     };
 
     const result = linearAlgebraModule.validateStep(currentState, operation, newState);
@@ -98,7 +99,12 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
       if (solved) {
         setValidation({ valid: true, message: t('practice.validation.done'), isSolved: true });
       } else {
-        setValidation({ valid: true, message: t('practice.validation.correct'), isSolved: false });
+        const opDesc = opResult.translationKey
+          ? t(opResult.translationKey, opResult.translationParams || {}) as string !== opResult.translationKey
+            ? t(opResult.translationKey, opResult.translationParams || {})
+            : ''
+          : '';
+        setValidation({ valid: true, message: `${t('practice.validation.correct')} ${opDesc}`, isSolved: false });
       }
     } else {
       setValidation(result);
@@ -127,7 +133,8 @@ export default function GameScreen({ difficulty, onBack }: GameScreenProps) {
     const operation: Operation = {
       typeId: computed.opType,
       parameter: computed.param,
-      description: opResult.description,
+      translationKey: opResult.translationKey,
+      translationParams: opResult.translationParams as Record<string, string>,
     };
 
     const solved = linearAlgebraModule.isSolved(newState);

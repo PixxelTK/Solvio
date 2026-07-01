@@ -106,5 +106,29 @@
         "label": "Substitute into Eq2"
       }
     }
+  },
+  "operations": {
+    "sys_add_eq1_eq2": { "history": "Eq1 ← Eq1 + Eq2" },
+    "sys_add_eq2_eq1": { "history": "Eq2 ← Eq2 + Eq1" },
+    "sys_sub_eq1_eq2": { "history": "Eq1 ← Eq1 − Eq2" },
+    "sys_sub_eq2_eq1": { "history": "Eq2 ← Eq2 − Eq1" },
+    "sys_add_both_eq1": { "history": "Add {param} to Eq1" },
+    "sys_add_both_eq2": { "history": "Add {param} to Eq2" },
+    "sys_sub_both_eq1": { "history": "Subtract {param} from Eq1" },
+    "sys_sub_both_eq2": { "history": "Subtract {param} from Eq2" },
+    "sys_mul_eq1": { "history": "Multiply Eq1 by {param}" },
+    "sys_mul_eq2": { "history": "Multiply Eq2 by {param}" },
+    "sys_div_eq1": { "history": "Divide Eq1 by {param}" },
+    "sys_div_eq2": { "history": "Divide Eq2 by {param}" },
+    "sys_subs_into_eq1": { "history": "Substitute {var} = {val} into Eq1" },
+    "sys_subs_into_eq2": { "history": "Substitute {var} = {val} into Eq2" },
+    "sys_hint_divide": "Divide {eq} by {coeff} to isolate {var}.",
+    "sys_hint_substitute": "Use Substitute to replace the known variable in the other equation.",
+    "sys_hint_add_x": "The x coefficients cancel when added — try Add Equations.",
+    "sys_hint_add_y": "The y coefficients cancel when added — try Add Equations.",
+    "sys_hint_sub_x": "Same x coefficients — scale one equation by −1 then add.",
+    "sys_hint_sub_y": "Same y coefficients — scale one equation by −1 then add.",
+    "sys_hint_scale": "Scale equations so a variable cancels, then add or subtract.",
+    "sys_hint_general": "Try adding or subtracting the equations."
   }
 }

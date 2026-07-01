@@ -27,15 +27,24 @@
   "operations": {
     "row_swap": {
       "label": "Swap Rows",
-      "explanation": "Swap two rows to move a non-zero entry into the pivot position."
+      "explanation": "Swap two rows to move a non-zero entry into the pivot position.",
+      "history": "R{i} ↔ R{j}"
     },
     "row_scale": {
       "label": "Scale Row",
-      "explanation": "Multiply a row by a non-zero number to make the pivot equal to 1."
+      "explanation": "Multiply a row by a non-zero number to make the pivot equal to 1.",
+      "history": "{k}·R{i} → R{i}",
+      "hint": "Scale R{pivotRow} by {k} to get a leading 1 in column {col}"
     },
     "row_add": {
       "label": "Add Row",
-      "explanation": "Add a multiple of one row to another to create zeros below or above a pivot."
+      "explanation": "Add a multiple of one row to another to create zeros below or above a pivot.",
+      "history": "R{i} {signStr} {k}·R{j} → R{i}",
+      "hint": "Use R{pivotRow} to eliminate the {val} in R{row}, column {col}: R{row} {sign} {k}·R{pivotRow}"
+    },
+    "linear_algebra": {
+      "hint_gentle": "The matrix appears close to RREF. Check for any remaining non-zero entries above or below pivots.",
+      "hint_error": "Try a row operation to simplify the matrix."
     }
   }
 }

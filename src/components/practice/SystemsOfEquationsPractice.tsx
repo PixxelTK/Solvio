@@ -92,7 +92,8 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
     const operation: Operation = {
       typeId: selectedTarget,
       parameter: opParam,
-      description: preview.description,
+      translationKey: preview.translationKey,
+      translationParams: preview.translationParams as Record<string, string>,
     };
 
     const newState = dataToState(preview.newData);
@@ -100,7 +101,12 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
     if (solved) {
       setValidation({ valid: true, message: t('practice.validation.complete'), isSolved: true });
     } else {
-      setValidation({ valid: true, message: preview.description, isSolved: false });
+      const opDesc = preview.translationKey
+        ? t(preview.translationKey, preview.translationParams || {}) as string !== preview.translationKey
+          ? t(preview.translationKey, preview.translationParams || {})
+          : ''
+        : '';
+      setValidation({ valid: true, message: `${t('practice.validation.correct')} ${opDesc}`, isSolved: false });
     }
   }, [preview, selectedTarget, opParam, needsParam, updateState, t]);
 
@@ -121,7 +127,8 @@ export default function SystemsOfEquationsPractice({ difficulty, onBack }: Syste
         const operation: Operation = {
           typeId: next.targetId,
           parameter: next.param,
-          description: result.description,
+          translationKey: result.translationKey,
+          translationParams: result.translationParams as Record<string, string>,
         };
         const newState = dataToState(result.newData);
         updateState(newState, operation);

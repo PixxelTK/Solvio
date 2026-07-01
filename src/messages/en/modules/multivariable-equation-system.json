@@ -29,39 +29,59 @@
     "move_term": {
       "label": "Move Term",
       "desc": "Move a term to the other side of the equation.",
-      "paramLabel": "Example: 3x"
+      "paramLabel": "Example: 3x",
+      "history": "Move {param} to the other side",
+      "hint_right": "Move {param} to the right side",
+      "hint_left": "Move {param} to the left side"
     },
     "add_both": {
       "label": "Add",
       "desc": "Add the same value to both sides of the equation.",
-      "paramLabel": "Example: 3"
+      "paramLabel": "Example: 3",
+      "history": "Add {param} to both sides",
+      "hint": "Add {param} to both sides",
+      "hint_gather": "Add {param} to both sides to gather variables"
     },
     "sub_both": {
       "label": "Subtract",
       "desc": "Subtract the same value from both sides of the equation.",
-      "paramLabel": "Example: 2"
+      "paramLabel": "Example: 2",
+      "history": "Subtract {param} from both sides",
+      "hint": "Subtract {param} from both sides",
+      "hint_gather": "Subtract {param} from both sides to gather variables"
     },
     "mul_both": {
       "label": "Multiply",
       "desc": "Multiply both sides by the same value.",
-      "paramLabel": "Example: 5"
+      "paramLabel": "Example: 5",
+      "history": "Multiply both sides by {param}",
+      "hint": "Multiply both sides by {param}"
     },
     "div_both": {
       "label": "Divide",
       "desc": "Divide both sides by the same non-zero value.",
-      "paramLabel": "Example: 4"
+      "paramLabel": "Example: 4",
+      "history": "Divide both sides by {param}",
+      "hint": "Divide both sides by {param}"
     },
     "expand": {
       "label": "Expand",
-      "desc": "Distribute multiplication and remove parentheses."
+      "desc": "Distribute multiplication and remove parentheses.",
+      "history": "Expand parentheses",
+      "hint": "Expand the parentheses first"
     },
     "collect": {
       "label": "Combine like terms",
-      "desc": "Combine like terms into a simpler expression."
+      "desc": "Combine like terms into a simpler expression.",
+      "history": "Combine like terms",
+      "hint": "Combine like terms"
     },
     "isolate": {
       "label": "Isolate",
-      "desc": "Isolate the variable if it has a coefficient of 1."
+      "desc": "Isolate the variable if it has a coefficient of 1.",
+      "history": "Isolate {param}",
+      "hint_gather": "Move all terms with {param} to one side using the Isolate operation",
+      "hint_gentle": "Look for a way to isolate {param}"
     }
   }
 }
