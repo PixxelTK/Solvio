@@ -29,7 +29,18 @@ function labelFromSlug(slug: string): string {
   return slug.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
-function buildBreadcrumbs(segments: string[], locale: string, t: (key: string) => string): Breadcrumb[] {
+interface NavHeaderProps {
+  subjects?: { id: string; title: string }[];
+  lessons?: { id: string; subject: string; title: string }[];
+}
+
+function buildBreadcrumbs(
+  segments: string[], 
+  locale: string, 
+  t: (key: string) => string,
+  subjects: { id: string; title: string }[],
+  lessons: { id: string; subject: string; title: string }[]
+): Breadcrumb[] {
   const crumbs: Breadcrumb[] = [];
   const base = `/${locale}`;
 
@@ -38,8 +49,8 @@ function buildBreadcrumbs(segments: string[], locale: string, t: (key: string) =
   const [, subject, topic, , difficulty] = segments;
   if (!topic) return crumbs;
 
-  const subjectLabel = subject === 'linear-algebra' ? 'Linear Algebra' : labelFromSlug(subject);
-  const topicLabel = labelFromSlug(topic);
+  const subjectLabel = subjects.find(s => s.id === subject)?.title || labelFromSlug(subject);
+  const topicLabel = lessons.find(l => l.subject === subject && l.id === topic)?.title || labelFromSlug(topic);
   const topicHref = `${base}/learn/${subject}/${topic}`;
 
   crumbs.push({ label: subjectLabel, href: topicHref });
@@ -49,8 +60,10 @@ function buildBreadcrumbs(segments: string[], locale: string, t: (key: string) =
     crumbs.push({ label: t('nav.practice'), href: `${topicHref}/practice` });
 
     if (segments[3] === 'practice' && difficulty) {
+      const diffKey = `practice.difficulty.${difficulty}`;
+      const translatedDiff = t(diffKey);
       crumbs.push({
-        label: labelFromSlug(difficulty),
+        label: translatedDiff !== diffKey ? translatedDiff : labelFromSlug(difficulty),
         href: `${topicHref}/practice/${difficulty}`,
       });
     }
@@ -80,7 +93,7 @@ function LanguageOption({ locale, isActive, onSelect }: LanguageOptionProps) {
   );
 }
 
-export default function NavHeader() {
+export default function NavHeader({ subjects = [], lessons = [] }: NavHeaderProps) {
   const pathname = usePathname();
   const { t } = useI18n();
 
@@ -114,7 +127,7 @@ export default function NavHeader() {
     setDropdownOpen(false);
   };
 
-  const breadcrumbs = buildBreadcrumbs(segments, currentLocale, t);
+  const breadcrumbs = buildBreadcrumbs(segments, currentLocale, t, subjects, lessons);
 
   return (
     <header className="sm:sticky top-0 z-30 py-2 bg-gray-100/50 dark:bg-slate-900/50 backdrop-blur-2xl border-b border-slate-200/10 dark:border-slate-800/10">

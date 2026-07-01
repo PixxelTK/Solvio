@@ -10,7 +10,32 @@
   "common": {
     "comingSoon": "เร็วๆ นี้"
   },
+  "lesson": {
+    "concepts": "แนวคิดสำคัญ",
+    "workedExamples": "ตัวอย่าง",
+    "practice": "แบบฝึกหัด",
+    "problem": "โจทย์",
+    "solutionSteps": "วิธีทำ",
+    "answer": "คำตอบ",
+    "related": "หัวข้อที่เกี่ยวข้อง",
+    "onThisPage": "เนื้อหาในหน้านี้"
+  },
   "practice": {
+    "selectDifficulty": "เลือกระดับความยาก",
+    "difficulty": {
+      "random": "สุ่ม",
+      "beginner": "เริ่มต้น",
+      "easy": "ง่าย",
+      "intermediate": "ปานกลาง",
+      "advanced": "ยาก"
+    },
+    "fallbackDescriptions": {
+      "random": "สุ่มระดับความยาก",
+      "beginner": "สำหรับผู้เริ่มต้น",
+      "easy": "ระดับง่าย",
+      "intermediate": "ระดับปานกลาง",
+      "advanced": "ระดับยาก"
+    },
     "newProblem": "โจทย์ใหม่",
     "hint": "คำใบ้",
     "steps": "ขั้นตอน",

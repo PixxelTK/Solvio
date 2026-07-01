@@ -49,7 +49,7 @@ concepts:
   - title: What is a Literal Equation?
     body: "A literal equation is an equation that contains two or more variables. Instead of solving for a numerical value, you solve for one variable in terms of the others. For example, $y = mx + b$ is a literal equation — you can solve for $x$, $m$, or $b$ in terms of the remaining variables."
   - title: The Same Rules Apply
-    body: "Solving literal equations uses the same principles as solving numerical equations. The key difference is that your answer will contain other variables instead of numbers. Use inverse operations and maintain balance — treat the variable you are solving for as the \"unknown\" and everything else as constants."
+    body: 'Solving literal equations uses the same principles as solving numerical equations. The key difference is that your answer will contain other variables instead of numbers. Use inverse operations and maintain balance — treat the variable you are solving for as the "unknown" and everything else as constants.'
   - title: Strategic Order of Operations
     body: "When isolating a variable, work in reverse order of operations (reverse PEMDAS):\n\n1. First, handle addition and subtraction (move terms without the target variable)\n2. Then handle multiplication and division\n3. Finally, deal with exponents, parentheses, and roots\n\nThis is sometimes called the \"reverse PEMDAS\" or \"undoing\" approach."
   - title: Keeping It General

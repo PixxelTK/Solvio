@@ -8,9 +8,13 @@ const validDifficulties = ['beginner', 'easy', 'intermediate', 'advanced', 'rand
 
 export async function generateStaticParams() {
   const lessons = getAllLessons().filter(l => !l.comingSoon && l.practiceModule);
+  const uniqueLessons = new Map();
+  for (const l of lessons) {
+    uniqueLessons.set(`${l.subject}/${l.id}`, l);
+  }
   const params: { lang: string; subject: string; topic: string; difficulty: string }[] = [];
   for (const lang of ['en', 'th']) {
-    for (const lesson of lessons) {
+    for (const lesson of uniqueLessons.values()) {
       for (const difficulty of validDifficulties) {
         params.push({ lang, subject: lesson.subject, topic: lesson.id, difficulty });
       }
@@ -24,8 +28,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: string; subject: string; topic: string; difficulty: string }>;
 }) {
-  const { subject, topic, difficulty } = await params;
-  const lesson = getLesson(subject, topic);
+  const { lang, subject, topic, difficulty } = await params;
+  const lesson = getLesson(subject, topic, lang);
   if (!lesson || !lesson.practiceModule) return { title: 'Not Found — Solvio' };
   const label = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
   return {
@@ -40,7 +44,7 @@ export default async function DifficultyPage({
   params: Promise<{ lang: string; subject: string; topic: string; difficulty: string }>;
 }) {
   const { lang, subject, topic, difficulty } = await params;
-  const lesson = getLesson(subject, topic);
+  const lesson = getLesson(subject, topic, lang);
 
   if (!lesson || lesson.comingSoon || !lesson.practiceModule || !validDifficulties.includes(difficulty as typeof validDifficulties[number])) {
     notFound();

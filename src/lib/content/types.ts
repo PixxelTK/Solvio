@@ -20,6 +20,7 @@ export interface Example {
 
 export interface Lesson {
   id: string;
+  lang: string;
   title: string;
   subject: string;
   subjectTitle: string;
@@ -31,4 +32,9 @@ export interface Lesson {
   practiceModule?: PracticeModuleId;
   relatedTopics: { title: string; path: string }[];
   comingSoon: boolean;
+}
+export interface Subject {
+  id: string;
+  order: number;
+  title: Record<string, string>;
 }

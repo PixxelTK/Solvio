@@ -1,5 +1,12 @@
 {
   "practice": {
+    "moduleDescriptions": {
+      "random": "Matrices of varying size and complexity",
+      "beginner": "2×2 matrices with integer entries",
+      "easy": "2×2 matrices with integer entries",
+      "intermediate": "3×3 matrices with integer entries",
+      "advanced": "3×3 matrices with integer entries"
+    },
     "instruction": "Use row operations to simplify the matrix until each pivot is 1 and all other entries in pivot columns are 0.",
     "currentMatrix": "Current Matrix",
     "matrixInRref": "Matrix is in RREF",

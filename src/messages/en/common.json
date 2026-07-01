@@ -10,7 +10,32 @@
   "common": {
     "comingSoon": "Coming Soon"
   },
+  "lesson": {
+    "concepts": "Concepts",
+    "workedExamples": "Worked Examples",
+    "practice": "Practice",
+    "problem": "Problem",
+    "solutionSteps": "Solution Steps",
+    "answer": "Answer",
+    "related": "Related",
+    "onThisPage": "On this page"
+  },
   "practice": {
+    "selectDifficulty": "Select difficulty level",
+    "difficulty": {
+      "random": "Random",
+      "beginner": "Beginner",
+      "easy": "Easy",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "fallbackDescriptions": {
+      "random": "Mixed difficulty problems",
+      "beginner": "Fundamental problems to build confidence",
+      "easy": "Slightly more challenging problems",
+      "intermediate": "Problems requiring multiple steps",
+      "advanced": "Complex problems for mastery"
+    },
     "newProblem": "New Problem",
     "hint": "Hint",
     "steps": "Steps",

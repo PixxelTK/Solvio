@@ -1,5 +1,12 @@
 {
   "practice": {
+    "moduleDescriptions": {
+      "random": "Formulas of varying complexity",
+      "beginner": "Simple formulas with one variable to isolate",
+      "easy": "Formulas with a coefficient on the target variable",
+      "intermediate": "Formulas requiring parentheses expansion",
+      "advanced": "Formulas with three or more variables"
+    },
     "instruction": "Use operations to isolate the target variable.",
     "solveForX": "Solve for {targetVar}",
     "currentEquation": "Current Equation",

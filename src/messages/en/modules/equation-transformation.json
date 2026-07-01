@@ -44,6 +44,13 @@
     }
   },
   "practice": {
+    "moduleDescriptions": {
+      "random": "Mixed difficulty linear equations",
+      "beginner": "One-step equations with addition and subtraction",
+      "easy": "Two-step equations with multiplication and division",
+      "intermediate": "Multi-step equations with parentheses and like terms",
+      "advanced": "Equations with nested parentheses and fractions"
+    },
     "hint_isolate": "Look for a way to isolate the variable",
     "hint_simplify": "Try simplifying one side of the equation",
     "instruction": "Apply transformations step by step to solve the equation.",

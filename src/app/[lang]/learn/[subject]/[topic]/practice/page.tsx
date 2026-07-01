@@ -7,8 +7,12 @@ import { I18nProvider } from '@/i18n/I18nContext';
 export async function generateStaticParams() {
   const paths: { lang: string; subject: string; topic: string }[] = [];
   const lessons = getAllLessons().filter(l => !l.comingSoon && l.practiceModule);
+  const uniqueLessons = new Map();
+  for (const l of lessons) {
+    uniqueLessons.set(`${l.subject}/${l.id}`, l);
+  }
   for (const lang of ['en', 'th']) {
-    for (const l of lessons) {
+    for (const l of uniqueLessons.values()) {
       paths.push({
         lang,
         subject: l.subject,
@@ -24,8 +28,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: string; subject: string; topic: string }>;
 }) {
-  const { subject, topic } = await params;
-  const lesson = getLesson(subject, topic);
+  const { lang, subject, topic } = await params;
+  const lesson = getLesson(subject, topic, lang);
   if (!lesson || !lesson.practiceModule) return { title: 'Not Found — Solvio' };
   return {
     title: `Practice: ${lesson.title} — Solvio`,
@@ -39,7 +43,7 @@ export default async function PracticePage({
   params: Promise<{ lang: string; subject: string; topic: string }>;
 }) {
   const { lang, subject, topic } = await params;
-  const lesson = getLesson(subject, topic);
+  const lesson = getLesson(subject, topic, lang);
 
   if (!lesson || lesson.comingSoon || !lesson.practiceModule) {
     notFound();

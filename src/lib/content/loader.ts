@@ -3,6 +3,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { Lesson, Topic } from './types';
 import { isValidPracticeModuleId } from '@/lib/practice/types';
+import { subjectsRegistry } from './registry';
 
 const CONTENT_ROOT = path.join(process.cwd(), 'content');
 
@@ -28,7 +29,7 @@ interface RawLesson {
 let cached: Lesson[] | null = null;
 
 export function loadAllLessons(): Lesson[] {
-  if (cached) return cached;
+  if (cached && process.env.NODE_ENV !== 'development') return cached;
 
   const lessons: Lesson[] = [];
 
@@ -67,11 +68,15 @@ export function loadAllLessons(): Lesson[] {
             console.warn(`[content] Unknown practiceModule "${fm.practiceModule}" in ${lessonPath.replace('/lesson.yaml', '')}`);
           }
 
+          const subjectReg = subjectsRegistry.find(s => s.id === fm.subject);
+          const subjectTitle = subjectReg ? (subjectReg.title[locale] || subjectReg.title['en'] || fm.subject) : (fm.subjectTitle || fm.subject);
+
           const lesson: Lesson = {
             id: lessonDir,
+            lang: locale,
             title: fm.title,
             subject: fm.subject,
-            subjectTitle: fm.subjectTitle || fm.subject,
+            subjectTitle,
             description: fm.description || '',
             order: fm.order ?? 99,
             topics: (fm.topics || []).map(t => ({ title: t.title, description: t.description, body: t.body })),

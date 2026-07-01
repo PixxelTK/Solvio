@@ -5,17 +5,23 @@ import type { Lesson } from '@/lib/content';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faList, faLightbulb, faPencilAlt, faPlay,
+  faList, faLightbulb, faPencilAlt,
   faNewspaper, faArrowRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { renderLatexText, renderRichText, renderInlineContent } from './ContentRenderer';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface LessonContentProps {
   lesson: Lesson;
 }
 
-function sectionId(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+function sectionId(text: string, index?: number): string {
+  const slug = text
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^\p{L}\p{N}\-]+/gu, '')
+    .replace(/(^-|-$)/g, '');
+  return slug || (index !== undefined ? `section-${index}` : '');
 }
 
 interface TocItem {
@@ -25,6 +31,8 @@ interface TocItem {
 }
 
 export default function LessonContent({ lesson }: LessonContentProps) {
+  const { t } = useI18n();
+
   const scrollTo = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
@@ -34,13 +42,12 @@ export default function LessonContent({ lesson }: LessonContentProps) {
     let n = 0;
     for (const t of lesson.topics) {
       n++;
-      items.push({ id: sectionId(t.title), label: t.title, number: n });
+      items.push({ id: sectionId(t.title, n), label: t.title, number: n });
     }
-    if (lesson.concepts.length) items.push({ id: 'concepts', label: 'Concepts', number: ++n });
-    if (lesson.examples.length) items.push({ id: 'examples', label: 'Worked Examples', number: ++n });
-    if (lesson.practiceModule) items.push({ id: 'practice', label: 'Practice', number: ++n });
+    if (lesson.concepts.length) items.push({ id: 'concepts', label: t('lesson.concepts'), number: ++n });
+    if (lesson.examples.length) items.push({ id: 'examples', label: t('lesson.workedExamples'), number: ++n });
     return items;
-  }, [lesson]);
+  }, [lesson, t]);
 
   return (
     <div className="mx-auto max-w-5xl w-[90%] py-6 sm:py-8">
@@ -64,7 +71,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
                 className="group flex items-center justify-between gap-3 rounded-2xl bg-linear-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 px-5 py-4 text-white hover:opacity-80 transition-all shadow-sm"
               >
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-green-100">Practice</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-green-100">{t('lesson.practice')}</p>
                   <p className="text-base font-semibold mt-0.5">{lesson.title}</p>
                 </div>
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
@@ -78,7 +85,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
           {lesson.topics.map((topic, i) => (
             <section
               key={topic.title}
-              id={sectionId(topic.title)}
+              id={sectionId(topic.title, i + 1)}
               className="mb-8 sm:mb-12 scroll-mt-24"
             >
               <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-5">
@@ -109,7 +116,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-sm font-bold text-amber-500 dark:bg-amber-950 dark:text-amber-400">
                   <FontAwesomeIcon icon={faLightbulb} className="h-3.5 w-3.5" />
                 </span>
-                Concepts
+                {t('lesson.concepts')}
               </h2>
               <div className="space-y-4">
                 {lesson.concepts.map((concept) => (
@@ -136,7 +143,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-blue-500 dark:bg-blue-950 dark:text-blue-400">
                   <FontAwesomeIcon icon={faPencilAlt} className="h-3.5 w-3.5" />
                 </span>
-                Worked Examples
+                {t('lesson.workedExamples')}
               </h2>
               <div className="space-y-5">
                 {lesson.examples.map((example) => (
@@ -148,13 +155,13 @@ export default function LessonContent({ lesson }: LessonContentProps) {
                       {example.title}
                     </h3>
                     <div className="mb-4 rounded-xl bg-gray-100 px-4 py-3.5 dark:bg-slate-800/50">
-                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Problem</p>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">{t('lesson.problem')}</p>
                       <div className="text-sm text-slate-800 dark:text-slate-200">
                         {renderInlineContent(example.problem)}
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Solution Steps</p>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{t('lesson.solutionSteps')}</p>
                       <div className="space-y-2">
                         {example.steps.map((step, i) => (
                           <div key={i} className="flex items-start gap-3 text-sm">
@@ -169,7 +176,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
                       </div>
                     </div>
                     <div className="mt-4 rounded-xl bg-green-200 px-4 py-3 dark:bg-green-950/30">
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">Answer</p>
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">{t('lesson.answer')}</p>
                       <div className="text-sm font-semibold text-green-700 dark:text-green-300">
                         {renderInlineContent(example.solution)}
                       </div>
@@ -185,7 +192,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
             <div className="mb-12 lg:hidden">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5">
                 <FontAwesomeIcon icon={faNewspaper} className="h-3 w-3 text-blue-500" />
-                Related
+                {t('lesson.related')}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {lesson.relatedTopics.map((related) => (
@@ -209,7 +216,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5">
                   <FontAwesomeIcon icon={faList} className="h-3 w-3 text-indigo-500" />
-                  On this page
+                  {t('lesson.onThisPage')}
                 </h3>
                 <nav className="space-y-0.5">
                   {tocItems.map((item) => (
@@ -233,7 +240,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
                     className="group flex items-center justify-between gap-3 rounded-2xl bg-linear-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 px-4 py-3 text-white hover:opacity-80 transition-all"
                   >
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-green-100">Practice</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-green-100">{t('lesson.practice')}</p>
                       <p className="text-base font-semibold mt-0.5">{lesson.title}</p>
                     </div>
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
@@ -248,7 +255,7 @@ export default function LessonContent({ lesson }: LessonContentProps) {
                 <section>
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5">
                     <FontAwesomeIcon icon={faNewspaper} className="h-3 w-3 text-blue-500" />
-                    Related
+                    {t('lesson.related')}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {lesson.relatedTopics.map((related) => (
